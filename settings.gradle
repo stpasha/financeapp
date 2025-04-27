@@ -1,1 +1,3 @@
 rootProject.name = 'financeapp'
+
+include 'chassis-service'

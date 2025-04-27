@@ -1,66 +1,53 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.5'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'checkstyle'
 }
 
-group = 'net.microfin'
-version = '0.0.1-SNAPSHOT'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+allprojects {
+	group = project.property('group')
+	version = project.property('version')
+	repositories {
+		mavenCentral()
 	}
+
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+
+subprojects {
+	apply plugin: 'checkstyle'
+
+	tasks.withType(Checkstyle).configureEach {
+		ignoreFailures = true
 	}
-}
 
-repositories {
-	mavenCentral()
-}
+	if (project.name != 'bom') {
+		apply plugin: 'java'
 
-ext {
-	set('sentryVersion', "8.8.0")
-	set('springCloudVersion', "2024.0.1")
-}
+		java {
+			sourceCompatibility = JavaVersion.VERSION_21
+			targetCompatibility = JavaVersion.VERSION_21
+		}
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-	implementation 'io.sentry:sentry-spring-boot-starter-jakarta'
-	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
-	implementation 'org.liquibase:liquibase-core'
-	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
-	implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-	runtimeOnly 'org.postgresql:postgresql'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.testcontainers:postgresql'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "io.sentry:sentry-bom:${sentryVersion}"
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+		test {
+			useJUnitPlatform()
+		}
 	}
+
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+tasks.register('copyArtifacts', Copy) {
+	dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' } }
+
+	from(subprojects.collect { it.buildDir }) {
+		include '**/*.jar'
+		include '**/*.war'
+	}
+	into "${rootDir}/lib"
+}
+
+build.dependsOn(copyArtifacts)
+
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs << "-parameters"
 }
