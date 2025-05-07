@@ -1,0 +1,111 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create schema -->
+    <changeSet id="exchange-001" author="nomatter" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM pg_catalog.pg_namespace WHERE nspname = 'exchange_info';
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS exchange_info;
+            ALTER SCHEMA exchange_info OWNER TO finadm;
+        </sql>
+    </changeSet>
+
+    <!-- Create sequence for operation_id -->
+    <changeSet id="exchange-002" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="exchange_operations_id_seq" schemaName="exchange_info" />
+            </not>
+        </preConditions>
+        <createSequence
+                sequenceName="exchange_operations_id_seq"
+                schemaName="exchange_info"
+                startValue="1"
+                incrementBy="1"/>
+        <rollback>
+            <dropSequence sequenceName="exchange_operations_id_seq" schemaName="exchange_info"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Create exchange_operations table -->
+    <changeSet id="exchange-003" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="exchange_operations" schemaName="exchange_info" />
+            </not>
+        </preConditions>
+        <createTable schemaName="exchange_info" tableName="exchange_operations">
+            <column name="operation_id" type="INTEGER">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="target_account_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_account_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="DECIMAL(12,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="operation_type" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addAutoIncrement
+                tableName="exchange_operations"
+                columnName="operation_id"
+                schemaName="exchange_info"
+                sequenceName="exchange_operations_id_seq"/>
+
+        <rollback>
+            <dropTable tableName="exchange_operations" schemaName="exchange_info" cascadeConstraints="true"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Create indexes -->
+    <changeSet id="exchange-004" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists schemaName="exchange_info" indexName="exchange_operations_idx_target_account_id"/>
+            </not>
+        </preConditions>
+        <createIndex
+                indexName="exchange_operations_idx_target_account_id"
+                tableName="exchange_operations"
+                schemaName="exchange_info">
+            <column name="target_account_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="exchange_operations" indexName="exchange_operations_idx_target_account_id"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="exchange-005" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists schemaName="exchange_info" indexName="exchange_operations_idx_source_account_id"/>
+            </not>
+        </preConditions>
+        <createIndex
+                indexName="exchange_operations_idx_source_account_id"
+                tableName="exchange_operations"
+                schemaName="exchange_info">
+            <column name="source_account_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="exchange_operations" indexName="exchange_operations_idx_source_account_id"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
