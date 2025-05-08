@@ -60,6 +60,9 @@
             <column name="operation_type" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
+            <column name="status_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addAutoIncrement

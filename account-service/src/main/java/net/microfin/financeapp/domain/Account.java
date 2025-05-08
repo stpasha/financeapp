@@ -17,7 +17,12 @@ import java.math.BigDecimal;
 public class Account {
     @EqualsAndHashCode.Include
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_id_seq_gen")
+    @SequenceGenerator(schema = "account_info",
+            name = "account_id_seq_gen",
+            sequenceName = "account_id_seq",
+            allocationSize = 1
+    )
     @Column(name = "account_id", nullable = false)
     private Integer id;
     @ManyToOne
