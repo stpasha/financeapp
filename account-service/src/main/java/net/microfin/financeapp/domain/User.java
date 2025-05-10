@@ -31,7 +31,7 @@ public class User implements UserDetails {
     @Column(name = "user_id")
     private Integer id;
     @EqualsAndHashCode.Include
-    @Column(name = "user_name", nullable = false, unique = true)
+    @Column(name = "user_name", nullable = false, unique = true, updatable = false)
     private String username;
     @Column(name = "password", nullable = false)
     private String password;
@@ -41,6 +41,9 @@ public class User implements UserDetails {
     private LocalDateTime dob;
     @OneToMany(mappedBy = "user")
     private List<Account> accounts;
+    @Column(name = "is_enabled", nullable = false)
+    private Boolean enabled;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
@@ -54,5 +57,10 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.username;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
     }
 }

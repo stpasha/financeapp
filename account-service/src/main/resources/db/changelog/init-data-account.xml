@@ -60,6 +60,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="dob" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="is_enabled" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addAutoIncrement tableName="users" columnName="user_id" schemaName="account_info"
