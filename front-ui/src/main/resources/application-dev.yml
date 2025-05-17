@@ -1,10 +1,27 @@
 spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    schema: ${SPRING_DATASOURCE_SCHEMA}
-  liquibase:
-    change-log: classpath:/db/changelog/db.changelog-master.xml
-    enabled: true
-    rollback-file: classpath:/db/changelog/roll-back-file
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            authorization-uri: http://localhost:7080/realms/zbank/protocol/openid-connect/auth
+            token-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/token
+            user-info-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/userinfo
+            jwk-set-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
+#            authorization-uri: http://localhost:7080/realms/zbank/protocol/openid-connect/auth
+#            issuer-uri: http://keycloak:8080/realms/zbank
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: zbankapp
+            client-secret: g3WnFjX9r8zxmhlY7yILHV5hZ3RtLUjw
+            client-name: zbankapp
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid, profile, email
+keycloak:
+  server-url: http://keycloak:8080/
+  realm: zbank
+  username: gatekeeper
+  password: swordfish

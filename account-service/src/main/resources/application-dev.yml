@@ -1,10 +1,23 @@
 spring:
   datasource:
+    init: never
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    schema: ${SPRING_DATASOURCE_SCHEMA}
+    schema: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+    url: ${SPRING_DATASOURCE_URL}
     enabled: true
-    rollback-file: classpath:/db/changelog/roll-back-file
+    default-schema: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA}
+    user: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+#    rollback-file: classpath:/db/changelog/roll-back-file
+
+#  liquibase:
+#    change-log: classpath:/db/changelog/db.changelog-master.xml
+#    enabled: true
+#    default-schema: storedata
+#    url: jdbc:postgresql://intershop:5432/bookstore
+#    user: baseadm
+#    password: basepass

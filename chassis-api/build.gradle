@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group = 'net.microfin.financeapp'
+version = '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+}
+
+test {
+    useJUnitPlatform()
+}

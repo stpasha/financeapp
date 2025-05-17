@@ -33,15 +33,19 @@ ext {
 dependencies {
     //Spring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // Зависимость для поддержки безопасности в Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Зависимость для поддержки OAuth2-клиента в Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.keycloak:keycloak-admin-client:26.0.0'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     //Local
-    implementation project(":chassis-service")
+    implementation project(":chassis-api")
+    implementation project(":chassis-gateway-client")
 
     //Db
     runtimeOnly 'org.postgresql:postgresql:42.7.5'
@@ -59,7 +63,6 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'net.datafaker:datafaker:2.4.2'
     testImplementation 'org.testcontainers:junit-jupiter:1.20.6'
-    testImplementation 'org.testcontainers:postgresql:1.20.6'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     testImplementation 'org.assertj:assertj-core'
 
@@ -72,6 +75,8 @@ dependencyManagement {
     dependencies {
         dependency "org.apache.commons:commons-text:1.12.0"
         dependency "org.apache.httpcomponents:httpclient:4.5.14"
+        dependency "org.bouncycastle:bcprov-jdk18on:1.78.1"
+        dependency("commons-io:commons-io:2.18.0")
     }
 }
 
@@ -83,4 +88,8 @@ configurations.configureEach {
     resolutionStrategy {
         failOnVersionConflict()
     }
+}
+
+springBoot {
+    mainClass = 'net.microfin.financeapp.ServiceFrontUIApplication'
 }

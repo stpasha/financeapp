@@ -41,7 +41,8 @@ dependencies {
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     //Local
-    implementation project(":chassis-service")
+    implementation project(":chassis-api")
+    implementation project(":chassis-service-client")
 
     //Db
     runtimeOnly 'org.postgresql:postgresql:42.7.5'
