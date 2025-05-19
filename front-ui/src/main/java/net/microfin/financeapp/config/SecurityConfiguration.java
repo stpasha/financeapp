@@ -10,14 +10,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
@@ -46,18 +48,19 @@ public class SecurityConfiguration {
                         auth
                                 .requestMatchers("/signup", "/signup/**", "/static/**", "/actuator/**", "/").permitAll()
                                 .anyRequest().authenticated())
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**")
+                )
                 .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedPage("/access-denied"))
                 .oauth2Login(oauth -> oauth
                         .loginPage("/oauth2/authorization/keycloak")
+                        .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService()))
                 )
-                //.oauth2Client(Customizer.withDefaults())
+                .oauth2Client(Customizer.withDefaults())
                 .logout(logout -> logout
                         // Регистрируем OidcClientInitiatedLogoutSuccessHandler
                         .logoutSuccessHandler(oidcLogoutSuccessHandler)
                 );
-//                .oauth2ResourceServer(
-//                        oath -> oath.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return httpSecurity.build();
     }
 
@@ -69,21 +72,28 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public GrantedAuthoritiesMapper userAuthoritiesMapper() {
-        return (authorities -> {
-            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-            authorities.forEach(authority ->{
-                if (authority instanceof OidcUserAuthority oidcUserAuthority) {
-                    OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
-                    Map<String, Object> realmAccess = userInfo.getClaim("realm_access");
-                    Collection<String> realmRoles;
-                    if (realmAccess != null && (realmRoles = (Collection<String>) realmAccess.get("roles")) != null ) {
-                        realmRoles.forEach(role -> mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+    public OidcUserService oidcUserService() {
+        return new OidcUserService() {
+            @Override
+            public OidcUser loadUser(OidcUserRequest userRequest) {
+                // Загружаем стандартного OidcUser
+                OidcUser oidcUser = super.loadUser(userRequest);
+                Set<GrantedAuthority> mappedAuthorities = new HashSet<>(oidcUser.getAuthorities());
+
+                // Извлекаем роли из id_token -> realm_access.roles
+                Map<String, Object> claims = oidcUser.getIdToken().getClaims();
+                Map<String, Object> realmAccess = (Map<String, Object>) claims.get("realm_access");
+                if (realmAccess != null) {
+                    Collection<String> roles = (Collection<String>) realmAccess.get("roles");
+                    if (roles != null) {
+                        roles.forEach(role -> mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
                     }
                 }
-            });
-            return mappedAuthorities;
-        });
+
+                // Возвращаем OidcUser с маппингом ролей
+                return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+            }
+        };
     }
 
     @Bean

@@ -23,8 +23,10 @@ public class CashOperationDTO {
     @NotNull
     private Integer operationType;
 
-    @NotNull
     private Integer accountId;
+
+    @NotNull
+    private Integer userId;
 
     @NotNull
     @Size(max = 3, message = "Currency code should be not greater than 3 symbols")

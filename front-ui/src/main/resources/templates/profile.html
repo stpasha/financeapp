@@ -32,9 +32,10 @@
     <b>РЕГИСТРАЦИЯ &plus;</b>
 </a>
 <br>
-<a href="/logout" style="float:right;">
-    <b>ВЫЙТИ &cudarrr;</b>
-</a>
+<a href="javascript: document.logoutForm.submit()"  style="float:right;"> <b>Выйти &cudarrr;</b> </a>
+<form name="logoutForm" th:action="@{/logout}" method="post"  th:hidden="true">
+    <input hidden type="submit" value="Logout"/>
+</form>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
     <tr><td style="padding:2px;">
         <div th:replace="components/login :: login"></div>
