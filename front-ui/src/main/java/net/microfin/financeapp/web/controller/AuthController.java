@@ -1,21 +1,24 @@
 package net.microfin.financeapp.web.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.service.KeycloakUserService;
-import net.microfin.financeapp.web.dto.SignupFormDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
-public class FrontController {
+public class AuthController {
 
-    private KeycloakUserService keycloakUserService;
+    private final KeycloakUserService keycloakUserService;
 
     @GetMapping("/")
     public String rootRedirect(Principal principal) {
@@ -42,13 +45,18 @@ public class FrontController {
     }
 
     @PostMapping("/signup")
-    public String processSignup(@ModelAttribute SignupFormDTO user) {
+    public String processSignup(@Valid @ModelAttribute UserDTO user, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errors", bindingResult.getAllErrors());
+            return "signup";
+        }
         keycloakUserService.createUser(user);
-
-        // После регистрации — редирект на авторизацию через Keycloak
         return "redirect:/oauth2/authorization/keycloak";
     }
 
-
+    @GetMapping("/access-denied")
+    public ModelAndView showAccessDeniedPage() {
+        return new ModelAndView("access-denied");
+    }
 
 }

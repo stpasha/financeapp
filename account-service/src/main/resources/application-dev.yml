@@ -1,4 +1,9 @@
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/zbank
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}

@@ -3,11 +3,9 @@ package net.microfin.financeapp.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,6 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
     @EqualsAndHashCode.Include
     private Integer id;
@@ -27,10 +27,12 @@ public class UserDTO {
     private String password;
     @Size(max = 255, message = "Password should be not greater than 255 symbols")
     @NotNull
+    private String confirmPassword;
+    @Size(max = 255, message = "Password should be not greater than 255 symbols")
+    @NotNull
     private String fullName;
     @PastOrPresent
-    private LocalDateTime dob;
+    private LocalDate dob;
     @NotNull
     private Boolean active;
-    private List<AccountDTO> enabled;
 }

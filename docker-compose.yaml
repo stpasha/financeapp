@@ -15,43 +15,6 @@ services:
       - zbank-network
 
 
-#  keycloak:
-#    image: quay.io/keycloak/keycloak:24.0
-#    command:
-#      - start-dev
-#      - --http-port=8080
-#      - --import-realm
-#      - --override=true
-#      - --hostname=${KC_HOSTNAME_EXTERNAL}         # ← внешний хост или host.docker.internal
-#      - --hostname-strict=false
-#      - --proxy=edge
-#      - --hostname-port=${KEYCLOAK_EXTERNAL_PORT} # ← внешний порт (7080)
-#    environment:
-#      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-#      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-#      KC_HOSTNAME_STRICT: ${KC_HOSTNAME_STRICT}   # оставьте false
-#      KC_PROXY: edge                              # ← важный флаг
-#      KC_HOSTNAME: ${KC_HOSTNAME_EXTERNAL}        # ← должен совпадать с --hostname
-#      KC_HOSTNAME_PORT: ${KEYCLOAK_EXTERNAL_PORT}
-#      KC_DB: postgres
-#      KC_DB_URL_HOST: ${KC_DB_URL_HOST}
-#      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME}
-#      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
-#      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-#    healthcheck:
-#      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/7080; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:7080\r\nConnection: close\r\n\r\n' >&3; cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1" ]
-#      interval: 15s
-#      timeout: 2s
-#      retries: 6
-#    depends_on:
-#      - keycloak-postgres
-#    ports:
-#      - "${KEYCLOAK_EXTERNAL_PORT}:${KEYCLOAK_INTERNAL_PORT}"
-#    volumes:
-#      - ./keycloak:/opt/keycloak/data/import
-#    networks:
-#      - zbank-network
-
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
@@ -85,6 +48,16 @@ services:
       - ./keycloak:/opt/keycloak/data/import
     networks:
       - zbank-network
+
+  consul:
+    image: hashicorp/consul
+    container_name: consul
+    command: agent -server -bootstrap-expect=1 -node=consul-server -client=0.0.0.0 -ui -data-dir=/consul/data
+    ports:
+      - "8500:8500"           # Web UI и HTTP API
+      - "8600:8600/udp"       # DNS (необязательно)
+    volumes:
+      - consul_data:/consul/data
 
   front-ui:
     build:
@@ -150,6 +123,7 @@ services:
 volumes:
   keycloak_postgres_data:
   postgres_data:
+  consul_data:
 
 networks:
   zbank-network:
