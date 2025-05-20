@@ -1,9 +1,14 @@
 spring:
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: GET,POST,PUT,DELETE
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak:8080/realms/zbank
+          jwk-set-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/certs
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}

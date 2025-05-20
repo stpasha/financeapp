@@ -29,6 +29,8 @@ ext {
 dependencies {
     //Spring
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.data:spring-data-jpa'
+    implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
 
     implementation project(":chassis-api")
 
