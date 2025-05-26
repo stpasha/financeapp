@@ -38,6 +38,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    testImplementation 'org.mapstruct:mapstruct:1.6.3'
+    testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     //Test
     testImplementation 'net.datafaker:datafaker:2.4.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'

@@ -37,7 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-//    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     //Local
     implementation project(":chassis-api")
@@ -51,6 +51,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.4.5'
     //Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -61,6 +62,8 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql:1.20.6'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mapstruct:mapstruct:1.6.3'
+    testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
 }
 

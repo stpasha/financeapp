@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class KeyCloakConfiguration {
+public class KeyCloakConfig {
     @Value("${keycloak.server-url}")
     private String keyCloakServerUrl;
     @Value("${keycloak.realm}")
@@ -17,9 +17,9 @@ public class KeyCloakConfiguration {
     private String username;
     @Value("${keycloak.password}")
     private String password;
-    @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
+    @Value("${spring.security.oauth2.client.registration.zbankapi.client-id}")
     private String clientId;
-    @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.zbankapi.client-secret}")
     private String clientSecret;
 
     @Bean

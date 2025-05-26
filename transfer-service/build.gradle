@@ -54,6 +54,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    testImplementation 'org.mapstruct:mapstruct:1.6.3'
+    testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.4.5'
     //Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

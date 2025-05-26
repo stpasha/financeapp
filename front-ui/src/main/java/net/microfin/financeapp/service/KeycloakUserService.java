@@ -1,7 +1,9 @@
 package net.microfin.financeapp.service;
 
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.UserDTO;
+import org.jboss.resteasy.specimpl.AbstractBuiltResponse;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleMappingResource;
@@ -24,14 +26,18 @@ public class KeycloakUserService {
     @Value("${keycloak.realm}")
     private String realm;
 
-    public void createUser(UserDTO signupFormDTO) {
+    public UserRepresentation createUser(UserDTO signupFormDTO) {
         UserRepresentation userRepresentation = new UserRepresentation();
         CredentialRepresentation credentialRepresentation = getCredentialResource(signupFormDTO.getPassword());
         userRepresentation.setUsername(signupFormDTO.getUsername());
+        userRepresentation.setEnabled(true);
+        credentialRepresentation.setTemporary(false);
+        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         userRepresentation.setCredentials(List.of(credentialRepresentation));
         userRepresentation.setEnabled(true);
         getUserResource().create(userRepresentation);
         addRealmRoleToUser(signupFormDTO.getUsername(), "zbank.user");
+        return getUserResource().search(userRepresentation.getUsername()).getFirst();
     }
 
     private UsersResource getUserResource() {

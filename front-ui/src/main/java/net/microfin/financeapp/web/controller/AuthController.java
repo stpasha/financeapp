@@ -3,7 +3,7 @@ package net.microfin.financeapp.web.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.UserDTO;
-import net.microfin.financeapp.service.KeycloakUserService;
+import net.microfin.financeapp.service.AuthService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,7 +18,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final KeycloakUserService keycloakUserService;
+    private final AuthService authService;
 
     @GetMapping("/")
     public String rootRedirect(Principal principal) {
@@ -50,7 +50,7 @@ public class AuthController {
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "signup";
         }
-        keycloakUserService.createUser(user);
+        authService.create(user);
         return "redirect:/oauth2/authorization/keycloak";
     }
 

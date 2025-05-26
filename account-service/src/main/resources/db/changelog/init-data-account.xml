@@ -48,7 +48,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="keycloak_id" type="UUID">
-                <constraints nullable="false" unique="true"/>
+                <constraints unique="true"/>
             </column>
             <column name="user_name" type="VARCHAR(255)">
                 <constraints unique="true" nullable="false"/>
@@ -57,6 +57,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="dob" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="is_enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addAutoIncrement tableName="users" columnName="user_id" schemaName="account_info"

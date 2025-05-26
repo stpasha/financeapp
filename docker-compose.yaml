@@ -19,14 +19,12 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: keycloak
-    hostname: keycloak
-    command: start-dev --http-port=8080 --import-realm --override=true
+    command: start-dev --http-port=7080 --import-realm --override=true
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
 #      KC_HOSTNAME: keycloak
 #      KC_HTTP_PORT: 8080
-      KC_HOSTNAME_URL: http://localhost:7080
 #      KC_HOSTNAME_STRICT: false
       KC_HEALTH_ENABLED: ${KC_HEALTH_ENABLED}
       KC_LOG_LEVEL: ${KC_LOG_LEVEL}
@@ -36,7 +34,7 @@ services:
       KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
     healthcheck:
-      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:8080\r\nConnection: close\r\n\r\n' >&3; cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1" ]
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/7080; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:7080\r\nConnection: close\r\n\r\n' >&3; cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1" ]
       interval: 15s
       timeout: 2s
       retries: 6
@@ -47,17 +45,22 @@ services:
     volumes:
       - ./keycloak:/opt/keycloak/data/import
     networks:
-      - zbank-network
+      zbank-network:
+        aliases:
+          - mynet
+
 
   consul:
     image: hashicorp/consul
     container_name: consul
     command: agent -server -bootstrap-expect=1 -node=consul-server -client=0.0.0.0 -ui -data-dir=/consul/data
     ports:
-      - "8500:8500"           # Web UI и HTTP API
+      - "${CONSUL_PORT}:${CONSUL_PORT}"           # Web UI и HTTP API
       - "8600:8600/udp"       # DNS (необязательно)
     volumes:
       - consul_data:/consul/data
+    networks:
+      - zbank-network
 
   front-ui:
     build:
@@ -69,6 +72,18 @@ services:
     ports:
       - "${FRONT_UI_PORT}:${FRONT_UI_PORT}"
       - "${FRONT_UI_DEBUG_PORT}:${FRONT_UI_DEBUG_PORT}"
+    networks:
+      - zbank-network
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: ./gateway-service/Dockerfile
+    environment:
+      GATEWAY_SERVICE_PORT: ${GATEWAY_SERVICE_PORT}
+    ports:
+      - "${GATEWAY_SERVICE_PORT}:${GATEWAY_SERVICE_PORT}"
+      - "${GATEWAY_SERVICE_DEBUG_PORT}:${GATEWAY_SERVICE_DEBUG_PORT}"
     networks:
       - zbank-network
 

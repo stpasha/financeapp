@@ -1,16 +1,24 @@
 spring:
+  cloud:
+    openfeign:
+      oauth2:
+        clientRegistrationId: keycloak
+        enabled: true
+      client:
+        config:
+          external-api:
+            url: http://gateway-service:8082
+        default:
+          connectTimeout: 5000
+          readTimeout: 5000
+          loggerLevel: basic
   security:
     oauth2:
       client:
         provider:
           keycloak:
-            authorization-uri: http://localhost:7080/realms/zbank/protocol/openid-connect/auth
-            token-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/token
-            user-info-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/userinfo
-            jwk-set-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/certs
+            issuer-uri: http://mynet:7080/realms/zbank
             user-name-attribute: preferred_username
-#            authorization-uri: http://localhost:7080/realms/zbank/protocol/openid-connect/auth
-#            issuer-uri: http://keycloak:8080/realms/zbank
         registration:
           keycloak:
             provider: keycloak
@@ -20,8 +28,18 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope: openid, profile, email
+          zbankapi:
+            provider: keycloak
+            client-id: zbankapi
+            client-secret: yBxbVdRbMIgOHjEhDaV8aTp8pYl1UXe1
+            authorization-grant-type: client_credentials
+            scope: openid
 keycloak:
-  server-url: http://keycloak:8080/
+  server-url: http://keycloak:7080/
   realm: zbank
   username: gatekeeper
   password: swordfish
+logging:
+  level:
+    feign: DEBUG
+    net.microfin.financeapp.client: DEBUG

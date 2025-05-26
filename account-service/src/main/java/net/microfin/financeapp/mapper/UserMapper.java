@@ -10,6 +10,6 @@ public interface UserMapper {
     @Mapping(target = "accounts", ignore = true)
     User toEntity(UserDTO dto);
 
-    @Mapping(target = "accounts", ignore = true)
+    @Mapping(target = "confirmPassword", ignore = true)
     UserDTO toDto(User user);
 }

@@ -1,10 +1,7 @@
 package net.microfin.financeapp.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 @Getter
@@ -19,6 +17,8 @@ import java.util.List;
 @Entity
 @Table(name = "users", schema = "account_info")
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq_gen")
@@ -30,6 +30,8 @@ public class User implements UserDetails {
     @EqualsAndHashCode.Include
     @Column(name = "user_id")
     private Integer id;
+    @Column(name = "keycloak_id")
+    private UUID keycloakId;
     @EqualsAndHashCode.Include
     @Column(name = "user_name", nullable = false, unique = true, updatable = false)
     private String username;

@@ -1,24 +1,28 @@
 package net.microfin.financeapp.config;
 
+import net.microfin.financeapp.resolver.CustomAuthorizationRequestResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -29,13 +33,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @EnableWebSecurity
 @EnableMethodSecurity(
         securedEnabled = true,
         jsr250Enabled = true
 )
 @Configuration
-public class SecurityConfiguration {
+public class SecurityConfig {
 
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
@@ -46,7 +52,12 @@ public class SecurityConfiguration {
         httpSecurity
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/signup", "/signup/**", "/static/**", "/actuator/**", "/").permitAll()
+                                .requestMatchers("/signup",
+                                        "/signup/**",
+                                        "/static/**",
+                                        "/actuator/**",
+                                        "/",
+                                        "/favicon.ico").permitAll()
                                 .anyRequest().authenticated())
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/**")
@@ -54,15 +65,25 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedPage("/access-denied"))
                 .oauth2Login(oauth -> oauth
                         .loginPage("/oauth2/authorization/keycloak")
+//                        .authorizationEndpoint(endpoint -> endpoint
+//                                .authorizationRequestResolver(customAuthorizationRequestResolver())
+//                        )
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService()))
                 )
-                .oauth2Client(Customizer.withDefaults())
+                .oauth2Client(withDefaults())
                 .logout(logout -> logout
-                        // Регистрируем OidcClientInitiatedLogoutSuccessHandler
                         .logoutSuccessHandler(oidcLogoutSuccessHandler)
                 );
+        //httpSecurity.addFilterBefore(filter, AbstractPreAuthenticatedProcessingFilter.class);
         return httpSecurity.build();
     }
+
+//    @Bean
+//    public OAuth2AuthorizationRequestResolver customAuthorizationRequestResolver() {
+//        String newHost = "http://localhost:7080";
+//        String baseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+//        return new CustomAuthorizationRequestResolver(clientRegistrationRepository, baseUri, newHost);
+//    }
 
     @Bean
     OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
@@ -94,6 +115,24 @@ public class SecurityConfiguration {
                 return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
             }
         };
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository clients,
+            OAuth2AuthorizedClientRepository authClients) {
+
+        OAuth2AuthorizedClientProvider provider =
+                OAuth2AuthorizedClientProviderBuilder.builder()
+                        .authorizationCode()
+                        .refreshToken()
+                        .build();
+
+        DefaultOAuth2AuthorizedClientManager manager =
+                new DefaultOAuth2AuthorizedClientManager(clients, authClients);
+        manager.setAuthorizedClientProvider(provider);
+
+        return manager;
     }
 
     @Bean

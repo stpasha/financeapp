@@ -6,8 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.UUID;
 
 @EqualsAndHashCode
 @Getter
@@ -18,6 +17,7 @@ import java.util.List;
 public class UserDTO {
     @EqualsAndHashCode.Include
     private Integer id;
+    private UUID keycloakId;
     @EqualsAndHashCode.Include
     @Size(max = 255, message = "Username should be not greater than 255 symbols")
     @NotNull
@@ -34,5 +34,5 @@ public class UserDTO {
     @PastOrPresent
     private LocalDate dob;
     @NotNull
-    private Boolean active;
+    private Boolean enabled;
 }
