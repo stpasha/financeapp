@@ -1,20 +1,32 @@
 package net.microfin.financeapp.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.domain.OutboxEvent;
+import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.mapper.UserMapper;
+import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
+import net.microfin.financeapp.util.OperationType;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class DefaultUserService implements UserService {
 
     private final UserRepository userRepository;
-
+    private final OutboxEventRepository eventRepository;
     private final UserMapper userMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     public Optional<UserDTO> getUserByUsername(String username) {
@@ -22,8 +34,17 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> createUser(UserDTO userDTO) {
-        return Optional.of(userMapper.toDto(userRepository.save(userMapper.toEntity(userDTO))));
+    @Transactional
+    public Optional<UserDTO> createUser(UserDTO userDTO) throws JsonProcessingException {
+        User user = userRepository.save(userMapper.toEntity(userDTO));
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateId(user.getId())
+                .aggregateType("USER")
+                .operationType(OperationType.USER_CREATED)
+                .payload(objectMapper.writeValueAsString(userMapper.toDto(user)))
+                .build();
+        eventRepository.save(outboxEvent);
+        return Optional.of(userMapper.toDto(user));
     }
 
     @Override

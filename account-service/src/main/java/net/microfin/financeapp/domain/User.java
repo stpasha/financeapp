@@ -1,5 +1,6 @@
 package net.microfin.financeapp.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +37,7 @@ public class User implements UserDetails {
     @Column(name = "user_name", nullable = false, unique = true, updatable = false)
     private String username;
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
     @Column(name = "full_name", nullable = false)
     private String fullName;

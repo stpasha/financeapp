@@ -1,5 +1,6 @@
 package net.microfin.financeapp.api;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.AccountDTO;
@@ -8,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class AccountApi {
     public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody AccountDTO accountDTO) {
         return accountService.createAccount(accountDTO)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.CREATED))
-                .orElseThrow(() -> new ResourceAccessException("Не удалось создать счёт " + accountDTO));
+                .orElseThrow(() -> new EntityNotFoundException("Не удалось создать счёт " + accountDTO));
     }
 
     @GetMapping("/user/{userId}")

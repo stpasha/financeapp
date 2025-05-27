@@ -2,8 +2,8 @@ package net.microfin.financeapp.service;
 
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.dto.UserDTO;
-import org.jboss.resteasy.specimpl.AbstractBuiltResponse;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleMappingResource;
@@ -19,14 +19,17 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KeycloakUserService {
 
     private final Keycloak keycloak;
+    private final UsersResource usersResource;
 
     @Value("${keycloak.realm}")
     private String realm;
 
     public UserRepresentation createUser(UserDTO signupFormDTO) {
+        log.info("Ready to create user {}", signupFormDTO);
         UserRepresentation userRepresentation = new UserRepresentation();
         CredentialRepresentation credentialRepresentation = getCredentialResource(signupFormDTO.getPassword());
         userRepresentation.setUsername(signupFormDTO.getUsername());
@@ -35,13 +38,10 @@ public class KeycloakUserService {
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         userRepresentation.setCredentials(List.of(credentialRepresentation));
         userRepresentation.setEnabled(true);
-        getUserResource().create(userRepresentation);
+        Response response = usersResource.create(userRepresentation);
         addRealmRoleToUser(signupFormDTO.getUsername(), "zbank.user");
-        return getUserResource().search(userRepresentation.getUsername()).getFirst();
-    }
-
-    private UsersResource getUserResource() {
-        return keycloak.realm(realm).users();
+        log.info("User details updated {}", response);
+        return usersResource.search(userRepresentation.getUsername()).getFirst();
     }
 
     private void addRealmRoleToUser(String username, String roleName) {
