@@ -1,18 +1,32 @@
 package net.microfin.financeapp.web.controller;
 
-import net.microfin.financeapp.dto.CashOperationDTO;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.dto.PasswordDTO;
+import net.microfin.financeapp.service.UserService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
-    @PostMapping("{userId}")
-    public String performCashOperation(@ModelAttribute CashOperationDTO operationDTO) {
-        return "redirect:profile";
+    private final UserService userService;
+
+
+    @PostMapping("/password")
+    public String changePassword(@ModelAttribute @Valid PasswordDTO passwordDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "profile"; // или отдельная форма смены пароля
+        }
+        if (!Objects.equals(passwordDTO.getPassword(), passwordDTO.getConfirmPassword())) {
+            return "redirect:/profile";
+        }
+       userService.changePassword(passwordDTO);
+       return "redirect:/profile";
     }
 }

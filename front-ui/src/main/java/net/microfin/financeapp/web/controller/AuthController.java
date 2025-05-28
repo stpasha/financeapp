@@ -2,8 +2,9 @@ package net.microfin.financeapp.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.dto.ProfileDTO;
 import net.microfin.financeapp.dto.UserDTO;
-import net.microfin.financeapp.service.AuthService;
+import net.microfin.financeapp.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,7 +19,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final UserService userService;
 
     @GetMapping("/")
     public String rootRedirect(Principal principal) {
@@ -30,8 +31,14 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public String profile(Model model) {
-        return "profile";
+    public String profile(Principal principal, Model model) {
+        if (principal != null) {
+            UserDTO userDTO = userService.queryUserInfo(principal.getName());
+            model.addAttribute(ProfileDTO.builder().user(userDTO).build());
+            return "profile";
+        }
+        return "redirect:/login";
+
     }
 
     @GetMapping("/login")
@@ -47,11 +54,10 @@ public class AuthController {
     @PostMapping("/signup")
     public String processSignup(@Valid @ModelAttribute UserDTO user, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errors", bindingResult.getAllErrors());
             return "signup";
         }
-        authService.create(user);
-        return "redirect:/oauth2/authorization/keycloak";
+        userService.create(user);
+        return "redirect:/login";
     }
 
     @GetMapping("/access-denied")

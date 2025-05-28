@@ -3,17 +3,18 @@ package net.microfin.financeapp.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.UserClient;
+import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.UUID;
+import java.security.Principal;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class UserService {
     private final UserClient userClient;
 
     @Transactional
@@ -27,4 +28,14 @@ public class AuthService {
             throw new RuntimeException(e);
         }
     }
+
+    @Transactional
+    public void changePassword(PasswordDTO passwordDTO) {
+        userClient.updatePassword(passwordDTO);
+    }
+
+    public UserDTO queryUserInfo(String userName) {
+        return userClient.getUserByName(userName).getBody();
+    }
+
 }

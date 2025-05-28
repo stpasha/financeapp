@@ -18,7 +18,7 @@ import java.util.List;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(exception = ResourceAccessException.class)
+    @ExceptionHandler(ResourceAccessException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceAccessException(ResourceAccessException e) {
         log.error("Resource not found exception", e);
         return buildErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
@@ -66,17 +66,17 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getStatusCode().value(), ex.getReason());
     }
 
-    @ExceptionHandler(exception = Exception.class)
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleException(Exception e) {
         log.error("Exception occured", e);
         return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
-    private ResponseEntity<ErrorResponseDTO> buildErrorResponse(int staus, String message) {
+    private ResponseEntity<ErrorResponseDTO> buildErrorResponse(int status, String message) {
 
-        return ResponseEntity.status(staus).body(
+        return ResponseEntity.status(status).body(
                 new ErrorResponseDTO(
-                        staus,
+                        status,
                         message,
                         List.of(), LocalDateTime.now()));
     }

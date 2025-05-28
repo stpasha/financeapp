@@ -1,9 +1,9 @@
 package net.microfin.financeapp.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,20 +23,26 @@ public class UserApi {
     public ResponseEntity<UserDTO> create(@Valid @RequestBody UserDTO userDTO) throws JsonProcessingException {
         return userService.createUser(userDTO)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.CREATED))
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не создан " + userDTO.getUsername()));
+                .orElseThrow(() -> new IllegalStateException("Пользователь не создан " + userDTO.getUsername()));
     }
 
     @PutMapping
     public ResponseEntity<UserDTO> update(@Valid @RequestBody UserDTO userDTO) {
         return userService.updateUser(userDTO)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не отредактирован " + userDTO.getUsername()));
+                .orElseThrow(() -> new IllegalStateException("Пользователь не отредактирован " + userDTO.getUsername()));
+    }
+
+    @PutMapping("/password")
+    ResponseEntity updatePassword(@Valid @RequestBody PasswordDTO passwordDTO) throws JsonProcessingException {
+        return userService.updatePassword(passwordDTO).map(password -> new ResponseEntity(HttpStatus.ACCEPTED))
+                .orElseThrow(() -> new RuntimeException("Password is not updated"));
     }
 
     @GetMapping
     public ResponseEntity<UserDTO> getUserByName(@RequestParam(name = "username", required = true) String username) {
         return userService.getUserByUsername(username)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден по имени " + username));
+                .orElseThrow(() -> new IllegalStateException("Пользователь не найден по имени " + username));
     }
 }

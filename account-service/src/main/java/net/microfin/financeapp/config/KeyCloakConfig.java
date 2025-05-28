@@ -3,6 +3,7 @@ package net.microfin.financeapp.config;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +19,6 @@ public class KeyCloakConfig {
     private String username;
     @Value("${keycloak.password}")
     private String password;
-    @Value("${keycloak.realm}")
-    private String realm;
     @Value("${spring.security.oauth2.client.registration.zbankapi.client-id}")
     private String clientId;
     @Value("${spring.security.oauth2.client.registration.zbankapi.client-secret}")
@@ -39,8 +38,8 @@ public class KeyCloakConfig {
     }
 
     @Bean
-    public UsersResource userResource(Keycloak keycloak) {
-        return keycloak.realm(realm).users();
+    public UsersResource usersResource(Keycloak keycloak) {
+        return keycloak.realm(keyCloakRealm).users();
     }
 
 }

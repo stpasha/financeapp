@@ -2,10 +2,13 @@ package net.microfin.financeapp.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.domain.User;
+import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.mapper.UserMapper;
 import net.microfin.financeapp.repository.OutboxEventRepository;
@@ -21,6 +24,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultUserService implements UserService {
 
     private final UserRepository userRepository;
@@ -48,7 +52,22 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
+    @Transactional
+    public Optional<PasswordDTO> updatePassword(PasswordDTO passwordDTO) throws JsonProcessingException {
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateId(passwordDTO.getId())
+                .aggregateType("USER")
+                .operationType(OperationType.PASSWORD_CHANGED)
+                .payload(objectMapper.writeValueAsString(passwordDTO))
+                .build();
+        eventRepository.save(outboxEvent);
+        return Optional.of(passwordDTO);
+    }
+
+    @Override
     public Optional<UserDTO> updateUser(UserDTO userDTO) {
-        return userRepository.findById(userDTO.getId()).map(dto -> userMapper.toDto(userRepository.save(userMapper.toEntity(userDTO))));
+        return userRepository.findById(userDTO.getId())
+                .map(existing -> Optional.of(userMapper.toDto(userRepository.save(userMapper.toEntity(userDTO)))))
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userDTO.getId()));
     }
 }

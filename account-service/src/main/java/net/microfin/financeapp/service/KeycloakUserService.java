@@ -3,6 +3,7 @@ package net.microfin.financeapp.service;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -31,7 +32,7 @@ public class KeycloakUserService {
     public UserRepresentation createUser(UserDTO signupFormDTO) {
         log.info("Ready to create user {}", signupFormDTO);
         UserRepresentation userRepresentation = new UserRepresentation();
-        CredentialRepresentation credentialRepresentation = getCredentialResource(signupFormDTO.getPassword());
+        CredentialRepresentation credentialRepresentation = getCredentialResource(signupFormDTO.getPassword(), null);
         userRepresentation.setUsername(signupFormDTO.getUsername());
         userRepresentation.setEnabled(true);
         credentialRepresentation.setTemporary(false);
@@ -41,7 +42,17 @@ public class KeycloakUserService {
         Response response = usersResource.create(userRepresentation);
         addRealmRoleToUser(signupFormDTO.getUsername(), "zbank.user");
         log.info("User details updated {}", response);
-        return usersResource.search(userRepresentation.getUsername()).getFirst();
+        return usersResource.search(userRepresentation.getUsername()).stream()
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("User not found in keycloak"));
+    }
+
+    public void updateUserPassword(PasswordDTO passwordDTO) {
+        log.info("Ready to create user {}", passwordDTO);
+        CredentialRepresentation credentialRepresentation = getCredentialResource(passwordDTO.getPassword(), String.valueOf(passwordDTO.getKeycloakId()));
+        credentialRepresentation.setTemporary(false);
+        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
+        usersResource.get(String.valueOf(passwordDTO.getKeycloakId())).resetPassword(credentialRepresentation);
+        log.info("User password updated");
     }
 
     private void addRealmRoleToUser(String username, String roleName) {
@@ -54,11 +65,12 @@ public class KeycloakUserService {
 
     }
 
-    private static CredentialRepresentation getCredentialResource(String password) {
+    private static CredentialRepresentation getCredentialResource(String password, String id) {
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setTemporary(false);
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         credentialRepresentation.setValue(password);
+        credentialRepresentation.setId(id);
         return credentialRepresentation;
     }
 }
