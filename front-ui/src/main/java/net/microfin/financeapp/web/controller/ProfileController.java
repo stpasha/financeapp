@@ -2,9 +2,10 @@ package net.microfin.financeapp.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.dto.ProfileDTO;
+import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.service.UserService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,7 +18,7 @@ import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
-public class AuthController {
+public class ProfileController {
 
     private final UserService userService;
 
@@ -32,9 +33,10 @@ public class AuthController {
 
     @GetMapping("/profile")
     public String profile(Principal principal, Model model) {
-        if (principal != null) {
-            UserDTO userDTO = userService.queryUserInfo(principal.getName());
-            model.addAttribute(ProfileDTO.builder().user(userDTO).build());
+        if (principal instanceof OAuth2AuthenticationToken token) {
+            UserDTO userDTO = userService.queryUserInfo(token.getPrincipal().getAttribute("preferred_username"));
+            model.addAttribute("user", userDTO);
+            model.addAttribute("passwordDTO", PasswordDTO.builder().id(userDTO.getId()).build());
             return "profile";
         }
         return "redirect:/login";

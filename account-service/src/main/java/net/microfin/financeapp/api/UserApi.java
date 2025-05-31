@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.PasswordDTO;
+import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
+import net.microfin.financeapp.mapper.UserMapper;
 import net.microfin.financeapp.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserApi {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping
     public ResponseEntity<UserDTO> create(@Valid @RequestBody UserDTO userDTO) throws JsonProcessingException {
@@ -27,7 +30,8 @@ public class UserApi {
     }
 
     @PutMapping
-    public ResponseEntity<UserDTO> update(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> update(@Valid @RequestBody UpdateUserDTO updateDTO) {
+        UserDTO userDTO = userMapper.toDto(updateDTO);
         return userService.updateUser(userDTO)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseThrow(() -> new IllegalStateException("Пользователь не отредактирован " + userDTO.getUsername()));

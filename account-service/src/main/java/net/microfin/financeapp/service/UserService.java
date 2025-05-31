@@ -3,6 +3,7 @@ package net.microfin.financeapp.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.dto.PasswordDTO;
+import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
 
 import java.util.Optional;

@@ -1,8 +1,8 @@
 package net.microfin.financeapp.client;
 
-import jakarta.validation.Valid;
 import net.microfin.financeapp.config.FeignConfig;
 import net.microfin.financeapp.dto.PasswordDTO;
+import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ public interface UserClient {
     ResponseEntity<UserDTO> create(@RequestBody UserDTO userDTO);
 
     @PutMapping("/user")
-    ResponseEntity<UserDTO> update(@RequestBody UserDTO userDTO);
+    ResponseEntity<UserDTO> update(@RequestBody UpdateUserDTO userDTO);
 
     @PutMapping("/user/password")
     ResponseEntity<UserDTO> updatePassword(@RequestBody PasswordDTO userDTO);

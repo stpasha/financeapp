@@ -94,10 +94,8 @@ public class SecurityConfig {
 
                 // Извлекаем роли из id_token -> realm_access.roles
                 Map<String, Object> claims = oidcUser.getIdToken().getClaims();
-                Map<String, Object> realmAccess = (Map<String, Object>) claims.get("realm_access");
-                if (realmAccess != null) {
-                    Collection<String> roles = (Collection<String>) realmAccess.get("roles");
-                    if (roles != null) {
+                if (claims.get("realm_access") instanceof Map<?,?> realmAccess) {
+                    if (realmAccess.get("roles") instanceof Collection roles) {
                         roles.forEach(role -> mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
                     }
                 }

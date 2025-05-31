@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.UserClient;
 import net.microfin.financeapp.dto.PasswordDTO;
+import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,15 @@ public class UserService {
     @Transactional
     public void changePassword(PasswordDTO passwordDTO) {
         userClient.updatePassword(passwordDTO);
+    }
+
+    @Transactional
+    public UserDTO updateUser(UpdateUserDTO userDTO) {
+        ResponseEntity<UserDTO> responseEntity = userClient.update(userDTO);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        }
+        throw new RuntimeException("Unable to update user");
     }
 
     public UserDTO queryUserInfo(String userName) {

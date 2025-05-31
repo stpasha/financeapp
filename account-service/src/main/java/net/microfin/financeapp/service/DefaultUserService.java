@@ -67,7 +67,7 @@ public class DefaultUserService implements UserService {
     @Override
     public Optional<UserDTO> updateUser(UserDTO userDTO) {
         return userRepository.findById(userDTO.getId())
-                .map(existing -> Optional.of(userMapper.toDto(userRepository.save(userMapper.toEntity(userDTO)))))
+                .map(existing -> Optional.of(userMapper.toDto(userRepository.save(userMapper.toPatchedEntity(userDTO, existing)))))
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userDTO.getId()));
     }
 }
