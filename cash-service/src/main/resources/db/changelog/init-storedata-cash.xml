@@ -53,7 +53,7 @@
             <column name="currency_code" type="VARCHAR(3)">
                 <constraints nullable="false"/>
             </column>
-            <column name="operation_type" type="INTEGER">
+            <column name="operation_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="amount" type="DECIMAL(12,2)">

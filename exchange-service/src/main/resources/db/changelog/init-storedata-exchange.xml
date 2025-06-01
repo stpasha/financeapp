@@ -57,7 +57,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="created_at" type="TIMESTAMP"/>
-            <column name="operation_type" type="INTEGER">
+            <column name="operation_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="status_id" type="INTEGER">

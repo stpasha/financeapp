@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
+import net.microfin.financeapp.service.DictionaryService;
 import net.microfin.financeapp.service.UserService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final DictionaryService dictionaryService;
 
 
     @PostMapping("/password")
@@ -56,6 +58,7 @@ public class UserController {
                 UserDTO userInfo = userService.queryUserInfo(token.getPrincipal().getAttribute("preferred_username"));
                 model.addAttribute("user", userInfo);
                 model.addAttribute("passwordDTO", PasswordDTO.builder().id(userInfo.getId()).build());
+                model.addAttribute("currencies", dictionaryService.getCurrencies());
                 return Optional.of("profile");
             }
             return Optional.of("redirect:/profile");

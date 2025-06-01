@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Setter
 @Builder
 @EqualsAndHashCode
-public class TransferOperationResultDTO {
+public class TransferOperationResultDTO implements OperationResult {
     @EqualsAndHashCode.Include
     @NotNull
     private Integer operationId;

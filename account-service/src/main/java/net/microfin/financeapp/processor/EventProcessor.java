@@ -6,10 +6,13 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.microfin.financeapp.domain.Account;
 import net.microfin.financeapp.domain.OutboxEvent;
+import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.mapper.UserMapper;
+import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.service.KeycloakUserService;
@@ -28,6 +31,7 @@ import java.util.UUID;
 public class EventProcessor {
     final OutboxEventRepository outboxEventRepository;
     final UserRepository userRepository;
+    final AccountRepository accountRepository;
     final KeycloakUserService keycloakUserService;
     final UserMapper userMapper;
     final ObjectMapper objectMapper;
@@ -42,6 +46,12 @@ public class EventProcessor {
                 }
                 case OperationType.PASSWORD_CHANGED -> {
                     processChangePasswordEvent(outboxEvent);
+                }
+                case OperationType.CASH_DEPOSIT -> {
+                    processCashDeposit(outboxEvent);
+                }
+                case OperationType.CASH_WITHDRAWAL -> {
+                    processCashWithdraw(outboxEvent);
                 }
             }
         }
@@ -94,6 +104,46 @@ public class EventProcessor {
             handleRetry(outboxEvent, e);
         }
         outboxEventRepository.save(outboxEvent);
+    }
+
+    private void processCashDeposit(OutboxEvent outboxEvent) {
+        try {
+            CashOperationDTO cashDeposit = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
+            if (cashDeposit.getAccountId() == null) {
+                userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
+                        .active(true)
+                        .balance(cashDeposit.getAmount())
+                        .currencyCode(cashDeposit.getCurrencyCode())
+                        .user(user).build())).orElseThrow(() -> new RuntimeException("User not found"));
+
+            } else {
+                accountRepository.findById(cashDeposit.getAccountId()).map(account -> {
+                    account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
+                    return accountRepository.save(account);
+                }).orElseThrow(() -> new RuntimeException("Account not found"));
+            }
+        } catch (Exception e) {
+            handleRetry(outboxEvent, e);
+        }
+    }
+
+    private void processCashWithdraw(OutboxEvent outboxEvent) {
+        try {
+            CashOperationDTO cashWithdraw = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
+            if (cashWithdraw.getAccountId() == null) {
+                throw  new RuntimeException("Account not found");
+            } else {
+                accountRepository.findById(cashWithdraw.getAccountId()).map(account -> {
+                    if (account.getBalance().compareTo(cashWithdraw.getAmount()) < 0) {
+                        throw new RuntimeException("Insufficient funds in the account");
+                    }
+                    account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
+                    return accountRepository.save(account);
+                }).orElseThrow(() -> new RuntimeException("Account not found"));
+            }
+        } catch (Exception e) {
+            handleRetry(outboxEvent, e);
+        }
     }
 
     @Scheduled(fixedDelay = 15000)

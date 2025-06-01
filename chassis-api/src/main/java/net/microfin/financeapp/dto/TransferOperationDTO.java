@@ -34,5 +34,5 @@ public class TransferOperationDTO {
     private LocalDateTime createdAt;
 
     @NotNull
-    private Integer operationType;
+    private String operationType;
 }

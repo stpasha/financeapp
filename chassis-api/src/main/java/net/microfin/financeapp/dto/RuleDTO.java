@@ -13,7 +13,7 @@ public class RuleDTO {
     @EqualsAndHashCode.Include
     private Integer id;
     @NotNull
-    private Integer operationType;
+    private String operationType;
     @Size(max = 255, message = "Rule condition length 255 symbols max")
     @NotNull
     private String ruleCondition;
