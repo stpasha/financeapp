@@ -44,6 +44,6 @@ public class TransferOperation {
     private LocalDateTime createdAt;
 
     @Column(name = "operation_type", nullable = false)
-    private Integer operationType;
+    private String operationType;
 }
 

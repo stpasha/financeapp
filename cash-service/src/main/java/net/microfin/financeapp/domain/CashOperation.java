@@ -27,7 +27,7 @@ public class CashOperation {
     @EqualsAndHashCode.Include
     private Integer id;
     @Column(name = "operation_type", nullable = false)
-    private Integer operationType;
+    private String operationType;
     @Column(name = "account_id", nullable = false)
     private Integer accountId;
     @Column(name = "currency_code", nullable = false, length = 3)

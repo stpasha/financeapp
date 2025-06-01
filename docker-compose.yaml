@@ -103,6 +103,22 @@ services:
     networks:
       - zbank-network
 
+  dictionaries-service:
+    build:
+      context: .
+      dockerfile: ./dictionaries-service/Dockerfile
+    environment:
+      ACCOUNT_SERVER_PORT: ${DICTIONARIES_SERVER_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_ACCOUNT_SCHEMA: ${SPRING_DATASOURCE_DICTIONARIES_SCHEMA}
+    ports:
+      - "${DICTIONARIES_SERVER_PORT}:${DICTIONARIES_SERVER_PORT}"
+      - "${DICTIONARIES_SERVER_DEBUG_PORT}:${DICTIONARIES_SERVER_DEBUG_PORT}"
+    networks:
+      - zbank-network
+
   services-db:
     image: postgres:17
     restart: always

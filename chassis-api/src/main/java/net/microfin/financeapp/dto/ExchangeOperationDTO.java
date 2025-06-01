@@ -20,7 +20,7 @@ public class ExchangeOperationDTO {
     private Integer id;
 
     @NotNull
-    private Integer operationType;
+    private String operationType;
 
     @NotNull
     private Integer targetAccountId;

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
+import net.microfin.financeapp.service.DictionaryService;
 import net.microfin.financeapp.service.UserService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import java.security.Principal;
 public class ProfileController {
 
     private final UserService userService;
+    private final DictionaryService dictionaryService;
 
     @GetMapping("/")
     public String rootRedirect(Principal principal) {
@@ -37,6 +39,7 @@ public class ProfileController {
             UserDTO userDTO = userService.queryUserInfo(token.getPrincipal().getAttribute("preferred_username"));
             model.addAttribute("user", userDTO);
             model.addAttribute("passwordDTO", PasswordDTO.builder().id(userDTO.getId()).build());
+            model.addAttribute("currencies", dictionaryService.getCurrencies());
             return "profile";
         }
         return "redirect:/login";

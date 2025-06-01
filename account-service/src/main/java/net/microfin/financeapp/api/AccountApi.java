@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.AccountDTO;
+import net.microfin.financeapp.dto.GenericOperationDTO;
+import net.microfin.financeapp.dto.OperationResult;
 import net.microfin.financeapp.service.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,8 @@ public class AccountApi {
 
     private final AccountService accountService;
 
-    @PostMapping()
+
+    @PostMapping
     public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody AccountDTO accountDTO) {
         return accountService.createAccount(accountDTO)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.CREATED))
@@ -36,6 +39,11 @@ public class AccountApi {
     public ResponseEntity disable(@PathVariable("id") Integer id) {
         accountService.disable(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/operation")
+    public OperationResult performOperation(@Valid @RequestBody GenericOperationDTO genericOperationDTO) {
+        accountService.
     }
 
 

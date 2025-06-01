@@ -4,7 +4,6 @@ spring:
   profiles:
     active: dev
   jpa:
-#    database-platform: org.hibernate.dialect.PostgresSQLDialect
     properties:
       hibernate:
         format_sql: true
@@ -19,3 +18,8 @@ spring:
       max-lifetime: 1800000
 server:
   port: ${SERVER_PORT:8081}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, info, env

@@ -60,9 +60,6 @@
             <column name="is_enabled" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column name="password" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
 
         <addAutoIncrement tableName="users" columnName="user_id" schemaName="account_info"

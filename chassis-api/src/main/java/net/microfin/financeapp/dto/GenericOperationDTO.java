@@ -1,5 +1,6 @@
 package net.microfin.financeapp.dto;
 
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
@@ -11,12 +12,11 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode
 @Getter
 @Setter
 @Builder
-public class CashOperationDTO {
-
+@EqualsAndHashCode
+public class GenericOperationDTO {
     @EqualsAndHashCode.Include
     private Integer id;
 
@@ -40,4 +40,9 @@ public class CashOperationDTO {
 
     @NotNull
     private Integer statusId;
+
+    private Integer targetAccountId;
+
+    private Integer sourceAccountId;
+
 }

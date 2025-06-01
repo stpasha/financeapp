@@ -17,7 +17,7 @@ public class NotificationDTO {
     @NotNull
     private Integer id;
     @NotNull
-    private Integer operationType;
+    private String operationType;
     @Size(max = 255, message = "Notification Description should be not greater than 255 symbols")
     private String notificationDescription;
     @PastOrPresent

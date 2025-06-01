@@ -3,5 +3,50 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="001" author="nomatter">
+        <insert tableName="users" schemaName="account_info">
+            <column name="keycloak_id" value="74738e26-59a3-4777-924a-5e248daa1e24"/>
+            <column name="user_name" value="user"/>
+            <column name="full_name" value="Default User"/>
+            <column name="dob" valueDate="1990-01-01T00:00:00Z"/>
+            <column name="is_enabled" valueBoolean="true"/>
+        </insert>
+        <insert tableName="users" schemaName="account_info">
+            <column name="keycloak_id" value="f46b126c-668e-4ca5-b721-9f2f2ac1d774"/>
+            <column name="user_name" value="admin"/>
+            <column name="full_name" value="Administrator"/>
+            <column name="dob" valueDate="1985-01-01T00:00:00Z"/>
+            <column name="is_enabled" valueBoolean="true"/>
+        </insert>
+        <rollback>
+            <delete tableName="users" schemaName="account_info">
+                <where>user_name IN ('user', 'admin')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="002" author="nomatter" runOnChange="true">
+        <insert tableName="accounts" schemaName="account_info">
+            <column name="user_id" valueComputed="(SELECT user_id FROM account_info.users WHERE user_name = 'user')"/>
+            <column name="balance" valueNumeric="1000.00"/>
+            <column name="currency_code" value="USD"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <insert tableName="accounts" schemaName="account_info">
+            <column name="user_id" valueComputed="(SELECT user_id FROM account_info.users WHERE user_name = 'admin')"/>
+            <column name="balance" valueNumeric="10000.00"/>
+            <column name="currency_code" value="USD"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+        <rollback>
+            <delete tableName="accounts" schemaName="account_info">
+                <where>user_id IN (
+                    SELECT user_id FROM account_info.users WHERE user_name IN ('user', 'admin')
+                    )</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+
 
 </databaseChangeLog>
