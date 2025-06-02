@@ -2,48 +2,33 @@ package net.microfin.financeapp.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.dto.PasswordDTO;
-import net.microfin.financeapp.dto.UpdateUserDTO;
-import net.microfin.financeapp.service.DictionaryService;
-import net.microfin.financeapp.service.UserService;
+import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.service.AccountService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
+@RequestMapping("/account")
+public class AccountController {
 
-    private final UserService userService;
-    private final DictionaryService dictionaryService;
+    private AccountService accountService;
 
-
-    @PostMapping("/password")
-    public String changePassword(@ModelAttribute("passwordDTO") @Valid PasswordDTO passwordDTO,
+    @PostMapping("/{userId}/cash")
+    public String performCashOperation(@ModelAttribute("cashDTO") @Valid CashOperationDTO cashDTO,
+                                 @PathVariable("userId") Integer userId,
                                  BindingResult bindingResult) {
-        if (!Objects.equals(passwordDTO.getPassword(), passwordDTO.getConfirmPassword())) {
-            bindingResult.rejectValue("confirmPassword", "error.confirmPassword", "Пароли не совпадают");
-        }
         return handleErrors(bindingResult, "passwordErrors").map(String::toString).orElseGet(() ->{
-            userService.changePassword(passwordDTO);
-            return "redirect:/profile";
-        });
-    }
-
-    @PutMapping
-    public String updateUser(@ModelAttribute("user") @Valid UpdateUserDTO userDTO,
-                                 BindingResult bindingResult) {
-        return handleErrors(bindingResult, "userAccountsErrors").map(String::toString).orElseGet(() ->{
-            userService.updateUser(userDTO);
+            accountService.createCashOperation(cashDTO);
             return "redirect:/profile";
         });
     }

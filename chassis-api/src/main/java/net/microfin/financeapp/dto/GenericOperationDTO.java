@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import net.microfin.financeapp.util.Currency;
+import net.microfin.financeapp.util.OperationStatus;
+import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +24,7 @@ public class GenericOperationDTO {
     private Integer id;
 
     @NotNull
-    private String operationType;
+    private OperationType operationType;
 
     private Integer accountId;
 
@@ -30,7 +33,7 @@ public class GenericOperationDTO {
 
     @NotNull
     @Size(max = 3, message = "Currency code should be not greater than 3 symbols")
-    private String currencyCode;
+    private Currency currencyCode;
 
     @NotNull
     private BigDecimal amount;
@@ -39,7 +42,7 @@ public class GenericOperationDTO {
     private LocalDateTime createdAt;
 
     @NotNull
-    private Integer statusId;
+    private OperationStatus status;
 
     private Integer targetAccountId;
 

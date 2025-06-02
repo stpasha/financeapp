@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "external-api", url = "http://gateway-service:8082", configuration = FeignConfig.class)
+@FeignClient(name = "user-client", url = "http://gateway-service:8082")
 public interface UserClient {
     @PostMapping("/user")
     ResponseEntity<UserDTO> create(@RequestBody UserDTO userDTO);

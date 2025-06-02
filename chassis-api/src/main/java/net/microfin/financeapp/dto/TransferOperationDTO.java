@@ -2,6 +2,8 @@ package net.microfin.financeapp.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import net.microfin.financeapp.util.OperationStatus;
+import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,5 +36,8 @@ public class TransferOperationDTO {
     private LocalDateTime createdAt;
 
     @NotNull
-    private String operationType;
+    private OperationType operationType;
+
+    @NotNull
+    private OperationStatus status;
 }

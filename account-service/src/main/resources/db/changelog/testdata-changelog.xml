@@ -8,14 +8,14 @@
             <column name="keycloak_id" value="74738e26-59a3-4777-924a-5e248daa1e24"/>
             <column name="user_name" value="user"/>
             <column name="full_name" value="Default User"/>
-            <column name="dob" valueDate="1990-01-01T00:00:00Z"/>
+            <column name="dob" valueDate="1990-01-01"/>
             <column name="is_enabled" valueBoolean="true"/>
         </insert>
         <insert tableName="users" schemaName="account_info">
             <column name="keycloak_id" value="f46b126c-668e-4ca5-b721-9f2f2ac1d774"/>
             <column name="user_name" value="admin"/>
             <column name="full_name" value="Administrator"/>
-            <column name="dob" valueDate="1985-01-01T00:00:00Z"/>
+            <column name="dob" valueDate="1985-01-01"/>
             <column name="is_enabled" valueBoolean="true"/>
         </insert>
         <rollback>

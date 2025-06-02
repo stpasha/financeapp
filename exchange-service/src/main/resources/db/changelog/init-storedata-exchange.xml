@@ -60,7 +60,7 @@
             <column name="operation_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="status_id" type="INTEGER">
+            <column name="status" type="VARCHAR(10)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

@@ -14,13 +14,9 @@ import net.microfin.financeapp.mapper.UserMapper;
 import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.util.OperationType;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +61,7 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
+    @Transactional
     public Optional<UserDTO> updateUser(UserDTO userDTO) {
         return userRepository.findById(userDTO.getId())
                 .map(existing -> Optional.of(userMapper.toDto(userRepository.save(userMapper.toPatchedEntity(userDTO, existing)))))

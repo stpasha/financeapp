@@ -15,6 +15,7 @@ import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
+import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
 import org.springframework.stereotype.Service;
@@ -54,10 +55,16 @@ public class DefaultAccountService implements AccountService {
     @Override
     @Transactional
     public Optional<OperationResult> processOperation(GenericOperationDTO operationDTO) {
-        Account account = accountRepository.findById(operationDTO.getAccountId())
-                .orElseGet(() -> createAccountForUser(operationDTO));
+        Integer accountId = null;
+        switch (operationDTO.getOperationType()) {
+            case CASH_DEPOSIT, CASH_WITHDRAWAL -> {
+                accountId = accountRepository.findByCurrencyCodeAndUserId(
+                       operationDTO.getCurrencyCode(),
+                        operationDTO.getUserId()).map(account -> account.getId()).orElseGet(() -> createAccountForUser(operationDTO).getId());
+            }
+        }
 
-        saveOutboxEvent(account.getId(), operationDTO);
+        saveOutboxEvent(accountId, operationDTO);
 
         CashOperationResultDTO result = CashOperationResultDTO.builder()
                 .operationId(operationDTO.getId())
@@ -88,7 +95,7 @@ public class DefaultAccountService implements AccountService {
             OutboxEvent event = OutboxEvent.builder()
                     .aggregateId(accountId)
                     .aggregateType("ACCOUNT")
-                    .operationType(OperationType.valueOf(operationDTO.getOperationType()))
+                    .operationType(operationDTO.getOperationType())
                     .payload(objectMapper.writeValueAsString(operationDTO))
                     .build();
             eventRepository.save(event);

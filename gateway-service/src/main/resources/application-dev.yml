@@ -49,8 +49,8 @@ spring:
           filters:
             - RewritePath=/user(?<segment>.*), /api/user$\{segment}
             - TokenRelay
-        - id: to-dictionary-service
-          uri: http://dictionary-service:8081/
+        - id: to-dictionaries-service
+          uri: http://dictionaries-service:8081/
           predicates:
             - Path=/dictionary/**
           filters:

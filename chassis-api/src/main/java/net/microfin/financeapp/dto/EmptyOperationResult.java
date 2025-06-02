@@ -5,22 +5,16 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import net.microfin.financeapp.util.OperationType;
-
-import java.math.BigDecimal;
+import net.microfin.financeapp.util.OperationStatus;
 
 @Getter
 @Setter
 @Builder
 @EqualsAndHashCode
-public class CashOperationResultDTO implements OperationResult {
+public class EmptyOperationResult implements OperationResult {
     @EqualsAndHashCode.Include
-    @NotNull
     private Integer operationId;
     @NotNull
-    private BigDecimal newBalance;
-    @NotNull
-    private String status;
-    @NotNull
+    private OperationStatus status;
     private String message;
 }

@@ -2,6 +2,7 @@ package net.microfin.financeapp.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import net.microfin.financeapp.util.OperationStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,5 +46,9 @@ public class TransferOperation {
 
     @Column(name = "operation_type", nullable = false)
     private String operationType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private OperationStatus status;
 }
 

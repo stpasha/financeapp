@@ -60,7 +60,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="created_at" type="TIMESTAMP"/>
-            <column name="status_id" type="INTEGER">
+            <column name="status" type="VARCHAR(10)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

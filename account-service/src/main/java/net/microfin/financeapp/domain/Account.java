@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import net.microfin.financeapp.util.Currency;
 
 import java.math.BigDecimal;
 
@@ -30,8 +31,9 @@ public class Account {
     private User user;
     @Column(name = "balance", nullable = false, scale = 2)
     private BigDecimal balance;
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency_code", nullable = false)
-    private String currencyCode;
+    private Currency currencyCode;
     @Column(name = "is_active", nullable = false)
     private Boolean active;
 }

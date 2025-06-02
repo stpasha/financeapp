@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "external-api", url = "http://gateway-service:8082", configuration = FeignConfig.class)
+@FeignClient(name = "dictionary-client", url = "http://gateway-service:8082")
 public interface DictionaryClient {
-    @GetMapping("/dictionaries/currency")
-    ResponseEntity<List<CurrencyDTO>> listCurrencyList();
+    @GetMapping("/dictionary/currency")
+    ResponseEntity<List<CurrencyDTO>> listCurrency();
 }

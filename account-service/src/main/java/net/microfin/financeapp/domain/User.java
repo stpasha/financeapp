@@ -1,14 +1,9 @@
 package net.microfin.financeapp.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +15,7 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements UserDetails {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq_gen")
     @SequenceGenerator(schema = "account_info",
@@ -36,9 +31,6 @@ public class User implements UserDetails {
     @EqualsAndHashCode.Include
     @Column(name = "user_name", nullable = false, unique = true, updatable = false)
     private String username;
-    @Column(name = "password", nullable = false)
-    @JsonIgnore
-    private String password;
     @Column(name = "full_name", nullable = false)
     private String fullName;
     @Column
@@ -47,24 +39,4 @@ public class User implements UserDetails {
     private List<Account> accounts;
     @Column(name = "is_enabled", nullable = false)
     private Boolean enabled;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
 }

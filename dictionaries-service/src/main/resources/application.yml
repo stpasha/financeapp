@@ -3,19 +3,6 @@ spring:
     name: dictionaries-service
   profiles:
     active: dev
-  jpa:
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-        ddl-auto: none
-  datasource:
-    init: never
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      idle-timeout: 30000
-      max-lifetime: 1800000
 server:
   port: ${SERVER_PORT:8081}
 management:

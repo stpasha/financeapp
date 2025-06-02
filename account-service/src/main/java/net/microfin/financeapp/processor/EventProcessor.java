@@ -92,7 +92,6 @@ public class EventProcessor {
         try {
             PasswordDTO passwordDTO = fromJson(outboxEvent.getPayload(), PasswordDTO.class);
             userRepository.findById(passwordDTO.getId()).map(user -> {
-                user.setPassword(passwordDTO.getPassword());
                 passwordDTO.setKeycloakId(user.getKeycloakId());
                 keycloakUserService.updateUserPassword(passwordDTO);
                 userRepository.save(user);

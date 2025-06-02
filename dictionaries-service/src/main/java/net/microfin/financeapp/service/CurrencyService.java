@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class CurrencyService {
-    public List<CurrencyDTO> listCurrencyList() {
+    public List<CurrencyDTO> listCurrency() {
         return Arrays.stream(Currency.values())
                 .map(currency -> new CurrencyDTO(currency.getName(),
                         currency.name(),

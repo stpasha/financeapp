@@ -21,6 +21,6 @@ public class CurrencyApi {
 
     @GetMapping("/currency")
     public ResponseEntity<List<CurrencyDTO>> listCurrencyList() {
-        return ResponseEntity.ok(currencyService.listCurrencyList());
+        return ResponseEntity.ok(currencyService.listCurrency());
     }
 }

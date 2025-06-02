@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import net.microfin.financeapp.util.OperationStatus;
+import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,7 +22,7 @@ public class ExchangeOperationDTO {
     private Integer id;
 
     @NotNull
-    private String operationType;
+    private OperationType operationType;
 
     @NotNull
     private Integer targetAccountId;
@@ -35,5 +37,5 @@ public class ExchangeOperationDTO {
     private LocalDateTime createdAt;
 
     @NotNull
-    private Integer statusId;
+    private OperationStatus status;
 }

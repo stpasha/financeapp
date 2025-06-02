@@ -1,4 +1,4 @@
-<form th:fragment="cash" method="post" th:action="${'/user/'+userId+'/cash'}">
+<form th:fragment="cash" method="post" th:action="${'/account/'+user.id+'/cash'}">
     <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
         <tr th:if="${cashErrors!=null}" th:each="cashError : ${cashErrors}">
             <td style="color:red;" th:text="${cashError}"/>
@@ -8,18 +8,18 @@
             <td>
                 Валюта
                 <select name="currencyCode">
-                    <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.code()}" th:text="${eachCurrency.getTitle()}"/>
+                    <option th:each="eachCurrency : ${currencies}" th:value="${eachCurrency.code()}" th:text="${eachCurrency.name}"/>
                 </select>
             </td>
             <td>
                 <input name="amount" type="number" style="width:100%" required/>
-                <input type="hidden" name="statusId" value="0"/>
-                <input type="hidden" name="userId" th:value="${userId}"/>
+                <input type="hidden" name="status" value="PENDING"/>
+                <input type="hidden" name="userId" th:value="${user.id}"/>
             </td>
             <td>
             <td style="text-align:right">
-                <button name="operationType" value="2">Положить</button>
-                <button name="operationType" value="3">Снять</button>
+                <button name="operationType" value="CASH_DEPOSIT">Положить</button>
+                <button name="operationType" value="CASH_WITHDRAWAL">Снять</button>
             </td>
         </tr>
     </table>

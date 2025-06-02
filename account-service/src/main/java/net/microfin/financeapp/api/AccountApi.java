@@ -4,9 +4,11 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.AccountDTO;
+import net.microfin.financeapp.dto.EmptyOperationResult;
 import net.microfin.financeapp.dto.GenericOperationDTO;
 import net.microfin.financeapp.dto.OperationResult;
 import net.microfin.financeapp.service.AccountService;
+import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,8 +44,8 @@ public class AccountApi {
     }
 
     @PostMapping("/operation")
-    public OperationResult performOperation(@Valid @RequestBody GenericOperationDTO genericOperationDTO) {
-        accountService.
+    public ResponseEntity<OperationResult> performOperation(@Valid @RequestBody GenericOperationDTO genericOperationDTO) {
+        return ResponseEntity.ok(accountService.processOperation(genericOperationDTO).orElseGet(() -> EmptyOperationResult.builder().status(OperationStatus.FAILED).message("Unnable to process").build()));
     }
 
 

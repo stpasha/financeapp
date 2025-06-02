@@ -14,7 +14,7 @@ public class DictionaryService {
     private final DictionaryClient dictionaryClient;
 
     public List<CurrencyDTO> getCurrencies() {
-        ResponseEntity<List<CurrencyDTO>> responseEntity = dictionaryClient.listCurrencyList();
+        ResponseEntity<List<CurrencyDTO>> responseEntity = dictionaryClient.listCurrency();
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             return responseEntity.getBody();
         }

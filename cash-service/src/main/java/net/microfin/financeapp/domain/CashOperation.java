@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import net.microfin.financeapp.util.OperationStatus;
+import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,8 +28,9 @@ public class CashOperation {
     )
     @EqualsAndHashCode.Include
     private Integer id;
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "operation_type", nullable = false)
-    private String operationType;
+    private OperationType operationType;
     @Column(name = "account_id", nullable = false)
     private Integer accountId;
     @Column(name = "currency_code", nullable = false, length = 3)
@@ -36,6 +39,7 @@ public class CashOperation {
     private BigDecimal amount;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @Column(name = "status_id", nullable = false)
-    private Integer statusId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private OperationStatus status;
 }

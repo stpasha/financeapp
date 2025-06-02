@@ -2,6 +2,7 @@ package net.microfin.financeapp.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.service.DictionaryService;
@@ -13,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
@@ -34,12 +36,18 @@ public class ProfileController {
     }
 
     @GetMapping("/profile")
-    public String profile(Principal principal, Model model) {
+    public String profile(Principal principal,
+                          Model model,
+                          @RequestParam(required = false) String passwordErrors,
+                          @RequestParam(required = false) String userAccountsErrors) {
         if (principal instanceof OAuth2AuthenticationToken token) {
             UserDTO userDTO = userService.queryUserInfo(token.getPrincipal().getAttribute("preferred_username"));
             model.addAttribute("user", userDTO);
             model.addAttribute("passwordDTO", PasswordDTO.builder().id(userDTO.getId()).build());
+            //model.addAttribute("passwordDTO", CashOperationDTO.builder().id(userDTO.getId()).build());
             model.addAttribute("currencies", dictionaryService.getCurrencies());
+            model.addAttribute("passwordErrors", passwordErrors);
+            model.addAttribute("userAccountsErrors", userAccountsErrors);
             return "profile";
         }
         return "redirect:/login";
