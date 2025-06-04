@@ -9,6 +9,8 @@ import lombok.*;
 @Builder
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class RuleDTO {
     @EqualsAndHashCode.Include
     private Integer id;

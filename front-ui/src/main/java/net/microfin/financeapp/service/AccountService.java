@@ -3,6 +3,7 @@ package net.microfin.financeapp.service;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.AccountClient;
 import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.dto.CashOperationResultDTO;
 import net.microfin.financeapp.dto.OperationResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class AccountService {
     private final AccountClient accountClient;
 
     public OperationResult createCashOperation(CashOperationDTO cashOperationDTO) {
-        ResponseEntity<OperationResult> responseEntity = accountClient.cashOperation(cashOperationDTO);
+        ResponseEntity<CashOperationResultDTO> responseEntity = accountClient.cashOperation(cashOperationDTO);
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             return responseEntity.getBody();
         }

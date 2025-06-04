@@ -3,6 +3,7 @@ package net.microfin.financeapp.web.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.dto.OperationResult;
 import net.microfin.financeapp.service.AccountService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,14 +22,14 @@ import java.util.Optional;
 @RequestMapping("/account")
 public class AccountController {
 
-    private AccountService accountService;
+    private final AccountService accountService;
 
     @PostMapping("/{userId}/cash")
     public String performCashOperation(@ModelAttribute("cashDTO") @Valid CashOperationDTO cashDTO,
                                  @PathVariable("userId") Integer userId,
                                  BindingResult bindingResult) {
         return handleErrors(bindingResult, "passwordErrors").map(String::toString).orElseGet(() ->{
-            accountService.createCashOperation(cashDTO);
+            OperationResult operationResult = accountService.createCashOperation(cashDTO);
             return "redirect:/profile";
         });
     }

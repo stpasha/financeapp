@@ -16,6 +16,7 @@ import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.service.KeycloakUserService;
+import net.microfin.financeapp.service.RetryService;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -33,7 +34,7 @@ public class EventProcessor {
     final UserRepository userRepository;
     final AccountRepository accountRepository;
     final KeycloakUserService keycloakUserService;
-    final UserMapper userMapper;
+    private final RetryService retryService;
     final ObjectMapper objectMapper;
 
     @Scheduled(fixedDelay = 5000)
@@ -71,21 +72,9 @@ public class EventProcessor {
                 return user;
             }).orElseThrow(() -> new EntityNotFoundException("User not found"));
         } catch (Exception e) {
-            handleRetry(outboxEvent, e);
+            retryService.handleRetry(outboxEvent, e);
         }
         outboxEventRepository.save(outboxEvent);
-    }
-
-    private void handleRetry(OutboxEvent outboxEvent, Exception e) {
-        outboxEvent.setRetryCount(outboxEvent.getRetryCount() + 1);
-        outboxEvent.setLastAttemptAt(LocalDateTime.now());
-        outboxEvent.setNextAttemptAt(LocalDateTime.now().plusMinutes(5)); // например, через 5 минут повтор
-        if (outboxEvent.getRetryCount() > 5) {
-            outboxEvent.setStatus(OperationStatus.FAILED);
-        } else {
-            outboxEvent.setStatus(OperationStatus.RETRYABLE);
-        }
-        log.error("Error occured event {}, exception", outboxEvent, e);
     }
 
     private void processChangePasswordEvent(OutboxEvent outboxEvent) {
@@ -100,7 +89,7 @@ public class EventProcessor {
             }).orElseThrow(() -> new EntityNotFoundException("User not found for password update"));
             outboxEvent.setStatus(OperationStatus.SENT);
         } catch (Exception e) {
-            handleRetry(outboxEvent, e);
+            retryService.handleRetry(outboxEvent, e);
         }
         outboxEventRepository.save(outboxEvent);
     }
@@ -108,7 +97,7 @@ public class EventProcessor {
     private void processCashDeposit(OutboxEvent outboxEvent) {
         try {
             CashOperationDTO cashDeposit = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
-            if (cashDeposit.getAccountId() == null) {
+            if (outboxEvent.getAggregateId() == null) {
                 userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
                         .active(true)
                         .balance(cashDeposit.getAmount())
@@ -118,11 +107,12 @@ public class EventProcessor {
             } else {
                 accountRepository.findById(cashDeposit.getAccountId()).map(account -> {
                     account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
-                    return accountRepository.save(account);
+                    return account;
                 }).orElseThrow(() -> new RuntimeException("Account not found"));
             }
+            outboxEvent.setStatus(OperationStatus.SENT);
         } catch (Exception e) {
-            handleRetry(outboxEvent, e);
+            retryService.handleRetry(outboxEvent, e);
         }
     }
 
@@ -141,7 +131,7 @@ public class EventProcessor {
                 }).orElseThrow(() -> new RuntimeException("Account not found"));
             }
         } catch (Exception e) {
-            handleRetry(outboxEvent, e);
+            retryService.handleRetry(outboxEvent, e);
         }
     }
 

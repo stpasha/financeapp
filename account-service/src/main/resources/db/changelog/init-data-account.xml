@@ -29,7 +29,7 @@
         <createSequence
                 sequenceName="user_id_seq"
                 schemaName="account_info"
-                startValue="1"
+                startValue="3"
                 incrementBy="1"/>
         <rollback>
             <dropSequence sequenceName="user_id_seq" schemaName="account_info"/>
@@ -80,7 +80,7 @@
         <createSequence
                 sequenceName="account_id_seq"
                 schemaName="account_info"
-                startValue="1"
+                startValue="3"
                 incrementBy="1"/>
         <rollback>
             <dropSequence sequenceName="account_id_seq" schemaName="account_info"/>
@@ -171,7 +171,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="aggregate_id" type="INTEGER">
-                <constraints nullable="false"/>
             </column>
             <column name="operation_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>

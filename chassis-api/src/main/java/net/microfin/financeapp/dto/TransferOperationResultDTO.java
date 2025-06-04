@@ -1,10 +1,7 @@
 package net.microfin.financeapp.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import net.microfin.financeapp.util.OperationStatus;
 
 import java.math.BigDecimal;
@@ -13,6 +10,8 @@ import java.math.BigDecimal;
 @Setter
 @Builder
 @EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
 public class TransferOperationResultDTO implements OperationResult {
     @EqualsAndHashCode.Include
     @NotNull

@@ -1,12 +1,7 @@
 package net.microfin.financeapp.dto;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
@@ -18,6 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CashOperationDTO {
 
     @EqualsAndHashCode.Include
@@ -32,7 +29,6 @@ public class CashOperationDTO {
     private Integer userId;
 
     @NotNull
-    @Size(max = 3, message = "Currency code should be not greater than 3 symbols")
     private Currency currencyCode;
 
     @NotNull

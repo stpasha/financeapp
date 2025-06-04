@@ -3,6 +3,7 @@ package net.microfin.financeapp.client;
 import net.microfin.financeapp.config.FeignConfig;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.dto.CashOperationResultDTO;
 import net.microfin.financeapp.dto.OperationResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,6 @@ public interface AccountClient {
     ResponseEntity disable(@PathVariable("id") Integer id);
 
     @PostMapping("/account/operation")
-    ResponseEntity<OperationResult> cashOperation(@RequestBody CashOperationDTO cashOperationDTO);
+    ResponseEntity<CashOperationResultDTO> cashOperation(@RequestBody CashOperationDTO cashOperationDTO);
 
 }

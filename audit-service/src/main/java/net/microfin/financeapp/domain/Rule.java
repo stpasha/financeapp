@@ -10,6 +10,8 @@ import lombok.*;
 @EqualsAndHashCode
 @Builder
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Rule {
     @Id
     @Column(nullable = false, name = "rule_id")

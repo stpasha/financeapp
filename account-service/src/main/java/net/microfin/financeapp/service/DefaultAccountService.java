@@ -15,9 +15,7 @@ import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
-import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
-import net.microfin.financeapp.util.OperationType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,7 +58,8 @@ public class DefaultAccountService implements AccountService {
             case CASH_DEPOSIT, CASH_WITHDRAWAL -> {
                 accountId = accountRepository.findByCurrencyCodeAndUserId(
                        operationDTO.getCurrencyCode(),
-                        operationDTO.getUserId()).map(account -> account.getId()).orElseGet(() -> createAccountForUser(operationDTO).getId());
+                        operationDTO.getUserId()).map(account -> account.getId()).orElse(null);
+                operationDTO.setAccountId(accountId);
             }
         }
 

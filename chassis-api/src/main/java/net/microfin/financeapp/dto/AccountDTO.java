@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 @Setter
 @EqualsAndHashCode
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccountDTO {
     @EqualsAndHashCode.Include
     private Integer id;

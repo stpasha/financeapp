@@ -1,10 +1,7 @@
 package net.microfin.financeapp.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import net.microfin.financeapp.util.Currency;
 
 import java.math.BigDecimal;
@@ -15,6 +12,8 @@ import java.math.BigDecimal;
 @Entity
 @Builder
 @Table(name = "accounts", schema = "account_info")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Account {
     @EqualsAndHashCode.Include
     @Id

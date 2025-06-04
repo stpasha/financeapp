@@ -1,10 +1,7 @@
 package net.microfin.financeapp.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import net.microfin.financeapp.util.OperationStatus;
 
 import java.math.BigDecimal;
@@ -16,6 +13,8 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExchangeOperation {
     @Id
     @Column(name = "operation_id")

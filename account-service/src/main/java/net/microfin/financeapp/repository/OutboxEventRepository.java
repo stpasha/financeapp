@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface OutboxEventRepository extends JpaRepository <OutboxEvent, UUID> {
-    @Query(value = "SELECT e.* FROM account_info.outbox_events e WHERE e.status = 'PENDING'", nativeQuery = true)
+    @Query(value = "SELECT e.* FROM account_info.outbox_events e WHERE e.status = 'PENDING' OR e.status = 'RETRYABLE'", nativeQuery = true)
     List<OutboxEvent> findOutboxEventByPendingStatus();
     @Query(value = "SELECT e.* FROM account_info.outbox_events e WHERE e.status = 'FAILED' and e.retry_count < 5 and e.next_attempt_at < :now",
     nativeQuery = true)
