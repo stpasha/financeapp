@@ -2,7 +2,8 @@ package net.microfin.financeapp.service;
 
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationResultDTO;
+import org.springframework.http.ResponseEntity;
 
 public interface ExchangeOperationService {
-    ExchangeOperationResultDTO performOperation(ExchangeOperationDTO exchangeOperationDTO);
+    ResponseEntity<ExchangeOperationResultDTO> performOperation(ExchangeOperationDTO exchangeOperationDTO);
 }

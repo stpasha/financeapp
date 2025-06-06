@@ -5,23 +5,6 @@ spring:
         jwt:
           issuer-uri: http://mynet:7080/realms/zbank
           user-name-attribute: preferred_username
-#      client:
-#        provider:
-#          keycloak:
-#            authorization-uri: http://localhost:7080/realms/zbank/protocol/openid-connect/auth
-#            token-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/token
-#            user-info-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/userinfo
-#            jwk-set-uri: http://keycloak:8080/realms/zbank/protocol/openid-connect/certs
-#            user-name-attribute: preferred_username
-        #            authorization-uri: http://localhost:7080/realms/zbank/protocol/openid-connect/auth
-        #            issuer-uri: http://keycloak:8080/realms/zbank
-#        registration:
-#          gateway-client:
-#            provider: keycloak
-#            client-id: zbankapp
-#            client-secret: g3WnFjX9r8zxmhlY7yILHV5hZ3RtLUjw
-#            authorization-grant-type: client_credentials
-#            scope: openid, profile, email
   application:
     name: gateway-service
   config:
@@ -48,6 +31,13 @@ spring:
             - Path=/cash/**
           filters:
             - RewritePath=/cash(?<segment>.*), /api/cash\${segment}
+            - TokenRelay
+        - id: to-exchange-service
+          uri: http://exchange-service:8085/
+          predicates:
+            - Path=/exchange/**
+          filters:
+            - RewritePath=/exchange(?<segment>.*), /api/exchange\${segment}
             - TokenRelay
         - id: to-user-service
           uri: http://account-service:8081/

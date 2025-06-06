@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequestMapping("/api/user")
 @RestController
 @RequiredArgsConstructor
@@ -43,10 +45,15 @@ public class UserApi {
                 .orElseThrow(() -> new RuntimeException("Password is not updated"));
     }
 
-    @GetMapping
-    public ResponseEntity<UserDTO> getUserByName(@RequestParam(name = "username", required = true) String username) {
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDTO> getUserByName(@PathVariable("username") String username) {
         return userService.getUserByUsername(username)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseThrow(() -> new IllegalStateException("Пользователь не найден по имени " + username));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 }

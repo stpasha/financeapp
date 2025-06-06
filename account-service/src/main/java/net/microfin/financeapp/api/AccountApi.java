@@ -37,6 +37,11 @@ public class AccountApi {
         return ResponseEntity.ok(accountService.getAccountsByUserId(userId));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Integer id) {
+        return accountService.getAccount(id).map(ResponseEntity::ok).orElseThrow(() -> new RuntimeException("Account not found"));
+    }
+
     @PutMapping("/{id}/disable")
     public ResponseEntity disable(@PathVariable("id") Integer id) {
         accountService.disable(id);

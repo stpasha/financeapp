@@ -15,6 +15,8 @@ import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.util.OperationType;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 
 
@@ -31,6 +33,11 @@ public class DefaultUserService implements UserService {
     @Override
     public Optional<UserDTO> getUserByUsername(String username) {
         return userRepository.findUsersByUsername(username).map(user -> userMapper.toDto(user));
+    }
+
+    @Override
+    public List<UserDTO> getUsers() {
+        return userMapper.toDtoList(userRepository.findAll());
     }
 
     @Override

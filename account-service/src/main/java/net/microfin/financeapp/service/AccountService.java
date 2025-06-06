@@ -13,4 +13,5 @@ public interface AccountService {
     Optional<AccountDTO> createAccount(AccountDTO accountDTO);
     void disable(Integer id);
     Optional<OperationResult> processOperation(GenericOperationDTO operationDTO);
+    Optional<AccountDTO> getAccount(Integer id);
 }

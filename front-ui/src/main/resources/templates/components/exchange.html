@@ -1,4 +1,4 @@
-<form th:fragment="exchange" method="post" th:action="${'/user/'+login+'/transfer'}">
+<form th:fragment="exchange" method="post" th:action="${'/account/'+user.id+'/exchange'}">
     <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
         <tr th:if="${transferErrors!=null}" th:each="transferError : ${transferErrors}">
             <td style="color:red;" th:text="${transferError}"/>
@@ -7,22 +7,23 @@
             <td style="font-weight:bold;">Перевод себе</td>
             <td>
                 Со счета
-                <select name="from_currency">
-                    <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
+                <select name="sourceAccountId">
+                    <option th:each="account : ${userAccount}" th:value="${account.getId()}" th:text="${account.getCurrencyCode()}"/>
                 </select>
             </td>
             <td>
                 На счет
-                <select name="to_currency">
-                    <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
+                <select name="targetAccountId">
+                    <option th:each="account : ${userAccount}" th:value="${account.getId()}" th:text="${account.getCurrencyCode()}"/>
                 </select>
             </td>
             <td>
-                <input name="value" type="number" style="width:100%" required/>
+                <input name="amount" type="number" style="width:100%" required/>
+                <input type="hidden" name="status" value="PENDING"/>
+                <input type="hidden" name="userId" th:value="${user.id}"/>
             </td>
             <td style="text-align:right">
-                <input hidden name="to_login" th:value="${login}"/>
-                <button>Перевести</button>
+                <button name="operationType" value="EXCHANGE">Перевести</button>
             </td>
         </tr>
     </table>

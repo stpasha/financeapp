@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
+import net.microfin.financeapp.service.AccountService;
 import net.microfin.financeapp.service.DictionaryService;
 import net.microfin.financeapp.service.UserService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -25,6 +26,7 @@ public class ProfileController {
 
     private final UserService userService;
     private final DictionaryService dictionaryService;
+    private final AccountService accountService;
 
     @GetMapping("/")
     public String rootRedirect(Principal principal) {
@@ -39,15 +41,21 @@ public class ProfileController {
     public String profile(Principal principal,
                           Model model,
                           @RequestParam(required = false) String passwordErrors,
-                          @RequestParam(required = false) String userAccountsErrors) {
+                          @RequestParam(required = false) String userAccountsErrors,
+                          @RequestParam(required = false) String transferErrors,
+                          @RequestParam(required = false) String transferOtherErrors) {
         if (principal instanceof OAuth2AuthenticationToken token) {
             UserDTO userDTO = userService.queryUserInfo(token.getPrincipal().getAttribute("preferred_username"));
             model.addAttribute("user", userDTO);
+            model.addAttribute("userAccount", accountService.getAccountsByUser(userDTO.getId()));
             model.addAttribute("passwordDTO", PasswordDTO.builder().id(userDTO.getId()).build());
             //model.addAttribute("passwordDTO", CashOperationDTO.builder().id(userDTO.getId()).build());
             model.addAttribute("currencies", dictionaryService.getCurrencies());
             model.addAttribute("passwordErrors", passwordErrors);
             model.addAttribute("userAccountsErrors", userAccountsErrors);
+            model.addAttribute("targetUsers", userService.queryTargeUsers());
+            model.addAttribute("transferErrors", transferErrors);
+            model.addAttribute("transferOtherErrors", transferOtherErrors);
             return "profile";
         }
         return "redirect:/login";

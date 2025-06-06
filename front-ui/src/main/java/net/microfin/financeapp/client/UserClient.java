@@ -8,6 +8,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @FeignClient(name = "user-client", url = "http://gateway-service:8082")
 public interface UserClient {
     @PostMapping("/user")
@@ -19,6 +21,9 @@ public interface UserClient {
     @PutMapping("/user/password")
     ResponseEntity<UserDTO> updatePassword(@RequestBody PasswordDTO userDTO);
 
+    @GetMapping("/user/{username}")
+    ResponseEntity<UserDTO> getUserByName(@PathVariable(name = "username") String username);
+
     @GetMapping("/user")
-    ResponseEntity<UserDTO> getUserByName(@RequestParam(name = "username", required = true) String username);
+    ResponseEntity<List<UserDTO>> getUsers();
 }

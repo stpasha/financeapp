@@ -37,6 +37,11 @@ public class DefaultAccountService implements AccountService {
     }
 
     @Override
+    public Optional<AccountDTO> getAccount(Integer id) {
+        return accountRepository.findById(id).map(accountMapper::toDto);
+    }
+
+    @Override
     @Transactional
     public Optional<AccountDTO> createAccount(AccountDTO accountDTO) {
         Account account = accountMapper.toEntity(accountDTO);

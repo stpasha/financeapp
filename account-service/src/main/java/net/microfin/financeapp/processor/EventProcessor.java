@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.domain.Account;
 import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
 import net.microfin.financeapp.mapper.UserMapper;
@@ -53,6 +54,9 @@ public class EventProcessor {
                 }
                 case OperationType.CASH_WITHDRAWAL -> {
                     processCashWithdraw(outboxEvent);
+                }
+                case OperationType.EXCHANGE -> {
+                    processExchange(outboxEvent);
                 }
             }
         }
@@ -128,6 +132,30 @@ public class EventProcessor {
                     }
                     account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
                     return accountRepository.save(account);
+                }).orElseThrow(() -> new RuntimeException("Account not found"));
+                outboxEvent.setStatus(OperationStatus.SENT);
+            }
+        } catch (Exception e) {
+            retryService.handleRetry(outboxEvent, e);
+        }
+    }
+
+    private void processExchange(OutboxEvent outboxEvent) {
+        try {
+            ExchangeOperationDTO exchange = fromJson(outboxEvent.getPayload(), ExchangeOperationDTO.class);
+            if (exchange.getSourceAccountId() == null || exchange.getTargetAccountId() == null) {
+                throw  new RuntimeException("Account not found");
+            } else {
+                accountRepository.findById(exchange.getSourceAccountId()).map(account -> {
+                    if (account.getBalance().compareTo(exchange.getAmount()) < 0) {
+                        throw new RuntimeException("Insufficient funds in the account");
+                    }
+                    account.setBalance(account.getBalance().subtract(exchange.getAmount()));
+                    return account;
+                }).orElseThrow(() -> new RuntimeException("Account not found"));
+                accountRepository.findById(exchange.getTargetAccountId()).map(account -> {
+                    account.setBalance(account.getBalance().add(exchange.getTargetAmount()));
+                    return account;
                 }).orElseThrow(() -> new RuntimeException("Account not found"));
                 outboxEvent.setStatus(OperationStatus.SENT);
             }

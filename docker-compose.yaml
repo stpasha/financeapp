@@ -70,6 +70,21 @@ services:
     networks:
       - zbank-network
 
+  exchange-service:
+    build:
+      context: .
+      dockerfile: ./exchange-service/Dockerfile
+    environment:
+      EXCHANGE_SERVER_PORT: ${EXCHANGE_SERVER_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_EXCHANGE_SCHEMA: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA}
+    ports:
+      - "${EXCHANGE_SERVER_PORT}:${EXCHANGE_SERVER_PORT}"
+      - "${EXCHANGE_SERVER_DEBUG_PORT}:${EXCHANGE_SERVER_DEBUG_PORT}"
+    networks:
+      - zbank-network
 
   front-ui:
     build:

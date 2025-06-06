@@ -2,15 +2,14 @@ package net.microfin.financeapp.service;
 
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.AccountClient;
-import net.microfin.financeapp.dto.CashOperationDTO;
-import net.microfin.financeapp.dto.CashOperationResultDTO;
-import net.microfin.financeapp.dto.OperationResult;
+import net.microfin.financeapp.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,7 +23,23 @@ public class AccountService {
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             return responseEntity.getBody();
         }
-        throw new RuntimeException("Unable to update user");
+        throw new RuntimeException("Unable to perform cash operation");
+    }
+
+    public OperationResult createExchangeOperation(ExchangeOperationDTO exchangeOperationDTO) {
+        ResponseEntity<CashOperationResultDTO> responseEntity = accountClient.exchangeOperation(exchangeOperationDTO);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        }
+        throw new RuntimeException("Unable to perform exchange operation");
+    }
+
+    public List<AccountDTO> getAccountsByUser(Integer userId) {
+        ResponseEntity<List<AccountDTO>> responseEntity = accountClient.getAccountsByUser(userId);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        }
+        throw new RuntimeException("Unable to get account info");
     }
 
     private Optional<String> handleErrors(BindingResult bindingResult, String errAttribute) {

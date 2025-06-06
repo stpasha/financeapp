@@ -3,6 +3,7 @@ package net.microfin.financeapp.client;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
+import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,5 +23,9 @@ public interface AccountClient {
 
     @PostMapping("/cash/operation")
     ResponseEntity<CashOperationResultDTO> cashOperation(@RequestBody CashOperationDTO cashOperationDTO);
+
+    @PostMapping("/exchange/operation")
+    ResponseEntity<CashOperationResultDTO> exchangeOperation(@RequestBody ExchangeOperationDTO exchangeOperationDTO);
+
 
 }

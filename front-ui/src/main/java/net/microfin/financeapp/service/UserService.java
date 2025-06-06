@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.security.Principal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +47,14 @@ public class UserService {
 
     public UserDTO queryUserInfo(String userName) {
         return userClient.getUserByName(userName).getBody();
+    }
+
+    public List<UserDTO> queryTargeUsers() {
+        ResponseEntity<List<UserDTO>> responseEntity = userClient.getUsers();
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        }
+        throw new RuntimeException("Unable to query users");
     }
 
 }

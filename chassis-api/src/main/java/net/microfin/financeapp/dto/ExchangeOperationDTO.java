@@ -29,8 +29,12 @@ public class ExchangeOperationDTO {
     @NotNull
     private Integer sourceAccountId;
 
+    private Integer userId;
+
     @NotNull
     private BigDecimal amount;
+
+    private BigDecimal targetAmount;
 
     @PastOrPresent
     private LocalDateTime createdAt;

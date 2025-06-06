@@ -30,11 +30,12 @@ public class GenericOperationDTO {
     @NotNull
     private Integer userId;
 
-    @NotNull
     private Currency currencyCode;
 
     @NotNull
     private BigDecimal amount;
+
+    private BigDecimal targetAmount;
 
     @PastOrPresent
     private LocalDateTime createdAt;
