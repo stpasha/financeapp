@@ -1,6 +1,5 @@
 package net.microfin.financeapp.client;
 
-import net.microfin.financeapp.config.FeignConfig;
 import net.microfin.financeapp.dto.CurrencyDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

@@ -4,7 +4,7 @@ spring:
   profiles:
     active: dev
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${DICTIONARIES_SERVER_PORT:8083}
 management:
   endpoints:
     web:

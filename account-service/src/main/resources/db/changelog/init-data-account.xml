@@ -170,6 +170,8 @@
             <column name="aggregate_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="account_id" type="INTEGER">
+            </column>
             <column name="aggregate_id" type="INTEGER">
             </column>
             <column name="operation_type" type="VARCHAR(255)">

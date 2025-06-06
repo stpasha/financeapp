@@ -92,7 +92,8 @@ public class DefaultAccountService implements AccountService {
     private void saveOutboxEvent(Integer accountId, GenericOperationDTO operationDTO) {
         try {
             OutboxEvent event = OutboxEvent.builder()
-                    .aggregateId(accountId)
+                    .aggregateId(operationDTO.getId())
+                    .accountId(accountId)
                     .aggregateType("ACCOUNT")
                     .operationType(operationDTO.getOperationType())
                     .payload(objectMapper.writeValueAsString(operationDTO))

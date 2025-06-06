@@ -1,10 +1,8 @@
 package net.microfin.financeapp.client;
 
-import net.microfin.financeapp.config.FeignConfig;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
-import net.microfin.financeapp.dto.OperationResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +20,7 @@ public interface AccountClient {
     @PutMapping("/account/{id}/disable")
     ResponseEntity disable(@PathVariable("id") Integer id);
 
-    @PostMapping("/account/operation")
+    @PostMapping("/cash/operation")
     ResponseEntity<CashOperationResultDTO> cashOperation(@RequestBody CashOperationDTO cashOperationDTO);
 
 }

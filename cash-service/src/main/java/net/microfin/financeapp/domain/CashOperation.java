@@ -30,8 +30,10 @@ public class CashOperation {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "operation_type", nullable = false)
     private OperationType operationType;
-    @Column(name = "account_id", nullable = false)
+    @Column(name = "account_id")
     private Integer accountId;
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
     @Column(name = "currency_code", nullable = false, length = 3)
     private String currencyCode;
     @Column(name = "amount", nullable = false, precision = 12, scale = 2)
@@ -41,4 +43,9 @@ public class CashOperation {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private OperationStatus status;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

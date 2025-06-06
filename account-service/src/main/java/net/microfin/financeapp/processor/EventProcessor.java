@@ -97,7 +97,7 @@ public class EventProcessor {
     private void processCashDeposit(OutboxEvent outboxEvent) {
         try {
             CashOperationDTO cashDeposit = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
-            if (outboxEvent.getAggregateId() == null) {
+            if (outboxEvent.getAccountId() == null) {
                 userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
                         .active(true)
                         .balance(cashDeposit.getAmount())
@@ -129,6 +129,7 @@ public class EventProcessor {
                     account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
                     return accountRepository.save(account);
                 }).orElseThrow(() -> new RuntimeException("Account not found"));
+                outboxEvent.setStatus(OperationStatus.SENT);
             }
         } catch (Exception e) {
             retryService.handleRetry(outboxEvent, e);

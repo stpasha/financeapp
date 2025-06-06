@@ -4,20 +4,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create schema -->
-    <changeSet id="101" author="nomatter" runOnChange="true">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <sqlCheck expectedResult="0">
-                    SELECT COUNT(*) FROM pg_catalog.pg_namespace WHERE nspname = 'cash_info';
-                </sqlCheck>
-            </not>
-        </preConditions>
-        <sql>
-            CREATE SCHEMA IF NOT EXISTS cash_info;
-            ALTER SCHEMA cash_info OWNER TO finadm;
-        </sql>
-    </changeSet>
 
     <!-- Create cash_operations_id_seq sequence -->
     <changeSet id="102" author="nomatter">
@@ -48,6 +34,8 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="account_id" type="INTEGER">
+            </column>
+            <column name="user_id" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="currency_code" type="VARCHAR(3)">

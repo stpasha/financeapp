@@ -24,6 +24,8 @@ public class OutboxEvent {
     private UUID id;
     @Column(name = "aggregate_type")
     private String aggregateType;// тип агрегата, например "USER"
+    @Column(name = "account_id")
+    private Integer accountId;        // ID ЛС
     @Column(name = "aggregate_id")
     private Integer aggregateId;        // ID сущности
     @Column(name = "operation_type")

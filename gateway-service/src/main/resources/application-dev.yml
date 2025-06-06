@@ -42,6 +42,13 @@ spring:
           filters:
             - RewritePath=/account(?<segment>.*), /api/account\${segment}
             - TokenRelay
+        - id: to-cash-service
+          uri: http://cash-service:8084/
+          predicates:
+            - Path=/cash/**
+          filters:
+            - RewritePath=/cash(?<segment>.*), /api/cash\${segment}
+            - TokenRelay
         - id: to-user-service
           uri: http://account-service:8081/
           predicates:
@@ -50,7 +57,7 @@ spring:
             - RewritePath=/user(?<segment>.*), /api/user$\{segment}
             - TokenRelay
         - id: to-dictionaries-service
-          uri: http://dictionaries-service:8081/
+          uri: http://dictionaries-service:8083/
           predicates:
             - Path=/dictionary/**
           filters:
