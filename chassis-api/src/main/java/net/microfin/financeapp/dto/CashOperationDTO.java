@@ -1,5 +1,6 @@
 package net.microfin.financeapp.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import net.microfin.financeapp.util.Currency;
@@ -32,6 +33,7 @@ public class CashOperationDTO {
     private Currency currencyCode;
 
     @NotNull
+    @DecimalMin(value = "0.00", message = "Amount must be 0 or positive")
     private BigDecimal amount;
 
     private LocalDateTime createdAt;

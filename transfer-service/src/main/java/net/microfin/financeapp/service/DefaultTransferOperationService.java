@@ -1,4 +1,80 @@
 package net.microfin.financeapp.service;
 
-public class DefaultTransferOperationService {
+import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.client.TransferOperationClient;
+import net.microfin.financeapp.domain.TransferOperation;
+import net.microfin.financeapp.dto.AccountDTO;
+import net.microfin.financeapp.dto.CurrencyDTO;
+import net.microfin.financeapp.dto.TransferOperationDTO;
+import net.microfin.financeapp.dto.TransferOperationResultDTO;
+import net.microfin.financeapp.mapper.TransferOperationMapper;
+import net.microfin.financeapp.repository.TransferOperationRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class DefaultTransferOperationService implements TransferOperationService {
+
+    private final TransferOperationClient operationClient;
+    private final TransferOperationMapper operationMapper;
+    private final TransferOperationRepository operationRepository;
+
+    @Override
+    public ResponseEntity<TransferOperationResultDTO> performOperation(TransferOperationDTO transferOperationDTO) {
+        ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
+        ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(transferOperationDTO.getSourceAccountId());
+        ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(transferOperationDTO.getTargetAccountId());
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()
+                && sourceAccountResp.getStatusCode().is2xxSuccessful()
+                && targetAccountResp.getStatusCode().is2xxSuccessful()) {
+
+
+            List<CurrencyDTO> currencies = responseEntity.getBody();
+            AccountDTO sourceAccount = sourceAccountResp.getBody();
+            AccountDTO targetAccount = targetAccountResp.getBody();
+
+            if (transferOperationDTO.getAmount().compareTo(sourceAccount.getBalance()) > 0) {
+                throw new RuntimeException("Insufficient funds");
+            }
+
+            if (!transferOperationDTO.getUserId().equals(sourceAccount.getUser().getId())) {
+                throw new RuntimeException("Incorrect source account");
+            }
+            Optional<CurrencyDTO> sourceCurrencyOpt = currencies.stream()
+                    .filter(c -> c.code().equals(sourceAccount.getCurrencyCode()))
+                    .findFirst();
+
+            Optional<CurrencyDTO> targetCurrencyOpt = currencies.stream()
+                    .filter(c -> c.code().equals(targetAccount.getCurrencyCode()))
+                    .findFirst();
+
+            if (sourceCurrencyOpt.isEmpty() || targetCurrencyOpt.isEmpty()) {
+                throw new RuntimeException("Currency info not found");
+            }
+
+            CurrencyDTO sourceCurrency = sourceCurrencyOpt.get();
+            CurrencyDTO targetCurrency = targetCurrencyOpt.get();
+
+            BigDecimal convertedAmount = transferOperationDTO.getAmount()
+                    .multiply(sourceCurrency.value())
+                    .divide(targetCurrency.value(), 2, RoundingMode.HALF_UP);
+
+            transferOperationDTO.setTargetAmount(convertedAmount);
+
+            TransferOperation transferOperation = operationRepository.save(operationMapper.toEntity(transferOperationDTO));
+            transferOperationDTO.setId(transferOperation.getId());
+
+            return operationClient.transferOperation(transferOperationDTO);
+
+        } else {
+            throw new RuntimeException("Unable to get currency or account info");
+        }
+    }
 }

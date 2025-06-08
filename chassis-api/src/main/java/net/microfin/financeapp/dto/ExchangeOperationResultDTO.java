@@ -19,10 +19,4 @@ public class ExchangeOperationResultDTO implements OperationResult {
     @NotNull
     private OperationStatus status;
     private String message;
-    private BigDecimal targetBalance;
-    private BigDecimal sourceBalance;
-    @NotNull
-    private Integer targetAccountId;
-    @NotNull
-    private Integer sourceAccountId;
 }

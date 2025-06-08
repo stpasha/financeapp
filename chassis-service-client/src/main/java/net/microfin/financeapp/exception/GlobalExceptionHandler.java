@@ -24,24 +24,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidation(MethodArgumentNotValidException ex) {
-        log.error("MethodArgumentNotValidException occured", ex);
-        List<String> errors = ex.getBindingResult().getFieldErrors()
-                .stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .toList();
-
-        return ResponseEntity.badRequest().body(
-                new ErrorResponseDTO(
-                        HttpStatus.BAD_REQUEST.value(),
-                        "Validation failed",
-                        errors,
-                        LocalDateTime.now()
-                )
-        );
-    }
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleConstraintViolation(ConstraintViolationException ex) {
         log.error("ConstraintViolationException occured", ex);

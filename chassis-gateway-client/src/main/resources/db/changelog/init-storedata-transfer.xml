@@ -111,7 +111,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="transfer-005" author="nomatter">
+    <changeSet id="transfer-006" author="nomatter">
         <preConditions onFail="MARK_RAN">
             <not>
                 <indexExists schemaName="transfer_info" indexName="transfer_operations_idx_user_id"/>

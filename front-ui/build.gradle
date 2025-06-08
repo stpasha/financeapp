@@ -45,7 +45,7 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     //Local
     implementation project(":chassis-api")
-    implementation project(":chassis-gateway-client")
+    implementation project(":chassis-service-client")
 
     //Db
     runtimeOnly 'org.postgresql:postgresql:42.7.5'

@@ -3,7 +3,6 @@ package net.microfin.financeapp.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;

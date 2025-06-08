@@ -40,19 +40,22 @@ public class ProfileController {
     @GetMapping("/profile")
     public String profile(Principal principal,
                           Model model,
+                          @RequestParam(required = false) String info,
                           @RequestParam(required = false) String passwordErrors,
                           @RequestParam(required = false) String userAccountsErrors,
                           @RequestParam(required = false) String transferErrors,
+                          @RequestParam(required = false) String cashErrors,
                           @RequestParam(required = false) String transferOtherErrors) {
         if (principal instanceof OAuth2AuthenticationToken token) {
             UserDTO userDTO = userService.queryUserInfo(token.getPrincipal().getAttribute("preferred_username"));
             model.addAttribute("user", userDTO);
             model.addAttribute("userAccount", accountService.getAccountsByUser(userDTO.getId()));
             model.addAttribute("passwordDTO", PasswordDTO.builder().id(userDTO.getId()).build());
-            //model.addAttribute("passwordDTO", CashOperationDTO.builder().id(userDTO.getId()).build());
+            model.addAttribute("info", info);
             model.addAttribute("currencies", dictionaryService.getCurrencies());
             model.addAttribute("passwordErrors", passwordErrors);
             model.addAttribute("userAccountsErrors", userAccountsErrors);
+            model.addAttribute("cashErrors", cashErrors);
             model.addAttribute("targetUsers", userService.queryTargeUsers());
             model.addAttribute("transferErrors", transferErrors);
             model.addAttribute("transferOtherErrors", transferOtherErrors);

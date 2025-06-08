@@ -1,5 +1,6 @@
 package net.microfin.financeapp.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
@@ -32,6 +33,7 @@ public class ExchangeOperationDTO {
     private Integer userId;
 
     @NotNull
+    @DecimalMin(value = "0.00", inclusive = false, message = "Amount must be positive")
     private BigDecimal amount;
 
     private BigDecimal targetAmount;

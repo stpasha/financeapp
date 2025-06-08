@@ -179,6 +179,22 @@ services:
     networks:
       - zbank-network
 
+  transfer-service:
+    build:
+      context: .
+      dockerfile: ./transfer-service/Dockerfile
+    environment:
+      TRANSFER_SERVER_PORT: ${TRANSFER_SERVER_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_TRANSFER_SCHEMA: ${SPRING_DATASOURCE_TRANSFER_SCHEMA}
+    ports:
+      - "${TRANSFER_SERVER_PORT}:${TRANSFER_SERVER_PORT}"
+      - "${TRANSFER_SERVER_DEBUG_PORT}:${TRANSFER_SERVER_DEBUG_PORT}"
+    networks:
+      - zbank-network
+
 volumes:
   keycloak_postgres_data:
   postgres_data:

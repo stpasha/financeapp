@@ -34,6 +34,14 @@ public class AccountService {
         throw new RuntimeException("Unable to perform exchange operation");
     }
 
+    public OperationResult createTransferOperation(TransferOperationDTO transferOperationDTO) {
+        ResponseEntity<CashOperationResultDTO> responseEntity = accountClient.transferOperation(transferOperationDTO);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        }
+        throw new RuntimeException("Unable to perform transfer operation");
+    }
+
     public List<AccountDTO> getAccountsByUser(Integer userId) {
         ResponseEntity<List<AccountDTO>> responseEntity = accountClient.getAccountsByUser(userId);
         if (responseEntity.getStatusCode().is2xxSuccessful()) {

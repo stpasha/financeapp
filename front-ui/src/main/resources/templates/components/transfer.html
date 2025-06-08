@@ -1,4 +1,4 @@
-<form th:fragment="transfer" method="post" th:action="${'/user/'+login+'/transfer'}">
+<form th:fragment="transfer" method="post" th:action="${'/account/'+user.id+'/transfer'}">
     <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
         <tr th:if="${transferOtherErrors!=null}" th:each="transferOtherError : ${transferOtherErrors}">
             <td style="color:red;" th:text="${transferOtherError}"/>
@@ -7,27 +7,28 @@
             <td style="font-weight:bold;">Перевод другому</td>
             <td>
                 Со счета
-                <select name="from_currency">
-                    <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
+                <select name="sourceAccountId">
+                    <option th:each="account : ${userAccount}" th:value="${account.getId()}" th:text="${account.getCurrencyCode()}"/>
                 </select>
             </td>
             <td>
                 На счет
-                <select name="to_currency">
-                    <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
+                <select id="targetAccountId" name="targetAccountId">
                 </select>
             </td>
             <td>
-                <input name="value" type="number" required/>
+                <input name="amount" type="number" style="width:100%" required/>
+                <input type="hidden" name="status" value="PENDING"/>
+                <input type="hidden" name="userId" th:value="${user.id}"/>
             </td>
             <td>
                 Кому
-                <select name="to_login">
-                    <option th:each="user : ${users}" th:value="${user.getLogin()}" th:text="${user.getName()}"/>
+                <select id="to_login" name="to_login">
+                    <option th:id="${'to_user_'+user.getId()}" th:each="user : ${targetUsers}" th:value="${user.getId()}" th:text="${user.getFullName()}"/>
                 </select>
             </td>
             <td style="text-align:right">
-                <button>Перевести</button>
+                <button name="operationType" value="TRANSFER">Перевести</button>
             </td>
         </tr>
     </table>

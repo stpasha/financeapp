@@ -1,0 +1,29 @@
+package net.microfin.financeapp.api;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+import net.microfin.financeapp.dto.TransferOperationDTO;
+
+import net.microfin.financeapp.dto.TransferOperationResultDTO;
+import net.microfin.financeapp.service.TransferOperationService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/transfer")
+@RequiredArgsConstructor
+@PreAuthorize("hasRole('zbank.user')")
+public class TransferOperationApi {
+
+    private final TransferOperationService transferOperationService;
+
+    @PostMapping("/operation")
+    public ResponseEntity<TransferOperationResultDTO> performOperation(@Valid @RequestBody TransferOperationDTO transferOperationDTO) {
+        return transferOperationService.performOperation(transferOperationDTO);
+    }
+}

@@ -32,6 +32,8 @@ public class TransferOperationDTO {
     @DecimalMin(value = "0.00", inclusive = false, message = "Amount must be positive")
     private BigDecimal amount;
 
+    private BigDecimal targetAmount;
+
     @PastOrPresent
     private LocalDateTime createdAt;
 

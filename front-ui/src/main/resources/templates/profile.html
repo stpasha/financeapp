@@ -2,8 +2,36 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Корзина товаров</title>
+    <title>ZBANK</title>
     <script language="JavaScript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const toLoginSelect = document.querySelector('select[id="to_login"]');
+            const targetAccountSelect = document.querySelector('select[id="targetAccountId"]');
+
+            toLoginSelect.addEventListener("change", function () {
+                const selectedUserId = this.value;
+                if (!selectedUserId) return;
+
+                fetch(`/account/${selectedUserId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Ошибка при получении счетов");
+                        return response.json();
+                    })
+                    .then(accountList => {
+                        targetAccountSelect.innerHTML = ""; // Очистить предыдущие значения
+                        accountList.forEach(account => {
+                            const option = document.createElement("option");
+                            option.value = account.id;
+                            option.text = account.currencyCode + " (" + account.id + ")";
+                            targetAccountSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Ошибка:", error);
+                        targetAccountSelect.innerHTML = "<option disabled>Ошибка загрузки счетов</option>";
+                    });
+            });
+        });
     </script>
 </head>
 
@@ -16,6 +44,7 @@
 <form name="logoutForm" th:action="@{/logout}" method="post"  th:hidden="true">
     <input hidden type="submit" value="Logout"/>
 </form>
+<div id="info" th:text="${info}"></div>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
     <tr><td style="padding:2px;">
         <div th:replace="components/login :: login"></div>

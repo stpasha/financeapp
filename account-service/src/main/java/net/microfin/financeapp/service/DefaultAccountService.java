@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.domain.Account;
 import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.domain.User;
-import net.microfin.financeapp.dto.AccountDTO;
-import net.microfin.financeapp.dto.CashOperationResultDTO;
-import net.microfin.financeapp.dto.GenericOperationDTO;
-import net.microfin.financeapp.dto.OperationResult;
+import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.OutboxEventRepository;
@@ -18,6 +15,7 @@ import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,23 +57,40 @@ public class DefaultAccountService implements AccountService {
     @Transactional
     public Optional<OperationResult> processOperation(GenericOperationDTO operationDTO) {
         Integer accountId = null;
-        switch (operationDTO.getOperationType()) {
+        OperationResult result = null;
+                switch (operationDTO.getOperationType()) {
             case CASH_DEPOSIT, CASH_WITHDRAWAL -> {
-                accountId = accountRepository.findByCurrencyCodeAndUserId(
+                Optional<Account> account = accountRepository.findByCurrencyCodeAndUserId(
                        operationDTO.getCurrencyCode(),
-                        operationDTO.getUserId()).map(account -> account.getId()).orElse(null);
+                        operationDTO.getUserId());
+                accountId = account.map(Account::getId).orElse(null);
                 operationDTO.setAccountId(accountId);
+                BigDecimal amount = account.map(account1 -> account1.getBalance()).orElse(BigDecimal.ZERO);
+                result = CashOperationResultDTO.builder()
+                        .operationId(operationDTO.getId())
+                        .message("Operation " +operationDTO.getOperationType().name()+ " successful")
+                        .status(OperationStatus.SENT.name())
+                        .newBalance(amount.add(operationDTO.getAmount()))
+                        .build();
+            }
+
+            case EXCHANGE -> {
+                result = ExchangeOperationResultDTO.builder()
+                        .operationId(operationDTO.getId())
+                        .message("Operation " +operationDTO.getOperationType().name()+ " successful")
+                        .status(OperationStatus.SENT)
+                        .build();
+            }
+            case TRANSFER -> {
+                result = TransferOperationResultDTO.builder()
+                        .operationId(operationDTO.getId())
+                        .message("Operation " +operationDTO.getOperationType().name()+ " successful")
+                        .status(OperationStatus.SENT)
+                        .build();
             }
         }
 
         saveOutboxEvent(accountId, operationDTO);
-
-        CashOperationResultDTO result = CashOperationResultDTO.builder()
-                .operationId(operationDTO.getId())
-                .message("Operation successful")
-                .status(OperationStatus.SENT.name())
-                .newBalance(operationDTO.getAmount())
-                .build();
 
         return Optional.of(result);
     }
