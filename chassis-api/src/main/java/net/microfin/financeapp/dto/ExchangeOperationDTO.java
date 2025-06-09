@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExchangeOperationDTO {
+public class ExchangeOperationDTO implements GenericOperationDTO {
 
     @EqualsAndHashCode.Include
     private Integer id;

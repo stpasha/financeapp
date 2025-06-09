@@ -28,12 +28,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @Slf4j
 public class EventProcessor {
-    final OutboxEventRepository outboxEventRepository;
-    final UserRepository userRepository;
-    final AccountRepository accountRepository;
-    final KeycloakUserService keycloakUserService;
+    private final OutboxEventRepository outboxEventRepository;
+    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
+    private final KeycloakUserService keycloakUserService;
     private final RetryService retryService;
-    final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Scheduled(fixedDelay = 5000)
     @Transactional

@@ -4,20 +4,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create schema -->
-    <changeSet id="101" author="nomatter" runOnChange="true">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <sqlCheck expectedResult="0">
-                    SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'rule_info';
-                </sqlCheck>
-            </not>
-        </preConditions>
-        <sql>
-            CREATE SCHEMA IF NOT EXISTS rule_info;
-        </sql>
-    </changeSet>
-
     <!-- Create rule_id sequence -->
     <changeSet id="102" author="nomatter">
         <preConditions onFail="MARK_RAN">
@@ -46,14 +32,15 @@
             <column name="rule_id" type="INTEGER">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="operation_type" type="INTEGER">
+            <column name="currency_code" type="VARCHAR(3)">
                 <constraints nullable="false"/>
             </column>
-            <column name="rule_condition" type="VARCHAR(255)">
+            <column name="operation_type" type="VARCHAR(25)">
                 <constraints nullable="false"/>
             </column>
-            <column name="field" type="VARCHAR(100)">
-                <constraints nullable="false"/>
+            <column name="min_amount" type="DECIMAL(12,2)">
+            </column>
+            <column name="max_amount" type="DECIMAL(12,2)">
             </column>
         </createTable>
 
@@ -83,6 +70,27 @@
         </createIndex>
         <rollback>
             <dropIndex indexName="rules_idx_operation_type"
+                       tableName="rules"
+                       schemaName="rule_info"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="105" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="rules_idx_currency_code"
+                             schemaName="rule_info"
+                             tableName="rules"
+                             columnNames="currency_code"/>
+            </not>
+        </preConditions>
+        <createIndex indexName="rules_idx_currency_code"
+                     tableName="rules"
+                     schemaName="rule_info">
+            <column name="currency_code"/>
+        </createIndex>
+        <rollback>
+            <dropIndex indexName="rules_idx_currency_code"
                        tableName="rules"
                        schemaName="rule_info"/>
         </rollback>

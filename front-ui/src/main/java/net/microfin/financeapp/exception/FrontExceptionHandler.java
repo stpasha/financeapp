@@ -1,7 +1,6 @@
 package net.microfin.financeapp.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import net.microfin.financeapp.dto.UpdateUserDTO;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;

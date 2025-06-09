@@ -62,16 +62,12 @@ public class SecurityConfig {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedPage("/access-denied"))
                 .oauth2Login(oauth -> oauth
                         .loginPage("/oauth2/authorization/keycloak")
-//                        .authorizationEndpoint(endpoint -> endpoint
-//                                .authorizationRequestResolver(customAuthorizationRequestResolver())
-//                        )
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService()))
                 )
                 .oauth2Client(withDefaults())
                 .logout(logout -> logout
                         .logoutSuccessHandler(oidcLogoutSuccessHandler)
                 );
-        //httpSecurity.addFilterBefore(filter, AbstractPreAuthenticatedProcessingFilter.class);
         return httpSecurity.build();
     }
 
@@ -88,19 +84,14 @@ public class SecurityConfig {
         return new OidcUserService() {
             @Override
             public OidcUser loadUser(OidcUserRequest userRequest) {
-                // Загружаем стандартного OidcUser
                 OidcUser oidcUser = super.loadUser(userRequest);
                 Set<GrantedAuthority> mappedAuthorities = new HashSet<>(oidcUser.getAuthorities());
-
-                // Извлекаем роли из id_token -> realm_access.roles
                 Map<String, Object> claims = oidcUser.getIdToken().getClaims();
                 if (claims.get("realm_access") instanceof Map<?,?> realmAccess) {
                     if (realmAccess.get("roles") instanceof Collection roles) {
                         roles.forEach(role -> mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
                     }
                 }
-
-                // Возвращаем OidcUser с маппингом ролей
                 return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
             }
         };

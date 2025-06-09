@@ -1,14 +1,15 @@
 package net.microfin.financeapp.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.dto.AccountDTO;
-import net.microfin.financeapp.dto.EmptyOperationResult;
-import net.microfin.financeapp.dto.GenericOperationDTO;
-import net.microfin.financeapp.dto.OperationResult;
+import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.service.AccountService;
 import net.microfin.financeapp.util.OperationStatus;
+import net.microfin.financeapp.util.OperationType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ import java.util.List;
 public class AccountApi {
 
     private final AccountService accountService;
+    private final ObjectMapper objectMapper;
 
 
     @PostMapping
@@ -49,8 +51,31 @@ public class AccountApi {
     }
 
     @PostMapping("/operation")
-    public ResponseEntity<OperationResult> performOperation(@Valid @RequestBody GenericOperationDTO genericOperationDTO) {
+    public ResponseEntity<OperationResult> performOperation(@RequestBody JsonNode json) {
+        GenericOperationDTO genericOperationDTO = null;
+        String operationType = json.get("operationType").asText("");
+
+        switch (OperationType.valueOf(OperationType.class, operationType)) {
+            case OperationType.CASH_DEPOSIT, OperationType.CASH_WITHDRAWAL -> {
+                genericOperationDTO = fromJson(json.asText(), CashOperationDTO.class);
+            }
+            case EXCHANGE -> {
+                genericOperationDTO = fromJson(json.asText(), ExchangeOperationDTO.class);
+            }
+            case TRANSFER -> {
+                genericOperationDTO = fromJson(json.asText(), TransferOperationDTO.class);
+            }
+            default -> throw new RuntimeException("Operation type not recognized");
+        }
         return ResponseEntity.ok(accountService.processOperation(genericOperationDTO).orElseGet(() -> EmptyOperationResult.builder().status(OperationStatus.FAILED).message("Unnable to process").build()));
+    }
+
+    private <T> T fromJson(String json, Class<T> valueType) {
+        try {
+            return objectMapper.readValue(json, valueType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot deserialize payload", e);
+        }
     }
 
 

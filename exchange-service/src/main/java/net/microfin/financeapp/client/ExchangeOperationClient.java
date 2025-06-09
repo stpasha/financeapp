@@ -1,10 +1,7 @@
 package net.microfin.financeapp.client;
 
 import net.microfin.financeapp.config.FeignConfig;
-import net.microfin.financeapp.dto.AccountDTO;
-import net.microfin.financeapp.dto.CurrencyDTO;
-import net.microfin.financeapp.dto.ExchangeOperationDTO;
-import net.microfin.financeapp.dto.ExchangeOperationResultDTO;
+import net.microfin.financeapp.dto.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,5 +22,8 @@ public interface ExchangeOperationClient {
     ResponseEntity<List<CurrencyDTO>> listCurrency();
 
     @GetMapping("/account/{id}")
-    public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Integer id);
+    ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Integer id);
+
+    @GetMapping("/audit")
+    ResponseEntity<Boolean> check(@RequestBody ExchangeOperationDTO cashOperationDTO);
 }

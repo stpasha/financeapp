@@ -60,6 +60,13 @@ spring:
           filters:
             - RewritePath=/dictionary(?<segment>.*), /api/dictionary$\{segment}
             - TokenRelay
+        - id: to-audit-service
+          uri: http://audit-service:8087/
+          predicates:
+            - Path=/audit/**
+          filters:
+            - RewritePath=/audit(?<segment>.*), /api/audit$\{segment}
+            - TokenRelay
 management:
   endpoints:
     web:

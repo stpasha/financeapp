@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CashOperationDTO {
+public class CashOperationDTO implements GenericOperationDTO {
 
     @EqualsAndHashCode.Include
     private Integer id;

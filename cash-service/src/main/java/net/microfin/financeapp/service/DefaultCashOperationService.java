@@ -8,6 +8,7 @@ import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
 import net.microfin.financeapp.mapper.CashOperationMapper;
 import net.microfin.financeapp.repository.CashOperationRepository;
+import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,16 @@ public class DefaultCashOperationService implements CashOperationService {
     @Override
     @Transactional
     public ResponseEntity<CashOperationResultDTO> performOperation(CashOperationDTO operationDTO) {
-        CashOperation cashOperation = cashOperationRepository.save(cashOperationMapper.toEntity(operationDTO));
-        operationDTO.setId(cashOperation.getId());
-        return cashOperationClient.cashOperation(operationDTO);
+        ResponseEntity<Boolean> check = cashOperationClient.check(operationDTO);
+        if (check.getStatusCode().is2xxSuccessful()) {
+            if (Boolean.TRUE.equals(check.getBody())) {
+                CashOperation cashOperation = cashOperationRepository.save(cashOperationMapper.toEntity(operationDTO));
+                operationDTO.setId(cashOperation.getId());
+                return cashOperationClient.cashOperation(operationDTO);
+            }
+            return ResponseEntity.ok(CashOperationResultDTO.builder().message("Operation " + operationDTO.getOperationType() + " "
+                    + operationDTO.getAmount() + " "+ "prohibitted").status(OperationStatus.FAILED.name()).build());
+        }
+        return ResponseEntity.ok(CashOperationResultDTO.builder().message("Server unavailable.").status(OperationStatus.FAILED.name()).build());
     }
 }
