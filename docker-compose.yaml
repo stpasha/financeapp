@@ -28,6 +28,22 @@ services:
     networks:
       - zbank-network
 
+  audit-service:
+    build:
+      context: .
+      dockerfile: ./audit-service/Dockerfile
+    environment:
+      AUDIT_SERVER_PORT: ${AUDIT_SERVER_PORT}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_AUDIT_SCHEMA: ${SPRING_DATASOURCE_AUDIT_SCHEMA}
+    ports:
+      - "${AUDIT_SERVER_PORT}:${AUDIT_SERVER_PORT}"
+      - "${AUDIT_SERVER_DEBUG_PORT}:${AUDIT_SERVER_DEBUG_PORT}"
+    networks:
+      - zbank-network
+
 
 
   consul:

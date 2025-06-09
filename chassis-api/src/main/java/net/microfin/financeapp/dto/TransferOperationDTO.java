@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class TransferOperationDTO {
+public class TransferOperationDTO implements GenericOperationDTO {
 
     @EqualsAndHashCode.Include
     private Integer id;

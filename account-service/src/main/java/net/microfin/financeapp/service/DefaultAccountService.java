@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.domain.Account;
 import net.microfin.financeapp.domain.OutboxEvent;
-import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
@@ -60,17 +59,18 @@ public class DefaultAccountService implements AccountService {
         OperationResult result = null;
                 switch (operationDTO.getOperationType()) {
             case CASH_DEPOSIT, CASH_WITHDRAWAL -> {
+                CashOperationDTO cashOperation = (CashOperationDTO) operationDTO;
                 Optional<Account> account = accountRepository.findByCurrencyCodeAndUserId(
-                       operationDTO.getCurrencyCode(),
-                        operationDTO.getUserId());
+                        cashOperation.getCurrencyCode(),
+                        cashOperation.getUserId());
                 accountId = account.map(Account::getId).orElse(null);
-                operationDTO.setAccountId(accountId);
+                cashOperation.setAccountId(accountId);
                 BigDecimal amount = account.map(account1 -> account1.getBalance()).orElse(BigDecimal.ZERO);
                 result = CashOperationResultDTO.builder()
                         .operationId(operationDTO.getId())
                         .message("Operation " +operationDTO.getOperationType().name()+ " successful")
                         .status(OperationStatus.SENT.name())
-                        .newBalance(amount.add(operationDTO.getAmount()))
+                        .newBalance(amount.add(cashOperation.getAmount()))
                         .build();
             }
 
@@ -95,19 +95,6 @@ public class DefaultAccountService implements AccountService {
         return Optional.of(result);
     }
 
-    private Account createAccountForUser(GenericOperationDTO operationDTO) {
-        User user = userRepository.findById(operationDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Account account = Account.builder()
-                .active(true)
-                .balance(operationDTO.getAmount())
-                .currencyCode(operationDTO.getCurrencyCode())
-                .user(user)
-                .build();
-
-        return accountRepository.save(account);
-    }
 
     private void saveOutboxEvent(Integer accountId, GenericOperationDTO operationDTO) {
         try {

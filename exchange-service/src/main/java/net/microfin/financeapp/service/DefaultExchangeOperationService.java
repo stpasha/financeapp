@@ -4,12 +4,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.ExchangeOperationClient;
 import net.microfin.financeapp.domain.ExchangeOperation;
-import net.microfin.financeapp.dto.AccountDTO;
-import net.microfin.financeapp.dto.CurrencyDTO;
-import net.microfin.financeapp.dto.ExchangeOperationDTO;
-import net.microfin.financeapp.dto.ExchangeOperationResultDTO;
+import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.ExchangeOperationMapper;
 import net.microfin.financeapp.repository.ExchangeOperationRepository;
+import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +27,21 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
     @Override
     @Transactional
     public ResponseEntity<ExchangeOperationResultDTO> performOperation(ExchangeOperationDTO exchangeOperationDTO) {
-        ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
-        ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(exchangeOperationDTO.getSourceAccountId());
-        ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(exchangeOperationDTO.getTargetAccountId());
+        ResponseEntity<Boolean> check = operationClient.check(exchangeOperationDTO);
+        if (check.getStatusCode().is2xxSuccessful()) {
+            if (Boolean.TRUE.equals(check.getBody())) {
+                ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
+                ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(exchangeOperationDTO.getSourceAccountId());
+                ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(exchangeOperationDTO.getTargetAccountId());
+                return getResponseEntity(exchangeOperationDTO, responseEntity, sourceAccountResp, targetAccountResp);
+            }
+            return ResponseEntity.ok(ExchangeOperationResultDTO.builder().message("Operation " + exchangeOperationDTO.getOperationType() + " "
+                    + exchangeOperationDTO.getAmount() + " "+ "prohibitted").status(OperationStatus.FAILED).build());
+        }
+        return ResponseEntity.ok(ExchangeOperationResultDTO.builder().message("Audit server is unavailable").status(OperationStatus.FAILED).build());
+    }
 
+    private ResponseEntity<ExchangeOperationResultDTO> getResponseEntity(ExchangeOperationDTO exchangeOperationDTO, ResponseEntity<List<CurrencyDTO>> responseEntity, ResponseEntity<AccountDTO> sourceAccountResp, ResponseEntity<AccountDTO> targetAccountResp) {
         if (responseEntity.getStatusCode().is2xxSuccessful()
                 && sourceAccountResp.getStatusCode().is2xxSuccessful()
                 && targetAccountResp.getStatusCode().is2xxSuccessful()) {

@@ -2,6 +2,10 @@ package net.microfin.financeapp.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import net.microfin.financeapp.util.Currency;
+import net.microfin.financeapp.util.OperationType;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "rules", schema = "rule_info")
@@ -23,10 +27,14 @@ public class Rule {
             allocationSize = 1
     )
     private Integer id;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "operation_type")
-    private Integer operationType;
-    @Column(nullable = false, name = "rule_condition")
-    private String ruleCondition;
-    @Column(nullable = false, name = "field")
-    private String field;
+    private OperationType operationType;
+    @Column(nullable = false, name = "min_amount")
+    private BigDecimal minAmount;
+    @Column(nullable = false, name = "max_amount")
+    private BigDecimal maxAmount;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency_code", nullable = false, length = 3)
+    private Currency currencyCode;
 }

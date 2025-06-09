@@ -14,4 +14,6 @@ public interface CashOperationClient {
     @PostMapping("/account/operation")
     ResponseEntity<CashOperationResultDTO> cashOperation(@RequestBody CashOperationDTO cashOperationDTO);
 
+    @GetMapping("/audit")
+    ResponseEntity<Boolean> check(@RequestBody CashOperationDTO cashOperationDTO);
 }

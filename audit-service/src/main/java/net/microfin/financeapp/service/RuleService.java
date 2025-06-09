@@ -1,7 +1,7 @@
 package net.microfin.financeapp.service;
 
-import java.util.Map;
+import net.microfin.financeapp.dto.GenericOperationDTO;
 
 public interface RuleService {
-    boolean checkRulesForOperation(Map<String,Object> operation);
+    boolean checkRulesForOperation(GenericOperationDTO genericOperationDTO);
 }

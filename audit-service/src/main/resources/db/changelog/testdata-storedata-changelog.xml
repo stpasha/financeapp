@@ -3,5 +3,40 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="106" author="nomatter" context="test">
+        <insert schemaName="rule_info" tableName="rules">
+            <column name="currency_code" value="USD"/>
+            <column name="operation_type" value="CASH_DEPOSIT"/>
+            <column name="min_amount" valueNumeric="10.00"/>
+            <column name="max_amount" valueNumeric="1000.00"/>
+        </insert>
+
+        <insert schemaName="rule_info" tableName="rules">
+            <column name="currency_code" value="EUR"/>
+            <column name="operation_type" value="TRANSFER"/>
+            <column name="min_amount" valueNumeric="50.00"/>
+            <column name="max_amount" valueNumeric="5000.00"/>
+        </insert>
+
+        <insert schemaName="rule_info" tableName="rules">
+            <column name="currency_code" value="RUB"/>
+            <column name="operation_type" value="CASH_WITHDRAWAL"/>
+            <column name="min_amount" valueNumeric="1000.00"/>
+            <column name="max_amount" valueNumeric="100000.00"/>
+        </insert>
+
+        <insert schemaName="rule_info" tableName="rules">
+            <column name="currency_code" value="USD"/>
+            <column name="operation_type" value="EXCHANGE"/>
+            <column name="min_amount" valueNumeric="5.00"/>
+            <column name="max_amount" valueNumeric="200.00"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="rules" schemaName="rule_info">
+                <where>currency_code IN ('USD', 'EUR', 'RUB')</where>
+            </delete>
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>

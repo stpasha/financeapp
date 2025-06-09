@@ -3,12 +3,10 @@ package net.microfin.financeapp.service;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.TransferOperationClient;
 import net.microfin.financeapp.domain.TransferOperation;
-import net.microfin.financeapp.dto.AccountDTO;
-import net.microfin.financeapp.dto.CurrencyDTO;
-import net.microfin.financeapp.dto.TransferOperationDTO;
-import net.microfin.financeapp.dto.TransferOperationResultDTO;
+import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.TransferOperationMapper;
 import net.microfin.financeapp.repository.TransferOperationRepository;
+import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +24,22 @@ public class DefaultTransferOperationService implements TransferOperationService
     private final TransferOperationRepository operationRepository;
 
     @Override
-    public ResponseEntity<TransferOperationResultDTO> performOperation(TransferOperationDTO transferOperationDTO) {
-        ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
-        ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(transferOperationDTO.getSourceAccountId());
-        ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(transferOperationDTO.getTargetAccountId());
+    public TransferOperationResultDTO performOperation(TransferOperationDTO transferOperationDTO) {
+        ResponseEntity<Boolean> check = operationClient.check(transferOperationDTO);
+        if (check.getStatusCode().is2xxSuccessful()) {
+            if (Boolean.TRUE.equals(check.getBody())) {
+                ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
+                ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(transferOperationDTO.getSourceAccountId());
+                ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(transferOperationDTO.getTargetAccountId());
+                return getDTO(transferOperationDTO, responseEntity, sourceAccountResp, targetAccountResp);
+            }
+            return TransferOperationResultDTO.builder().message("Operation " + transferOperationDTO.getOperationType() + " "
+                  + transferOperationDTO.getAmount() + " "+ "prohibitted").status(OperationStatus.FAILED).build();
+        }
+        return TransferOperationResultDTO.builder().message("Server unavailable.").status(OperationStatus.FAILED).build();
+    }
 
+    private TransferOperationResultDTO getDTO(TransferOperationDTO transferOperationDTO, ResponseEntity<List<CurrencyDTO>> responseEntity, ResponseEntity<AccountDTO> sourceAccountResp, ResponseEntity<AccountDTO> targetAccountResp) {
         if (responseEntity.getStatusCode().is2xxSuccessful()
                 && sourceAccountResp.getStatusCode().is2xxSuccessful()
                 && targetAccountResp.getStatusCode().is2xxSuccessful()) {
@@ -71,7 +80,7 @@ public class DefaultTransferOperationService implements TransferOperationService
             TransferOperation transferOperation = operationRepository.save(operationMapper.toEntity(transferOperationDTO));
             transferOperationDTO.setId(transferOperation.getId());
 
-            return operationClient.transferOperation(transferOperationDTO);
+            return operationClient.transferOperation(transferOperationDTO).getBody();
 
         } else {
             throw new RuntimeException("Unable to get currency or account info");
