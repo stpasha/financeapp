@@ -51,7 +51,7 @@ public class DefaultRuleService implements RuleService {
     }
 
     private boolean checkAmounts(BigDecimal min, BigDecimal max, BigDecimal amount) {
-        return min.compareTo(amount) > 0 && max.compareTo(amount) < 0;
+        return max.compareTo(amount) > 0 && min.compareTo(amount) < 0;
     }
 
 }

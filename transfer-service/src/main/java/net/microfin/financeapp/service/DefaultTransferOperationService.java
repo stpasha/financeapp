@@ -79,8 +79,16 @@ public class DefaultTransferOperationService implements TransferOperationService
 
             TransferOperation transferOperation = operationRepository.save(operationMapper.toEntity(transferOperationDTO));
             transferOperationDTO.setId(transferOperation.getId());
-
-            return operationClient.transferOperation(transferOperationDTO).getBody();
+            ResponseEntity<TransferOperationResultDTO> transferredOperation = operationClient.transferOperation(transferOperationDTO);
+            if (transferredOperation.getStatusCode().is2xxSuccessful()) {
+                operationClient.saveNotification(NotificationDTO.builder()
+                        .notificationDescription("Выполнена запрос на " + transferOperationDTO.getOperationType() + " " +
+                                transferOperationDTO.getAmount() + " " +
+                                sourceCurrency.name())
+                                .userId(transferOperationDTO.getUserId())
+                        .operationType(transferOperationDTO.getOperationType().name()).build());
+            }
+            return transferredOperation.getBody();
 
         } else {
             throw new RuntimeException("Unable to get currency or account info");

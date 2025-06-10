@@ -67,6 +67,13 @@ spring:
           filters:
             - RewritePath=/audit(?<segment>.*), /api/audit$\{segment}
             - TokenRelay
+        - id: to-notification-service
+          uri: http://notification-service:8088/
+          predicates:
+            - Path=/notification/**
+          filters:
+            - RewritePath=/notification(?<segment>.*), /api/notification$\{segment}
+            - TokenRelay
 management:
   endpoints:
     web:

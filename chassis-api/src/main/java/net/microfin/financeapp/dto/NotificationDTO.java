@@ -22,4 +22,6 @@ public class NotificationDTO {
     private String notificationDescription;
     @PastOrPresent
     private LocalDateTime createdAt;
+    private Integer userId;
+    private boolean delivered;
 }

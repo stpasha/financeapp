@@ -6,6 +6,7 @@ import net.microfin.financeapp.client.CashOperationClient;
 import net.microfin.financeapp.domain.CashOperation;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
+import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.mapper.CashOperationMapper;
 import net.microfin.financeapp.repository.CashOperationRepository;
 import net.microfin.financeapp.util.OperationStatus;
@@ -28,7 +29,16 @@ public class DefaultCashOperationService implements CashOperationService {
             if (Boolean.TRUE.equals(check.getBody())) {
                 CashOperation cashOperation = cashOperationRepository.save(cashOperationMapper.toEntity(operationDTO));
                 operationDTO.setId(cashOperation.getId());
-                return cashOperationClient.cashOperation(operationDTO);
+                ResponseEntity<CashOperationResultDTO> cashOperationResultDTOResponseEntity = cashOperationClient.cashOperation(operationDTO);
+                if (cashOperationResultDTOResponseEntity.getStatusCode().is2xxSuccessful()) {
+                    cashOperationClient.saveNotification(NotificationDTO.builder()
+                            .notificationDescription("Выполнена запрос на " + operationDTO.getOperationType() + " " +
+                                    operationDTO.getAmount() + " " +
+                                    operationDTO.getCurrencyCode().getName())
+                                    .userId(operationDTO.getUserId())
+                            .operationType(operationDTO.getOperationType().name()).build());
+                }
+                return cashOperationResultDTOResponseEntity;
             }
             return ResponseEntity.ok(CashOperationResultDTO.builder().message("Operation " + operationDTO.getOperationType() + " "
                     + operationDTO.getAmount() + " "+ "prohibitted").status(OperationStatus.FAILED.name()).build());

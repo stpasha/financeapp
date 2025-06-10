@@ -3,6 +3,7 @@ package net.microfin.financeapp.client;
 import net.microfin.financeapp.config.FeignConfig;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
+import net.microfin.financeapp.dto.NotificationDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,4 +17,7 @@ public interface CashOperationClient {
 
     @GetMapping("/audit")
     ResponseEntity<Boolean> check(@RequestBody CashOperationDTO cashOperationDTO);
+
+    @PostMapping("/notification")
+    ResponseEntity<NotificationDTO> saveNotification(@RequestBody NotificationDTO notificationDTO);
 }

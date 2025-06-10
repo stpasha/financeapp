@@ -57,13 +57,13 @@ public class AccountApi {
 
         switch (OperationType.valueOf(OperationType.class, operationType)) {
             case OperationType.CASH_DEPOSIT, OperationType.CASH_WITHDRAWAL -> {
-                genericOperationDTO = fromJson(json.asText(), CashOperationDTO.class);
+                genericOperationDTO = fromJson(json.toString(), CashOperationDTO.class);
             }
             case EXCHANGE -> {
-                genericOperationDTO = fromJson(json.asText(), ExchangeOperationDTO.class);
+                genericOperationDTO = fromJson(json.toString(), ExchangeOperationDTO.class);
             }
             case TRANSFER -> {
-                genericOperationDTO = fromJson(json.asText(), TransferOperationDTO.class);
+                genericOperationDTO = fromJson(json.toString(), TransferOperationDTO.class);
             }
             default -> throw new RuntimeException("Operation type not recognized");
         }

@@ -26,4 +26,7 @@ public interface TransferOperationClient {
 
     @GetMapping("/audit")
     ResponseEntity<Boolean> check(@RequestBody TransferOperationDTO cashOperationDTO);
+
+    @PostMapping("/notification")
+    ResponseEntity<NotificationDTO> saveNotification(@RequestBody NotificationDTO notificationDTO);
 }

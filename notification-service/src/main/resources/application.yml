@@ -18,4 +18,4 @@ spring:
       idle-timeout: 30000
       max-lifetime: 1800000
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${NOTIFICATION_SERVER_PORT:8088}

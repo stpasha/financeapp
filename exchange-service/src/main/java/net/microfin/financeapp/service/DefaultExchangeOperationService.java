@@ -76,9 +76,18 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             exchangeOperationDTO.setTargetAmount(convertedAmount);
 
             ExchangeOperation exchangeOperation = operationRepository.save(operationMapper.toEntity(exchangeOperationDTO));
+            ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = operationClient.exchangeOperation(exchangeOperationDTO);
             exchangeOperationDTO.setId(exchangeOperation.getId());
+            if (exchangedOperation.getStatusCode().is2xxSuccessful()) {
+                operationClient.saveNotification(NotificationDTO.builder()
+                        .notificationDescription("Выполнена запрос на " + exchangeOperationDTO.getOperationType() + " " +
+                                exchangeOperationDTO.getAmount() + " " +
+                                sourceCurrency.name())
+                                .userId(exchangeOperationDTO.getUserId())
+                        .operationType(exchangeOperationDTO.getOperationType().name()).build());
+            }
 
-            return operationClient.exchangeOperation(exchangeOperationDTO);
+            return exchangedOperation;
 
         } else {
             throw new RuntimeException("Unable to get currency or account info");
