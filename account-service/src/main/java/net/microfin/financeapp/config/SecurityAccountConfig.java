@@ -23,7 +23,8 @@ public class SecurityAccountConfig {
                 authorize
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
-                        .anyRequest().hasAuthority("ROLE_zbank.user"))
+                        .requestMatchers(HttpMethod.GET, "/api/user/**").permitAll()
+                        .anyRequest().authenticated())
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .oauth2ResourceServer(oAuth2ResourceServerConfigurer ->
                         oAuth2ResourceServerConfigurer.jwt(Customizer.withDefaults()));

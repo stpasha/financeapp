@@ -28,7 +28,7 @@ public class FrontExceptionHandler extends GlobalExceptionHandler {
 
     private static String getErrAttribute(MethodArgumentNotValidException ex, BindingResult bindingResult) {
         String check = bindingResult.getTarget() != null ? ex.getBindingResult().getTarget().getClass().getSimpleName() : "";
-        String errAttribute = null;
+        String errAttribute = "generalErrors";
         switch (check) {
             case "ExchangeOperationDTO" -> {
                 errAttribute = "transferErrors";

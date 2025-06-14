@@ -51,28 +51,28 @@ spring:
           predicates:
             - Path=/user/**
           filters:
-            - RewritePath=/user(?<segment>.*), /api/user$\{segment}
+            - RewritePath=/user(?<segment>.*), /api/user\${segment}
             - TokenRelay
         - id: to-dictionaries-service
           uri: http://dictionaries-service:8083/
           predicates:
             - Path=/dictionary/**
           filters:
-            - RewritePath=/dictionary(?<segment>.*), /api/dictionary$\{segment}
+            - RewritePath=/dictionary(?<segment>.*), /api/dictionary\${segment}
             - TokenRelay
         - id: to-audit-service
           uri: http://audit-service:8087/
           predicates:
             - Path=/audit/**
           filters:
-            - RewritePath=/audit(?<segment>.*), /api/audit$\{segment}
+            - RewritePath=/audit(?<segment>.*), /api/audit\${segment}
             - TokenRelay
         - id: to-notification-service
           uri: http://notification-service:8088/
           predicates:
             - Path=/notification/**
           filters:
-            - RewritePath=/notification(?<segment>.*), /api/notification$\{segment}
+            - RewritePath=/notification(?<segment>.*), /api/notification\${segment}
             - TokenRelay
 management:
   endpoints:

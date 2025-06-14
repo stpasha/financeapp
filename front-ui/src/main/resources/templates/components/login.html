@@ -1,24 +1,40 @@
-<form th:fragment="login" th:object="${passwordDTO}" method="post" th:action="${'/user/password'}">
-    <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
-        <tr>
-            <td style="font-weight:bold;">Логин</td>
-            <td colspan="2" th:text="${user.username}"/>
-        </tr>
-        <tr>
-            <td style="font-weight:bold;">Изменить пароль</td>
-            <td>
-                <p style="color:red;" th:if="${passwordErrors!=null}" th:each="err : ${passwordErrors}" th:text="${err.defaultMessage}"/>
-                <p>
-                    Пароль: <input th:field="*{password}" type="password" required/>
-                </p>
-                <input th:field="*{id}" type="hidden" required/>
-                <p>
-                    Повторите пароль: <input  th:field="*{confirmPassword}" type="password" required/>
-                </p>
-            </td>
-            <td style="text-align:right">
-                <button>Изменить пароль</button>
-            </td>
-        </tr>
-    </table>
+<form th:fragment="login" th:object="${passwordDTO}" method="post" th:action="${'/user/password'}" class="mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Изменение пароля</h5>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label fw-bold">Логин:</label>
+                <div class="col-sm-9 pt-2">
+                    <span th:text="${user.username}"></span>
+                </div>
+            </div>
+
+            <div th:if="${passwordErrors!=null}" class="mb-3">
+                <ul class="list-unstyled text-danger">
+                    <li th:each="err : ${passwordErrors}" th:text="${err.defaultMessage}"></li>
+                </ul>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="password" class="col-sm-3 col-form-label">Пароль:</label>
+                <div class="col-sm-9">
+                    <input th:field="*{password}" type="password" class="form-control" id="password" required/>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="confirmPassword" class="col-sm-3 col-form-label">Повторите пароль:</label>
+                <div class="col-sm-9">
+                    <input th:field="*{confirmPassword}" type="password" class="form-control" id="confirmPassword" required/>
+                </div>
+            </div>
+
+            <input th:field="*{id}" type="hidden" />
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Изменить пароль</button>
+            </div>
+        </div>
+    </div>
 </form>

@@ -48,12 +48,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getStatusCode().value(), ex.getReason());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDTO> handleException(Exception e) {
-        log.error("Exception occured", e);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-    }
-
     private ResponseEntity<ErrorResponseDTO> buildErrorResponse(int status, String message) {
 
         return ResponseEntity.status(status).body(

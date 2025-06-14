@@ -51,7 +51,8 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers("/signup",
                                         "/signup/**",
-                                        "/static/**",
+                                        "/css/**",
+                                        "/js/**",
                                         "/actuator/**",
                                         "/",
                                         "/favicon.ico").permitAll()
@@ -106,6 +107,7 @@ public class SecurityConfig {
                 OAuth2AuthorizedClientProviderBuilder.builder()
                         .authorizationCode()
                         .refreshToken()
+                        .clientCredentials()
                         .build();
 
         DefaultOAuth2AuthorizedClientManager manager =

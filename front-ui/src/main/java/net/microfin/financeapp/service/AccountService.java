@@ -1,64 +1,54 @@
 package net.microfin.financeapp.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.client.AccountClient;
 import net.microfin.financeapp.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.util.UriUtils;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 
     private final AccountClient accountClient;
 
-    public OperationResult createCashOperation(CashOperationDTO cashOperationDTO) {
-        ResponseEntity<CashOperationResultDTO> responseEntity = accountClient.cashOperation(cashOperationDTO);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            return responseEntity.getBody();
+    public OperationResult createCashOperation(CashOperationDTO dto) {
+        ResponseEntity<CashOperationResultDTO> response = accountClient.cashOperation(dto);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
         }
-        throw new RuntimeException("Unable to perform cash operation");
+        return response.getBody();
     }
 
-    public OperationResult createExchangeOperation(ExchangeOperationDTO exchangeOperationDTO) {
-        ResponseEntity<CashOperationResultDTO> responseEntity = accountClient.exchangeOperation(exchangeOperationDTO);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            return responseEntity.getBody();
+
+    public OperationResult createExchangeOperation(ExchangeOperationDTO dto) {
+        ResponseEntity<ExchangeOperationResultDTO> response = accountClient.exchangeOperation(dto);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
         }
-        throw new RuntimeException("Unable to perform exchange operation");
+        return response.getBody();
     }
 
-    public OperationResult createTransferOperation(TransferOperationDTO transferOperationDTO) {
-        ResponseEntity<CashOperationResultDTO> responseEntity = accountClient.transferOperation(transferOperationDTO);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            return responseEntity.getBody();
+    public OperationResult createTransferOperation(TransferOperationDTO dto) {
+        ResponseEntity<TransferOperationResultDTO> response = accountClient.transferOperation(dto);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
         }
-        throw new RuntimeException("Unable to perform transfer operation");
+        return response.getBody();
     }
 
     public List<AccountDTO> getAccountsByUser(Integer userId) {
-        ResponseEntity<List<AccountDTO>> responseEntity = accountClient.getAccountsByUser(userId);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            return responseEntity.getBody();
+        ResponseEntity<List<AccountDTO>> response = accountClient.getAccountsByUser(userId);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return Optional.ofNullable(response.getBody()).orElse(Collections.emptyList());
         }
-        throw new RuntimeException("Unable to get account info");
+        return List.of();
     }
 
-    private Optional<String> handleErrors(BindingResult bindingResult, String errAttribute) {
-        if (bindingResult.hasErrors()) {
-            String errorMessages = bindingResult.getFieldErrors().stream()
-                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                    .reduce((m1, m2) -> m1 + ", " + m2)
-                    .orElse("Validation error");
-
-            return Optional.of("redirect:/profile?" + errAttribute + "=" + UriUtils.encode(errorMessages, StandardCharsets.UTF_8));
-        }
-        return Optional.empty();
-    }
 }

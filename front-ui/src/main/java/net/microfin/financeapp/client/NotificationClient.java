@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "notification-client", url = "http://gateway-service:8082")
+@FeignClient(name = "notification-client", url = "http://gateway-service:8082", fallback = NotificationClientFallback.class)
 public interface NotificationClient {
     @GetMapping("/notification/user/{userId}")
     ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(@PathVariable("userId") Integer userId);

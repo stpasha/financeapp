@@ -18,6 +18,6 @@ public class NotificationService {
         if (notificationsByUserId.getStatusCode().is2xxSuccessful()) {
             return notificationsByUserId.getBody();
         }
-        throw new RuntimeException("Unable to show notifications");
+        return List.of();
     }
 }

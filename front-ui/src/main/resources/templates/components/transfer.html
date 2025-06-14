@@ -1,35 +1,52 @@
-<form th:fragment="transfer" method="post" th:action="${'/account/'+user.id+'/transfer'}">
-    <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
-        <tr th:if="${transferOtherErrors!=null}" th:each="transferOtherError : ${transferOtherErrors}">
-            <td style="color:red;" th:text="${transferOtherError}"/>
-        </tr>
-        <tr>
-            <td style="font-weight:bold;">Перевод другому</td>
-            <td>
-                Со счета
-                <select name="sourceAccountId">
-                    <option th:each="account : ${userAccount}" th:value="${account.getId()}" th:text="${account.getCurrencyCode()}"/>
-                </select>
-            </td>
-            <td>
-                На счет
-                <select id="targetAccountId" name="targetAccountId">
-                </select>
-            </td>
-            <td>
-                <input name="amount" type="number" style="width:100%" required/>
+<form th:fragment="transfer" method="post" th:action="${'/account/'+user.id+'/transfer'}" class="mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Перевод другому пользователю</h5>
+
+            <div th:if="${transferOtherErrors!=null}" class="mb-3">
+                <ul class="list-unstyled text-danger">
+                    <li th:each="transferOtherError : ${transferOtherErrors}" th:text="${transferOtherError}"></li>
+                </ul>
+            </div>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="sourceAccountId" class="form-label">Со счёта</label>
+                    <select name="sourceAccountId" id="sourceAccountId" class="form-select">
+                        <option th:each="account : ${userAccount}" th:value="${account.getId()}" th:text="${account.getCurrencyCode()}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="targetTransferAccountId" class="form-label">На счёт</label>
+                    <select name="targetAccountId" id="targetTransferAccountId" class="form-select">
+                        <!-- Заполняется динамически (например, JS) -->
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="to_login" class="form-label">Кому</label>
+                    <select name="to_login" id="to_login" class="form-select">
+                        <option th:each="user : ${targetUsers}"
+                                th:id="${'to_user_'+user.getId()}"
+                                th:value="${user.getId()}"
+                                th:text="${user.getFullName()}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="amount" class="form-label">Сумма</label>
+                    <input name="amount" id="amount" type="number" class="form-control" required/>
+                </div>
+
                 <input type="hidden" name="status" value="PENDING"/>
                 <input type="hidden" name="userId" th:value="${user.id}"/>
-            </td>
-            <td>
-                Кому
-                <select id="to_login" name="to_login">
-                    <option th:id="${'to_user_'+user.getId()}" th:each="user : ${targetUsers}" th:value="${user.getId()}" th:text="${user.getFullName()}"/>
-                </select>
-            </td>
-            <td style="text-align:right">
-                <button name="operationType" value="TRANSFER">Перевести</button>
-            </td>
-        </tr>
-    </table>
+
+                <div class="col-12 text-end">
+                    <button type="submit" name="operationType" value="TRANSFER" class="btn btn-primary">Перевести</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>

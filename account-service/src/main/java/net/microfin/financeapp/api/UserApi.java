@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("/api/user")
 @RestController
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('zbank.user')")
 public class UserApi {
 
     private final UserService userService;

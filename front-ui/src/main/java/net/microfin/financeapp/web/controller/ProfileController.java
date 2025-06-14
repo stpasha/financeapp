@@ -42,6 +42,7 @@ public class ProfileController {
     public String profile(Principal principal,
                           Model model,
                           @RequestParam(required = false) String info,
+                          @RequestParam(required = false) String err,
                           @RequestParam(required = false) String passwordErrors,
                           @RequestParam(required = false) String userAccountsErrors,
                           @RequestParam(required = false) String transferErrors,
@@ -56,6 +57,7 @@ public class ProfileController {
             model.addAttribute("currencies", dictionaryService.getCurrencies());
             model.addAttribute("passwordErrors", passwordErrors);
             model.addAttribute("userAccountsErrors", userAccountsErrors);
+            model.addAttribute("err", err);
             model.addAttribute("cashErrors", cashErrors);
             model.addAttribute("targetUsers", userService.queryTargeUsers());
             model.addAttribute("transferErrors", transferErrors);

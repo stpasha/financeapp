@@ -2,16 +2,10 @@ spring:
   cloud:
     openfeign:
       oauth2:
-        clientRegistrationId: keycloak
+        clientRegistrationId: zbankapi
         enabled: true
-      client:
-        config:
-          external-api:
-            url: http://gateway-service:8082
-        default:
-          connectTimeout: 5000
-          readTimeout: 5000
-          loggerLevel: basic
+      circuitbreaker:
+        enabled: true
   security:
     oauth2:
       client:
@@ -34,7 +28,39 @@ spring:
             client-secret: yBxbVdRbMIgOHjEhDaV8aTp8pYl1UXe1
             authorization-grant-type: client_credentials
             scope: openid
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+    instances:
+      account-client:
+        baseConfig: default
+      dictionary-client:
+        baseConfig: default
+      notification-client:
+        baseConfig: default
+      user-client:
+        baseConfig: default
+
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+    instances:
+      account-client:
+        baseConfig: default
+      dictionary-client:
+        baseConfig: default
+      notification-client:
+        baseConfig: default
+      user-client:
+        baseConfig: default
 logging:
   level:
     feign: DEBUG
+    org.springframework.cloud.circuitbreaker: DEBUG
+    io.github.resilience4j: DEBUG
     net.microfin.financeapp.client: DEBUG

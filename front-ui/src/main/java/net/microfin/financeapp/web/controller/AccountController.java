@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.service.AccountService;
+import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,9 @@ public class AccountController {
                                  BindingResult bindingResult) {
         return handleErrors(bindingResult, "cashErrors").map(String::toString).orElseGet(() ->{
             OperationResult operationResult = accountService.createCashOperation(cashDTO);
+            if (OperationStatus.FAILED.equals(operationResult.getStatus()) || OperationStatus.RETRYABLE.equals(operationResult.getStatus())) {
+                return "redirect:/profile?err=" + operationResult.getMessage();
+            }
             return "redirect:/profile?info=" + operationResult.getMessage();
         });
     }
@@ -36,6 +40,9 @@ public class AccountController {
                                        BindingResult bindingResult) {
         return handleErrors(bindingResult, "transferErrors").map(String::toString).orElseGet(() ->{
             OperationResult operationResult = accountService.createExchangeOperation(exchangeOperationDTO);
+            if (OperationStatus.FAILED.equals(operationResult.getStatus()) || OperationStatus.RETRYABLE.equals(operationResult.getStatus())) {
+                return "redirect:/profile?err=" + operationResult.getMessage();
+            }
             return "redirect:/profile?info=" + operationResult.getMessage();
         });
     }
@@ -46,6 +53,9 @@ public class AccountController {
                                            BindingResult bindingResult) {
         return handleErrors(bindingResult, "transferOtherErrors").map(String::toString).orElseGet(() ->{
             OperationResult operationResult = accountService.createTransferOperation(transferOperationDTO);
+            if (OperationStatus.FAILED.equals(operationResult.getStatus()) || OperationStatus.RETRYABLE.equals(operationResult.getStatus())) {
+                return "redirect:/profile?err=" + operationResult.getMessage();
+            }
             return "redirect:/profile?info=" + operationResult.getMessage();
         });
     }

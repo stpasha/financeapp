@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/transfer")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('zbank.user')")
 public class TransferOperationApi {
 
     private final TransferOperationService transferOperationService;

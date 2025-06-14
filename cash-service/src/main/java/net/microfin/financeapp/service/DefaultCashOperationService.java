@@ -10,6 +10,7 @@ import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.mapper.CashOperationMapper;
 import net.microfin.financeapp.repository.CashOperationRepository;
 import net.microfin.financeapp.util.OperationStatus;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class DefaultCashOperationService implements CashOperationService {
                 ResponseEntity<CashOperationResultDTO> cashOperationResultDTOResponseEntity = cashOperationClient.cashOperation(operationDTO);
                 if (cashOperationResultDTOResponseEntity.getStatusCode().is2xxSuccessful()) {
                     cashOperationClient.saveNotification(NotificationDTO.builder()
-                            .notificationDescription("Выполнена запрос на " + operationDTO.getOperationType() + " " +
+                            .notificationDescription("Выполнен запрос на " + operationDTO.getOperationType() + " " +
                                     operationDTO.getAmount() + " " +
                                     operationDTO.getCurrencyCode().getName())
                                     .userId(operationDTO.getUserId())
@@ -41,8 +42,8 @@ public class DefaultCashOperationService implements CashOperationService {
                 return cashOperationResultDTOResponseEntity;
             }
             return ResponseEntity.ok(CashOperationResultDTO.builder().message("Operation " + operationDTO.getOperationType() + " "
-                    + operationDTO.getAmount() + " "+ "prohibitted").status(OperationStatus.FAILED.name()).build());
+                    + operationDTO.getAmount() + " " + "prohibitted").status(OperationStatus.FAILED).build());
         }
-        return ResponseEntity.ok(CashOperationResultDTO.builder().message("Server unavailable.").status(OperationStatus.FAILED.name()).build());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(CashOperationResultDTO.builder().message("Server unavailable.").status(OperationStatus.FAILED).build());
     }
 }

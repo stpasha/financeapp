@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/dictionary")
-@PreAuthorize("hasRole('zbank.user')")
 public class CurrencyApi {
 
     private final CurrencyService currencyService;

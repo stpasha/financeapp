@@ -18,6 +18,6 @@ public class DictionaryService {
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             return responseEntity.getBody();
         }
-        throw new RuntimeException("Unable to update user");
+        return List.of();
     }
 }

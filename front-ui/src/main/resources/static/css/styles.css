@@ -1,0 +1,77 @@
+@font-face {
+    font-family: 'Inter';
+    src: url('../fonts/Inter-Regular.ttf') format('truetype'),
+         url('../fonts/Inter-Bold.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+}
+
+
+.tags span {
+    background-color: #e9ecef;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-right: 5px;
+}
+
+.editable-textarea[readonly] {
+    background-color: transparent;
+    border: none;
+    resize: none;
+    cursor: pointer;
+}
+
+.editable-textarea:focus {
+    outline: 1px solid #007BFF;
+    cursor: text;
+}
+
+.form-container {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.btn-custom {
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.post-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.post-card:hover {
+    transform: scale(1.02);
+}
+
+.post-card img {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+
+.btn-primary {
+    border-radius: 50px;
+    padding: 10px 20px;
+}

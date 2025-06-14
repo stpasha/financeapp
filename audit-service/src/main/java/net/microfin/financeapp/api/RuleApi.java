@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/audit")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('zbank.user')")
 public class RuleApi {
     private final RuleService ruleService;
     private final ObjectMapper objectMapper;

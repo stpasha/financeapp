@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notification")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('zbank.user')")
 public class NotificationApi {
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper;

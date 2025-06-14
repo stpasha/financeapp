@@ -2,6 +2,7 @@ package net.microfin.financeapp.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ public class CashOperationResultDTO implements OperationResult {
     @NotNull
     private BigDecimal newBalance;
     @NotNull
-    private String status;
+    private OperationStatus status;
     @NotNull
     private String message;
 }

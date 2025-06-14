@@ -17,7 +17,6 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/cash")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('zbank.user')")
 public class CashOperationApi {
 
     private final CashOperationService cashOperationService;

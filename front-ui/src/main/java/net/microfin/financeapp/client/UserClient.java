@@ -1,6 +1,5 @@
 package net.microfin.financeapp.client;
 
-import net.microfin.financeapp.config.FeignConfig;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
@@ -10,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "user-client", url = "http://gateway-service:8082")
+@FeignClient(name = "user-client", url = "http://gateway-service:8082", fallback = UserClientFallback.class)
 public interface UserClient {
     @PostMapping("/user")
     ResponseEntity<UserDTO> create(@RequestBody UserDTO userDTO);

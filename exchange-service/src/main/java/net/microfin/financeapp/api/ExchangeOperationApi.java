@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/exchange")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('zbank.user')")
 public class ExchangeOperationApi {
 
     private final ExchangeOperationService cashOperationService;

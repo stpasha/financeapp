@@ -23,7 +23,7 @@ public class DictionarySecurityConfig {
                         authorize
                                 .requestMatchers("/actuator/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
-                                .anyRequest().hasAuthority("ROLE_zbank.user"))
+                                .anyRequest().authenticated())
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .oauth2ResourceServer(oAuth2ResourceServerConfigurer ->
                         oAuth2ResourceServerConfigurer.jwt(Customizer.withDefaults()));

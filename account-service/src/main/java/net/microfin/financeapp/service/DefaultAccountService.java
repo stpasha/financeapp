@@ -69,7 +69,7 @@ public class DefaultAccountService implements AccountService {
                 result = CashOperationResultDTO.builder()
                         .operationId(operationDTO.getId())
                         .message("Operation " +operationDTO.getOperationType().name()+ " successful")
-                        .status(OperationStatus.SENT.name())
+                        .status(OperationStatus.SENT)
                         .newBalance(amount.add(cashOperation.getAmount()))
                         .build();
             }
