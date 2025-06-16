@@ -3,6 +3,7 @@ package net.microfin.financeapp.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.ExchangeOperationClient;
+import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.domain.ExchangeOperation;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.ExchangeOperationMapper;
@@ -23,6 +24,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
     private final ExchangeOperationClient operationClient;
     private final ExchangeOperationMapper operationMapper;
     private final ExchangeOperationRepository operationRepository;
+    private final ExceptionsProperties exceptionsProperties;
 
     @Override
     @Transactional
@@ -52,7 +54,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             AccountDTO targetAccount = targetAccountResp.getBody();
 
             if (exchangeOperationDTO.getAmount().compareTo(sourceAccount.getBalance()) > 0) {
-                throw new RuntimeException("Insufficient funds");
+                throw new RuntimeException(exceptionsProperties.getInsufficientFundsFailure());
             }
             Optional<CurrencyDTO> sourceCurrencyOpt = currencies.stream()
                     .filter(c -> c.code().equals(sourceAccount.getCurrencyCode()))
@@ -63,7 +65,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
                     .findFirst();
 
             if (sourceCurrencyOpt.isEmpty() || targetCurrencyOpt.isEmpty()) {
-                throw new RuntimeException("Currency info not found");
+                throw new RuntimeException(exceptionsProperties.getCurrencyNotFoundFailure());
             }
 
             CurrencyDTO sourceCurrency = sourceCurrencyOpt.get();
@@ -90,7 +92,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             return exchangedOperation;
 
         } else {
-            throw new RuntimeException("Unable to get currency or account info");
+            throw new RuntimeException(exceptionsProperties.getAccNotFoundFailure());
         }
     }
 

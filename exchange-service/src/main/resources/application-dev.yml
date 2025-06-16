@@ -49,6 +49,8 @@ spring:
       port: 8500
       config:
         enabled: true
+        prefix: config
+        defaultContext: exchange-service
         format: yaml
   datasource:
     init: never
@@ -63,3 +65,7 @@ spring:
     default-schema: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+exceptions:
+  insufficientFundsFailure: Insufficient funds
+  currencyNotFoundFailure: Currency info not found
+  accNotFoundFailure: Unable to get currency or account info

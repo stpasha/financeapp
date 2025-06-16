@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.service.RuleService;
 import net.microfin.financeapp.util.OperationType;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class RuleApi {
     private final RuleService ruleService;
     private final ObjectMapper objectMapper;
+    private final ExceptionsProperties exceptionsProperties;
 
     @PostMapping
     public ResponseEntity<Boolean> check(@RequestBody JsonNode json) {
@@ -36,7 +38,7 @@ public class RuleApi {
             case TRANSFER -> {
                 genericOperationDTO = fromJson(jsonStr, TransferOperationDTO.class);
             }
-            default -> throw new RuntimeException("Operation type not recognized");
+            default -> throw new RuntimeException(exceptionsProperties.getOperationFailure());
         }
 
         return new ResponseEntity<>(ruleService.checkRulesForOperation(genericOperationDTO), HttpStatus.ACCEPTED);
@@ -47,7 +49,7 @@ public class RuleApi {
         try {
             return objectMapper.readValue(json, valueType);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Cannot deserialize payload", e);
+            throw new RuntimeException(exceptionsProperties.getDeserFailure(), e);
         }
     }
 }

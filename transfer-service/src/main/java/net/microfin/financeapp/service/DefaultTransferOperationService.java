@@ -2,6 +2,7 @@ package net.microfin.financeapp.service;
 
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.TransferOperationClient;
+import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.domain.TransferOperation;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.TransferOperationMapper;
@@ -22,6 +23,7 @@ public class DefaultTransferOperationService implements TransferOperationService
     private final TransferOperationClient operationClient;
     private final TransferOperationMapper operationMapper;
     private final TransferOperationRepository operationRepository;
+    private final ExceptionsProperties exceptionsProperties;
 
     @Override
     public TransferOperationResultDTO performOperation(TransferOperationDTO transferOperationDTO) {
@@ -50,11 +52,11 @@ public class DefaultTransferOperationService implements TransferOperationService
             AccountDTO targetAccount = targetAccountResp.getBody();
 
             if (transferOperationDTO.getAmount().compareTo(sourceAccount.getBalance()) > 0) {
-                throw new RuntimeException("Insufficient funds");
+                throw new RuntimeException(exceptionsProperties.getInsufficientFundsFailure());
             }
 
             if (!transferOperationDTO.getUserId().equals(sourceAccount.getUser().getId())) {
-                throw new RuntimeException("Incorrect source account");
+                throw new RuntimeException(exceptionsProperties.getIncorectSourceAccountFailure());
             }
             Optional<CurrencyDTO> sourceCurrencyOpt = currencies.stream()
                     .filter(c -> c.code().equals(sourceAccount.getCurrencyCode()))
@@ -65,7 +67,7 @@ public class DefaultTransferOperationService implements TransferOperationService
                     .findFirst();
 
             if (sourceCurrencyOpt.isEmpty() || targetCurrencyOpt.isEmpty()) {
-                throw new RuntimeException("Currency info not found");
+                throw new RuntimeException(exceptionsProperties.getCurrencyNotFoundFailure());
             }
 
             CurrencyDTO sourceCurrency = sourceCurrencyOpt.get();
@@ -91,7 +93,7 @@ public class DefaultTransferOperationService implements TransferOperationService
             return transferredOperation.getBody();
 
         } else {
-            throw new RuntimeException("Unable to get currency or account info");
+            throw new RuntimeException(exceptionsProperties.getAccNotFoundFailure());
         }
     }
 }

@@ -45,6 +45,7 @@ dependencies {
 
     //Local
     implementation project(":chassis-api")
+    implementation project(":chassis-gateway-client")
     implementation project(":chassis-service-client")
 
     //Db

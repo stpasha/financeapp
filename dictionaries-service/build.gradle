@@ -43,6 +43,7 @@ dependencies {
     //Local
     implementation project(":chassis-api")
     implementation project(":chassis-service-client")
+    implementation project(":chassis-gateway-client")
 
     //Util
     annotationProcessor 'org.projectlombok:lombok:1.18.38'

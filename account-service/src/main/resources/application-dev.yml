@@ -29,6 +29,8 @@ spring:
       port: 8500
       config:
         enabled: true
+        prefix: config
+        defaultContext: account-service
         format: yaml
   datasource:
     init: never
@@ -48,3 +50,11 @@ keycloak:
   realm: zbank
   username: gatekeeper
   password: swordfish
+exceptions:
+  makeAccFailure: Не удалось создать счёт
+  searchAccFailure: Счёт не найден
+  makeUserFailure: Пользователь не создан
+  searchUserFailure: Пользователь не найден по имени
+  deserFailure: Cannot deserialize payload
+  operationFailure: Operation type not recognized
+  passEditFailure: Password is not updated

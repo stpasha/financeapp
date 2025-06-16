@@ -47,6 +47,7 @@ dependencies {
     //Local
     implementation project(":chassis-api")
     implementation project(":chassis-service-client")
+    implementation project(":chassis-gateway-client")
 
     //Db
     runtimeOnly 'org.postgresql:postgresql:42.7.5'

@@ -3,6 +3,7 @@ package net.microfin.financeapp.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
@@ -10,7 +11,6 @@ import net.microfin.financeapp.mapper.UserMapper;
 import net.microfin.financeapp.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,12 +22,13 @@ public class UserApi {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final ExceptionsProperties exceptionsProperties;
 
     @PostMapping
     public ResponseEntity<UserDTO> create(@Valid @RequestBody UserDTO userDTO) throws JsonProcessingException {
         return userService.createUser(userDTO)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.CREATED))
-                .orElseThrow(() -> new IllegalStateException("Пользователь не создан " + userDTO.getUsername()));
+                .orElseThrow(() -> new IllegalStateException(exceptionsProperties.getMakeUserFailure() + userDTO.getUsername()));
     }
 
     @PutMapping
@@ -41,14 +42,14 @@ public class UserApi {
     @PutMapping("/password")
     ResponseEntity updatePassword(@Valid @RequestBody PasswordDTO passwordDTO) throws JsonProcessingException {
         return userService.updatePassword(passwordDTO).map(password -> new ResponseEntity(HttpStatus.ACCEPTED))
-                .orElseThrow(() -> new RuntimeException("Password is not updated"));
+                .orElseThrow(() -> new IllegalStateException(exceptionsProperties.getPassEditFailure()));
     }
 
     @GetMapping("/{username}")
     public ResponseEntity<UserDTO> getUserByName(@PathVariable("username") String username) {
         return userService.getUserByUsername(username)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
-                .orElseThrow(() -> new IllegalStateException("Пользователь не найден по имени " + username));
+                .orElseThrow(() -> new IllegalStateException(exceptionsProperties.getSearchUserFailure() + username));
     }
 
     @GetMapping

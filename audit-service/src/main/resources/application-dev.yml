@@ -49,6 +49,8 @@ spring:
       port: 8500
       config:
         enabled: true
+        prefix: config
+        defaultContext: audit-service
         format: yaml
   datasource:
     init: never
@@ -63,3 +65,6 @@ spring:
     default-schema: ${SPRING_DATASOURCE_AUDIT_SCHEMA}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+exceptions:
+  deserFailure: Cannot deserialize payload
+  operationFailure: Operation type not recognized
