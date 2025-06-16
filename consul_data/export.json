@@ -1,0 +1,22 @@
+[
+  {
+    "key": "config/account-service,dev/data",
+    "flags": 0,
+    "value": "a2V5Y2xvYWs6CiAgc2VydmVyLXVybDogaHR0cDovL2tleWNsb2FrOjcwODAvCiAgcmVhbG06IHpiYW5rCiAgdXNlcm5hbWU6IGdhdGVrZWVwZXIKICBwYXNzd29yZDogc3dvcmRmaXNoCmV4Y2VwdGlvbnM6CiAgbWFrZUFjY0ZhaWx1cmU6INCd0LUg0YPQtNCw0LvQvtGB0Ywg0YHQvtC30LTQsNGC0Ywg0YHRh9GR0YIKICBzZWFyY2hBY2NGYWlsdXJlOiDQodGH0ZHRgiDQvdC1INC90LDQudC00LXQvQogIG1ha2VVc2VyRmFpbHVyZTog0J/QvtC70YzQt9C+0LLQsNGC0LXQu9GMINC90LUg0YHQvtC30LTQsNC9CiAgc2VhcmNoVXNlckZhaWx1cmU6INCf0L7Qu9GM0LfQvtCy0LDRgtC10LvRjCDQvdC1INC90LDQudC00LXQvSDQv9C+INC40LzQtdC90LgKICBkZXNlckZhaWx1cmU6INCd0LUg0LzQvtCz0YMg0LTQtdGB0LXRgNC40LvQuNC30L7QstCw0YLRjCDQt9C90LDRh9C10L3QuNC1CiAgb3BlcmF0aW9uRmFpbHVyZTogT3BlcmF0aW9uIHR5cGUgbm90IHJlY29nbml6ZWQKICBwYXNzRWRpdEZhaWx1cmU6IFBhc3N3b3JkIGlzIG5vdCB1cGRhdGVk"
+  },
+  {
+    "key": "config/audit-service,dev/data",
+    "flags": 0,
+    "value": "ZXhjZXB0aW9uczoKICBkZXNlckZhaWx1cmU6INCd0LUg0YPQtNCw0LvQvtGB0Ywg0LTQtdGB0LXRgNC40LfQvtCy0LDRgtGMINGB0L7QvtCx0YnQtdC90LjQtS4gCiAgb3BlcmF0aW9uRmFpbHVyZTogT3BlcmF0aW9uIHR5cGUgbm90IHJlY29nbml6ZWQ="
+  },
+  {
+    "key": "config/exchange-service,dev/data",
+    "flags": 0,
+    "value": "ZXhjZXB0aW9uczoKICBpbnN1ZmZpY2llbnRGdW5kc0ZhaWx1cmU6IEluc3VmZmljaWVudCBmdW5kcwogIGN1cnJlbmN5Tm90Rm91bmRGYWlsdXJlOiBDdXJyZW5jeSBpbmZvIG5vdCBmb3VuZAogIGFjY05vdEZvdW5kRmFpbHVyZTogVW5hYmxlIHRvIGdldCBjdXJyZW5jeSBvciBhY2NvdW50IGluZm8="
+  },
+  {
+    "key": "config/transfer-service,dev/data",
+    "flags": 0,
+    "value": "ZXhjZXB0aW9uczoKICBpbnN1ZmZpY2llbnRGdW5kc0ZhaWx1cmU6IEluc3VmZmljaWVudCBmdW5kcwogIGN1cnJlbmN5Tm90Rm91bmRGYWlsdXJlOiBDdXJyZW5jeSBpbmZvIG5vdCBmb3VuZAogIGFjY05vdEZvdW5kRmFpbHVyZTogVW5hYmxlIHRvIGdldCBjdXJyZW5jeSBvciBhY2NvdW50IGluZm8KICBpbmNvcmVjdFNvdXJjZUFjY291bnRGYWlsdXJlOiBVbmFibGUgdG8gZ2V0IGN1cnJlbmN5IG9yIGFjY291bnQgaW5mbw=="
+  }
+]
