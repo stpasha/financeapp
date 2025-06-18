@@ -58,3 +58,5 @@ exceptions:
   deserFailure: Cannot deserialize payload
   operationFailure: Operation type not recognized
   passEditFailure: Password is not updated
+scheduler:
+  enabled: true

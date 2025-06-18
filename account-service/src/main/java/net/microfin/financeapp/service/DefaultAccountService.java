@@ -10,7 +10,6 @@ import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.OutboxEventRepository;
-import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,6 @@ public class DefaultAccountService implements AccountService {
     private final AccountMapper accountMapper;
     private final OutboxEventRepository eventRepository;
     private final ObjectMapper objectMapper;
-    private final UserRepository userRepository;
 
     @Override
     public List<AccountDTO> getAccountsByUserId(Integer userId) {

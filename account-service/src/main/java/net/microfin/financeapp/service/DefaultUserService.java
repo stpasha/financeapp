@@ -16,6 +16,7 @@ import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.util.OperationType;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +44,9 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public Optional<UserDTO> createUser(UserDTO userDTO) throws JsonProcessingException {
+        if (LocalDate.now().getYear() - userDTO.getDob().getYear() < 18) {
+            throw new IllegalStateException("Incorrect age");
+        }
         User user = userRepository.save(userMapper.toEntity(userDTO));
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(user.getId())
@@ -57,6 +61,9 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public Optional<PasswordDTO> updatePassword(PasswordDTO passwordDTO) throws JsonProcessingException {
+        if (!passwordDTO.getPassword().equals(passwordDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Passwords should match");
+        }
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(passwordDTO.getId())
                 .aggregateType("USER")

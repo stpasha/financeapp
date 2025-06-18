@@ -2,12 +2,21 @@ package net.microfin.financeapp.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.dto.*;
+import net.microfin.financeapp.dto.AccountDTO;
+import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.dto.ExchangeOperationDTO;
+import net.microfin.financeapp.dto.OperationResult;
+import net.microfin.financeapp.dto.TransferOperationDTO;
 import net.microfin.financeapp.service.AccountService;
 import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;

@@ -12,7 +12,6 @@ import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.service.AccountService;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,19 +38,12 @@ public class AccountApi {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<AccountDTO>> getAccountsByUser(@PathVariable("userId") Integer userId) {
-        log.info("HELLO: " + exceptionsProperties.getMakeAccFailure());
         return ResponseEntity.ok(accountService.getAccountsByUserId(userId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Integer id) {
         return accountService.getAccount(id).map(ResponseEntity::ok).orElseThrow(() -> new RuntimeException(exceptionsProperties.getSearchAccFailure()));
-    }
-
-    @PutMapping("/{id}/disable")
-    public ResponseEntity disable(@PathVariable("id") Integer id) {
-        accountService.disable(id);
-        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/operation")

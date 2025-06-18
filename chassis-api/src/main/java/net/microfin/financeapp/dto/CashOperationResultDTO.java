@@ -3,7 +3,6 @@ package net.microfin.financeapp.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import net.microfin.financeapp.util.OperationStatus;
-import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
 

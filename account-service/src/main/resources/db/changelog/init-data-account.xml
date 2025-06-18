@@ -4,20 +4,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create schema -->
-    <changeSet id="001" author="nomatter" runOnChange="true">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <sqlCheck expectedResult="1">
-                    SELECT COUNT(*) FROM pg_catalog.pg_namespace WHERE nspname = 'account_info';
-                </sqlCheck>
-            </not>
-        </preConditions>
-        <sql>
-            CREATE SCHEMA IF NOT EXISTS account_info;
-            ALTER SCHEMA account_info OWNER TO finadm;
-        </sql>
-    </changeSet>
 
     <!-- Create user_id sequence -->
     <changeSet id="002" author="nomatter">

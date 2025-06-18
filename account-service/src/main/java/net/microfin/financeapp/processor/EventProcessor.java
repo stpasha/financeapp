@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.domain.Account;
 import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.dto.*;
-import net.microfin.financeapp.mapper.UserMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
@@ -18,6 +17,7 @@ import net.microfin.financeapp.service.RetryService;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Component
+@ConditionalOnProperty(prefix = "scheduler", name = "enabled", havingValue = "true", matchIfMissing = true)
 @AllArgsConstructor
 @Slf4j
 public class EventProcessor {
@@ -37,7 +38,7 @@ public class EventProcessor {
 
     @Scheduled(fixedDelay = 5000)
     @Transactional
-    public void processUserCreateEvent() {
+    public void process() {
         for (OutboxEvent outboxEvent : outboxEventRepository.findOutboxEventByPendingStatus()) {
             switch (outboxEvent.getOperationType()) {
                 case OperationType.USER_CREATED -> {
@@ -124,7 +125,7 @@ public class EventProcessor {
         try {
             CashOperationDTO cashWithdraw = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
             if (cashWithdraw.getAccountId() == null) {
-                throw  new RuntimeException("Account not found");
+                throw new RuntimeException("Account not found");
             } else {
                 accountRepository.findById(cashWithdraw.getAccountId()).map(account -> {
                     if (account.getBalance().compareTo(cashWithdraw.getAmount()) < 0) {
@@ -144,7 +145,7 @@ public class EventProcessor {
         try {
             ExchangeOperationDTO exchange = fromJson(outboxEvent.getPayload(), ExchangeOperationDTO.class);
             if (exchange.getSourceAccountId() == null || exchange.getTargetAccountId() == null) {
-                throw  new RuntimeException("Account not found");
+                throw new RuntimeException("Account not found");
             } else {
                 accountRepository.findById(exchange.getSourceAccountId()).map(account -> {
                     if (account.getBalance().compareTo(exchange.getAmount()) < 0) {
@@ -168,7 +169,7 @@ public class EventProcessor {
         try {
             TransferOperationDTO transfer = fromJson(outboxEvent.getPayload(), TransferOperationDTO.class);
             if (transfer.getSourceAccountId() == null || transfer.getTargetAccountId() == null) {
-                throw  new RuntimeException("Account not found");
+                throw new RuntimeException("Account not found");
             } else {
                 accountRepository.findById(transfer.getSourceAccountId()).map(account -> {
                     if (account.getBalance().compareTo(transfer.getAmount()) < 0) {

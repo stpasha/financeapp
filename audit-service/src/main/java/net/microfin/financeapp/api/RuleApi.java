@@ -5,13 +5,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.config.ExceptionsProperties;
-import net.microfin.financeapp.dto.*;
+import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.dto.ExchangeOperationDTO;
+import net.microfin.financeapp.dto.GenericOperationDTO;
+import net.microfin.financeapp.dto.TransferOperationDTO;
 import net.microfin.financeapp.service.RuleService;
 import net.microfin.financeapp.util.OperationType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/audit")
