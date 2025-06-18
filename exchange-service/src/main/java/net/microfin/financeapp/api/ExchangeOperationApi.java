@@ -6,7 +6,6 @@ import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationResultDTO;
 import net.microfin.financeapp.service.ExchangeOperationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

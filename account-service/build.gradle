@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    //id 'org.springframework.cloud.contract' version '4.1.2'
 }
 
 group = 'net.microfin'
@@ -72,6 +73,8 @@ dependencies {
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mapstruct:mapstruct:1.6.3'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+//    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+//    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 
 }
 
@@ -83,8 +86,19 @@ dependencyManagement {
         dependency "org.apache.commons:commons-text:1.12.0"
         dependency "org.apache.httpcomponents:httpclient:4.5.14"
         dependency("commons-io:commons-io:2.18.0")
+//        dependency 'org.ow2.asm:asm:9.7.1'
+//        dependency 'net.java.dev.jna:jna:5.13.0'
+//        dependency 'com.jcraft:jsch:0.1.55'
+//        dependency 'org.apache.maven.resolver:maven-resolver-api:1.9.22'
+//        dependency 'org.codehaus.plexus:plexus-utils:3.5.1'
+//        dependency 'org.eclipse.sisu:org.eclipse.sisu.inject:0.9.0.M3'
+//        dependency 'org.junit:junit-bom:5.11.4'
     }
 }
+
+//contracts {
+//    baseClassForTests = 'net.microfin.financeapp.contract.BaseContractTest'
+//}
 
 tasks.named('test') {
     useJUnitPlatform()

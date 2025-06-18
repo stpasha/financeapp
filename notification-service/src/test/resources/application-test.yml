@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: audit-service
+  cloud:
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+  liquibase:
+    enabled: false

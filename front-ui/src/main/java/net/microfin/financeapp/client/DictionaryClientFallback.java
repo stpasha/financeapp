@@ -1,7 +1,6 @@
 package net.microfin.financeapp.client;
 
 import lombok.extern.slf4j.Slf4j;
-import net.microfin.financeapp.client.DictionaryClient;
 import net.microfin.financeapp.dto.CurrencyDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

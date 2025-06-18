@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: account-service
+  cloud:
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+  liquibase:
+    enabled: false
+    duplicateFileMode: WARN
+liquibase:
+  duplicateFileMode: WARN
+keycloak:
+  server-url: http://keycloak:7080/
+  realm: zbank
+  username: gatekeeper
+  password: swordfish
+scheduler:
+  enabled: false

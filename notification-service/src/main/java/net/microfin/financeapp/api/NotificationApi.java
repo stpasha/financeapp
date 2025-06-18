@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.service.NotificationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
