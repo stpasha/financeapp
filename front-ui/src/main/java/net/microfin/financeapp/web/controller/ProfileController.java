@@ -85,7 +85,7 @@ public class ProfileController {
 
     @GetMapping("/signup")
     public String showSignup() {
-        return "signup"; // thymeleaf шаблон
+        return "signup";
     }
 
     @PostMapping("/signup")
@@ -93,8 +93,7 @@ public class ProfileController {
         if (bindingResult.hasErrors()) {
             return "signup";
         }
-        userService.create(user);
-        return "redirect:/login";
+        return userService.create(user) ? "redirect:/login" : "redirect:/signup";
     }
 
     @GetMapping("/access-denied")

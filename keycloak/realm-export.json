@@ -884,7 +884,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "yBxbVdRbMIgOHjEhDaV8aTp8pYl1UXe1",
       "redirectUris": [
         "/*"
       ],
@@ -993,7 +993,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "g3WnFjX9r8zxmhlY7yILHV5hZ3RtLUjw",
       "redirectUris": [
         "http://localhost:8080/*"
       ],
@@ -1101,17 +1101,6 @@
         ],
         "policies": [
           {
-            "id": "ae5d4271-807a-43b9-8fad-020d1da66767",
-            "name": "Default Policy",
-            "description": "A policy that grants access only for users within this realm",
-            "type": "js",
-            "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
-            "config": {
-              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
-            }
-          },
-          {
             "id": "7347a7b9-69e4-42f2-9006-0f04e52f5019",
             "name": "Default Permission",
             "description": "A permission that applies to the default resource type",
@@ -1119,8 +1108,7 @@
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
-              "defaultResourceType": "urn:zbankapp:resources:default",
-              "applyPolicies": "[\"Default Policy\"]"
+              "defaultResourceType": "urn:zbankapp:resources:default"
             }
           }
         ],

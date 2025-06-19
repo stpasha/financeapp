@@ -47,12 +47,16 @@ public class DefaultUserService implements UserService {
         if (LocalDate.now().getYear() - userDTO.getDob().getYear() < 18) {
             throw new IllegalStateException("Incorrect age");
         }
+        if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Passwords should match");
+        }
         User user = userRepository.save(userMapper.toEntity(userDTO));
+        userDTO.setId(user.getId());
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(user.getId())
                 .aggregateType("USER")
                 .operationType(OperationType.USER_CREATED)
-                .payload(objectMapper.writeValueAsString(userMapper.toDto(user)))
+                .payload(objectMapper.writeValueAsString(userDTO))
                 .build();
         eventRepository.save(outboxEvent);
         return Optional.of(userMapper.toDto(user));
@@ -77,6 +81,9 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional
     public Optional<UserDTO> updateUser(UserDTO userDTO) {
+        if (LocalDate.now().getYear() - userDTO.getDob().getYear() < 18) {
+            throw new IllegalStateException("Incorrect age");
+        }
         return userRepository.findById(userDTO.getId())
                 .map(existing -> Optional.of(userMapper.toDto(userRepository.save(userMapper.toPatchedEntity(userDTO, existing)))))
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userDTO.getId()));

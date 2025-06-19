@@ -71,6 +71,13 @@ public class KeycloakUserService {
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         credentialRepresentation.setValue(password);
         credentialRepresentation.setId(id);
+        String credentialData = """
+        {
+            "hashIterations": 27500,
+            "algorithm": "pbkdf2-sha256"
+        }
+        """;
+        credentialRepresentation.setCredentialData(credentialData);
         return credentialRepresentation;
     }
 }

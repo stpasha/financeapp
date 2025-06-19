@@ -6,6 +6,7 @@ import net.microfin.financeapp.client.UserClient;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,15 @@ public class UserService {
     private final UserClient userClient;
 
     @Transactional
-    public void create(UserDTO userDTO) {
-        userClient.create(userDTO);
+    public boolean create(UserDTO userDTO) {
+        ResponseEntity<UserDTO> entity = userClient.create(userDTO);
+        return HttpStatus.CREATED.equals(entity.getStatusCode());
     }
 
     @Transactional
-    public void changePassword(PasswordDTO passwordDTO) {
-        userClient.updatePassword(passwordDTO);
+    public boolean changePassword(PasswordDTO passwordDTO) {
+        ResponseEntity<UserDTO> entity = userClient.updatePassword(passwordDTO);
+        return HttpStatus.ACCEPTED.equals(entity.getStatusCode());
     }
 
     @Transactional

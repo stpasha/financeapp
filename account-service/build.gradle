@@ -61,7 +61,7 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.4.5'
-    implementation 'org.keycloak:keycloak-admin-client:26.0.0'
+    implementation 'org.keycloak:keycloak-admin-client:24.0.0'
     //Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'

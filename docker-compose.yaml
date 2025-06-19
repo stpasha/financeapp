@@ -141,7 +141,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: keycloak
-    command: start-dev --http-port=7080 --import-realm --override=true
+    command: start-dev --http-port=7080 --import-realm --override=true  --features=preview,scripts --verbose
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -157,8 +157,8 @@ services:
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
     healthcheck:
       test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/7080; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:7080\r\nConnection: close\r\n\r\n' >&3; cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1" ]
-      interval: 15s
-      timeout: 2s
+      interval: 30s
+      timeout: 15s
       retries: 6
     depends_on:
       - keycloak-postgres
