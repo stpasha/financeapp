@@ -1,4 +1,40 @@
-Spring Boot онлайн банка
+# Spring Boot приложение онлайн банка
+![logo.png](front-ui/src/main/resources/static/logo.png)
+
+## Installation & Run
+_run cmds_
+
+./gradlew clean build
+
+docker compose up --build
+
+
+## Database
+[account](account-service/src/main/resources/db/changelog/init-data-account.xml)
+
+[audit](audit-service/src/main/resources/db/changelog/init-storedata-rule.xml)
+
+[cash](cash-service/src/main/resources/db/changelog/init-storedata-cash.xml)
+
+[exchange](exchange-service/src/main/resources/db/changelog/init-storedata-exchange.xml)
+
+[notification](notification-service/src/main/resources/db/changelog/init-storedata-notification.xml)
+
+[transfer](transfer-service/src/main/resources/db/changelog/init-storedata-transfer.xml)
+
+
+
+## Run tests
+_**Module**_
+
+./gradlew test
+
+_**Integration**_
+
+./gradlew verify
+
+## Build
+./gradlew build
 
 Использовано для реализации:
 * Build: Gradle.
