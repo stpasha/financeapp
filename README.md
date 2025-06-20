@@ -4,6 +4,16 @@
 ## Installation & Run
 _run cmds_
 
+Linux
+sudo nano /etc/hosts
+добавить
+**127.0.0.1 mynet**
+
+Windows
+c:\windows\system32\drivers\etc\hosts
+добавить
+**127.0.0.1 mynet**
+
 ./gradlew clean build
 
 docker compose up --build

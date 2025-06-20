@@ -226,6 +226,8 @@ public class ServiceTest extends AbstractTest {
                     .username("janedoe")
                     .fullName("Jane Doe")
                     .dob(LocalDate.now().minusYears(25))
+                    .password("password")
+                    .confirmPassword("password")
                     .enabled(true)
                     .keycloakId(UUID.randomUUID())
                     .build();
