@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: optional:consul:consul:8500
   web:
     cors:
       allowed-origins: "*"
@@ -23,15 +21,6 @@ spring:
         jwt:
           issuer-uri: http://mynet:7080/realms/zbank
           user-name-attribute: preferred_username
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-      config:
-        enabled: true
-        prefix: config
-        defaultContext: account-service
-        format: yaml
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}
@@ -46,17 +35,17 @@ spring:
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 keycloak:
-  server-url: http://keycloak:7080/
-  realm: zbank
-  username: gatekeeper
-  password: swordfish
+  server-url: ${KEYCLOAK_SERVER_URL:http://keycloak:7080/}
+  realm: ${KEYCLOAK_SERVER_REALM:zbank}
+  username: ${KEYCLOAK_SERVER_USERNAME:gatekeeper}
+  password: ${KEYCLOAK_SERVER_PASSWORD:swordfish}
 exceptions:
-  makeAccFailure: Не удалось создать счёт
-  searchAccFailure: Счёт не найден
-  makeUserFailure: Пользователь не создан
-  searchUserFailure: Пользователь не найден по имени
-  deserFailure: Cannot deserialize payload
-  operationFailure: Operation type not recognized
-  passEditFailure: Password is not updated
+  makeAccFailure: ${EXCEPTIONS_MAKE_ACCFAILURE:Не удалось создать счёт}
+  searchAccFailure: ${EXCEPTIONS_SEARCH_ACCFAILURE:Счёт не найден}
+  makeUserFailure: ${EXCEPTIONS_MAKE_USERFAILURE:Пользователь не создан}
+  searchUserFailure: ${EXCEPTIONS_SEARCH_USERFAILURE:Пользователь не найден по имени}
+  deserFailure: ${EXCEPTIONS_DESER_FAILURE:Cannot deserialize payload}
+  operationFailure: ${EXCEPTIONS_OPERATION_FAILURE:Operation type not recognized}
+  passEditFailure: ${EXCEPTIONS_PASS_EDIT_FAILURE:Password is not updated}
 scheduler:
-  enabled: true
+  enabled: ${SCHEDULER_ENABLED:true}

@@ -37,7 +37,7 @@ subprojects {
 }
 
 tasks.register('copyArtifacts', Copy) {
-	dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' } }
+	dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' }}
 
 	from(subprojects.collect { it.buildDir }) {
 		include '**/*.jar'
