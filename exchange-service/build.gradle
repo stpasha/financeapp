@@ -24,7 +24,6 @@ repositories {
 }
 
 ext {
-    //set('sentryVersion', "8.8.0")
     set('springCloudVersion', "2024.0.1")
     set('postgresqlVersion', "1.0.7.RELEASE")
     set('testContainersVersion', "1.19.0")
