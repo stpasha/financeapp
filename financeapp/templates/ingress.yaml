@@ -1,0 +1,83 @@
+{{- $accountServiceName := printf "%s-%s" .Release.Name "account-service" }}
+{{- $cashServiceName := printf "%s-%s" .Release.Name "cash-service" }}
+{{- $exchangeServiceName := printf "%s-%s" .Release.Name "exchange-service" }}
+{{- $transferServiceName := printf "%s-%s" .Release.Name "transfer-service" }}
+{{- $dictionariesServiceName := printf "%s-%s" .Release.Name "dictionaries-service" }}
+{{- $auditServiceName := printf "%s-%s" .Release.Name "audit-service" }}
+{{- $notificationServiceName := printf "%s-%s" .Release.Name "notification-service" }}
+{{- $frontUIName := printf "%s-%s" .Release.Name "front-ui" }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: financeapp-ingress
+spec:
+  rules:
+    - host: finance.local
+      http:
+        paths:
+          - path: /api/account
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $accountServiceName }}
+                port:
+                  number: 8081
+
+          - path: /api/user
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $accountServiceName }}
+                port:
+                  number: 8081
+
+          - path: /api/cash
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $cashServiceName }}
+                port:
+                  number: 8084
+          - path: /api/exchange
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $exchangeServiceName }}
+                port:
+                  number: 8085
+          - path: /api/transfer
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $transferServiceName }}
+                port:
+                  number: 8086
+          - path: /api/dictionary
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $dictionariesServiceName }}
+                port:
+                  number: 8083
+          - path: /api/audit
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $auditServiceName }}
+                port:
+                  number: 8087
+          - path: /api/notification
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $notificationServiceName }}
+                port:
+                  number: 8088
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $frontUIName }}
+                port:
+                  number: 8080

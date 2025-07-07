@@ -7,11 +7,11 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: nginx
+  repository: transfer-service
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "0.2.6.6"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -39,7 +39,6 @@ podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -54,19 +53,9 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
+  port: 8086
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
@@ -84,14 +73,18 @@ resources: {}
   #   memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
+livenessProbe: # Example for Spring Boot Actuator
   httpGet:
-    path: /
+    path: /actuator/health/liveness
     port: http
-readinessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+readinessProbe: # Example for Spring Boot Actuator
   httpGet:
-    path: /
+    path: /actuator/health/readiness
     port: http
+  initialDelaySeconds: 15
+  periodSeconds: 5
 
 # Additional volumes on the output Deployment definition.
 volumes: []
@@ -106,11 +99,23 @@ volumeMounts: []
 #   mountPath: "/etc/foo"
 #   readOnly: true
 
-autoscaling:
-  enabled: false
-
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+autoscaling:
+  enabled: false
+
+config:
+  database_url: "jdbc:postgresql://fin-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/common_database"
+  database_username: "zbank"
+  SPRING_PROFILES_ACTIVE: "dev"
+  SPRING_DATASOURCE_TRANSFER_SCHEMA: transfer_info
+  INSUFFICENT_FUNDS_FAILURE: "Insufficient funds"
+  CURRENCY_NOT_FOUND_FAILURE: "Currency info not found"
+  ACC_NOT_FOUND_FAILURE: "Password is not updated"
+  INCORRECT_SOURCE_ACCOUNT_FAILURE: "Unable to get currency or account info"
+  TRANSFER_SERVER_PORT: 8086
+  TRANSFER_SERVER_DEBUG_PORT: 5011

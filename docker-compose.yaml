@@ -46,27 +46,27 @@ services:
 
 
 
-  consul:
-    image: hashicorp/consul
-    container_name: consul
-    command: /bin/sh -c '
-      consul agent -server -bootstrap-expect=1 -node=consul-server -client=0.0.0.0 -ui -data-dir=/consul/data &
-      echo "Waiting for Consul to be available...";
-      until curl -s http://localhost:8500/v1/status/leader | grep . > /dev/null; do
-      sleep 2;
-      done;
-      echo "Consul is ready. Importing KV...";
-      consul kv import @/consul/data/export.json;
-      echo "KV import done.";
-      wait
-      '
-    ports:
-      - "${CONSUL_PORT}:${CONSUL_PORT}"           # Web UI и HTTP API
-      - "8600:8600/udp"       # DNS (необязательно)
-    volumes:
-      - ./consul_data:/consul/data
-    networks:
-      - zbank-network
+#  consul:
+#    image: hashicorp/consul
+#    container_name: consul
+#    command: /bin/sh -c '
+#      consul agent -server -bootstrap-expect=1 -node=consul-server -client=0.0.0.0 -ui -data-dir=/consul/data &
+#      echo "Waiting for Consul to be available...";
+#      until curl -s http://localhost:8500/v1/status/leader | grep . > /dev/null; do
+#      sleep 2;
+#      done;
+#      echo "Consul is ready. Importing KV...";
+#      consul kv import @/consul/data/export.json;
+#      echo "KV import done.";
+#      wait
+#      '
+#    ports:
+#      - "${CONSUL_PORT}:${CONSUL_PORT}"           # Web UI и HTTP API
+#      - "8600:8600/udp"       # DNS (необязательно)
+#    volumes:
+#      - ./consul_data:/consul/data
+#    networks:
+#      - zbank-network
 
   cash-service:
     build:
@@ -240,7 +240,7 @@ services:
 volumes:
   keycloak_postgres_data:
   postgres_data:
-  consul_data:
+#  consul_data:
 
 networks:
   zbank-network:

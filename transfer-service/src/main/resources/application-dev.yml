@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: optional:consul:consul:8500
   web:
     cors:
       allowed-origins: "*"
@@ -44,14 +42,6 @@ spring:
           connectTimeout: 5000
           readTimeout: 5000
           loggerLevel: basic
-    consul:
-      host: consul
-      port: 8500
-      config:
-        enabled: true
-        prefix: config
-        defaultContext: transfer-service
-        format: yaml
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}
@@ -66,7 +56,7 @@ spring:
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 exceptions:
-  insufficientFundsFailure: Insufficient funds
-  currencyNotFoundFailure: Currency info not found
-  accNotFoundFailure: Unable to get currency or account info
-  incorectSourceAccountFailure: Unable to get currency or account info
+  insufficientFundsFailure: ${INSUFFICENT_FUNDS_FAILURE:"Insufficient funds"}
+  currencyNotFoundFailure: ${CURRENCY_NOT_FOUND_FAILURE:"Currency info not found"}
+  accNotFoundFailure: ${ACC_NOT_FOUND_FAILURE:"Password is not updated"}
+  incorectSourceAccountFailure: ${INCORRECT_SOURCE_ACCOUNT_FAILURE:"Unable to get currency or account info"}

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "account-service")
+//@FeignClient(name = "account-service", url = "http://gateway-service:8082")
 public interface AccountClient {
     @GetMapping("/api/accounts/user/{id}")
     List<AccountDTO> getAccountsByUser(@PathVariable(name = "id") Integer userId);

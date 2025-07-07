@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "notification-client", url = "http://gateway-service:8082", fallback = NotificationClientFallback.class)
+@FeignClient(name = "notification-client", url = "http://finance.local", fallback = NotificationClientFallback.class)
 public interface NotificationClient {
-    @GetMapping("/notification/user/{userId}")
+    @GetMapping("/api/notification/user/{userId}")
     ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(@PathVariable("userId") Integer userId);
 }

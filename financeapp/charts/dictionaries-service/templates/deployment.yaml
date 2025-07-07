@@ -58,7 +58,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "account-service.fullname" . }}
+                name: {{ include "dictionaries-service.fullname" . }}
           env:
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:

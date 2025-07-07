@@ -17,6 +17,9 @@ data:
     # Ensure these keys match what your application expects.
     # Note: The values come from .Values.config which are set by the umbrella chart.
     # Use the 'tpl' function to render the database_url which contains Helm templating itself
+    SPRING_DATASOURCE_URL: {{ tpl .Values.config.database_url . | quote }}
+    SPRING_DATASOURCE_USERNAME: {{ .Values.config.database_username | quote }}
+    SPRING_DATASOURCE_PASSWORD: password
 
     # SPRING_DATASOURCE_PASSWORD would typically come from a secret, not this ConfigMap.
 

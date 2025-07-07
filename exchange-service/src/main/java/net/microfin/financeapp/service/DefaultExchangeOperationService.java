@@ -21,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DefaultExchangeOperationService implements ExchangeOperationService {
 
-    private final ExchangeOperationClient operationClient;
+//    private final ExchangeOperationClient operationClient;
     private final ExchangeOperationMapper operationMapper;
     private final ExchangeOperationRepository operationRepository;
     private final ExceptionsProperties exceptionsProperties;
@@ -29,17 +29,17 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
     @Override
     @Transactional
     public ResponseEntity<ExchangeOperationResultDTO> performOperation(ExchangeOperationDTO exchangeOperationDTO) {
-        ResponseEntity<Boolean> check = operationClient.check(exchangeOperationDTO);
-        if (check.getStatusCode().is2xxSuccessful()) {
-            if (Boolean.TRUE.equals(check.getBody())) {
-                ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
-                ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(exchangeOperationDTO.getSourceAccountId());
-                ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(exchangeOperationDTO.getTargetAccountId());
-                return getResponseEntity(exchangeOperationDTO, responseEntity, sourceAccountResp, targetAccountResp);
-            }
-            return ResponseEntity.ok(ExchangeOperationResultDTO.builder().message("Operation " + exchangeOperationDTO.getOperationType() + " "
-                    + exchangeOperationDTO.getAmount() + " "+ "prohibitted").status(OperationStatus.FAILED).build());
-        }
+//        ResponseEntity<Boolean> check = operationClient.check(exchangeOperationDTO);
+//        if (check.getStatusCode().is2xxSuccessful()) {
+//            if (Boolean.TRUE.equals(check.getBody())) {
+//                ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
+//                ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(exchangeOperationDTO.getSourceAccountId());
+//                ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(exchangeOperationDTO.getTargetAccountId());
+//                return getResponseEntity(exchangeOperationDTO, responseEntity, sourceAccountResp, targetAccountResp);
+//            }
+//            return ResponseEntity.ok(ExchangeOperationResultDTO.builder().message("Operation " + exchangeOperationDTO.getOperationType() + " "
+//                    + exchangeOperationDTO.getAmount() + " "+ "prohibitted").status(OperationStatus.FAILED).build());
+//        }
         return ResponseEntity.ok(ExchangeOperationResultDTO.builder().message("Audit server is unavailable").status(OperationStatus.FAILED).build());
     }
 
@@ -78,15 +78,16 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             exchangeOperationDTO.setTargetAmount(convertedAmount);
 
             ExchangeOperation exchangeOperation = operationRepository.save(operationMapper.toEntity(exchangeOperationDTO));
-            ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = operationClient.exchangeOperation(exchangeOperationDTO);
+            ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = null;
+                    //operationClient.exchangeOperation(exchangeOperationDTO);
             exchangeOperationDTO.setId(exchangeOperation.getId());
             if (exchangedOperation.getStatusCode().is2xxSuccessful()) {
-                operationClient.saveNotification(NotificationDTO.builder()
-                        .notificationDescription("Выполнена запрос на " + exchangeOperationDTO.getOperationType() + " " +
-                                exchangeOperationDTO.getAmount() + " " +
-                                sourceCurrency.name())
-                                .userId(exchangeOperationDTO.getUserId())
-                        .operationType(exchangeOperationDTO.getOperationType().name()).build());
+//                operationClient.saveNotification(NotificationDTO.builder()
+//                        .notificationDescription("Выполнена запрос на " + exchangeOperationDTO.getOperationType() + " " +
+//                                exchangeOperationDTO.getAmount() + " " +
+//                                sourceCurrency.name())
+//                                .userId(exchangeOperationDTO.getUserId())
+//                        .operationType(exchangeOperationDTO.getOperationType().name()).build());
             }
 
             return exchangedOperation;

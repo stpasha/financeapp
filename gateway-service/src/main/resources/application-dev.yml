@@ -7,15 +7,6 @@ spring:
           user-name-attribute: preferred_username
   application:
     name: gateway-service
-  config:
-    import: optional:consul:consul:8500 # импорт конфигурации из consul
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-      config:
-        enabled: true
-        format: yaml
     gateway:
       routes:
         - id: to-account-service

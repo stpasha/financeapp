@@ -70,31 +70,53 @@ tolerations: []
 
 affinity: {}
 
-services-db:
+keycloak:
   enabled: true
   auth:
+    adminUser: gatekeeper
+    adminPassword: swordfish
+  httpRelativePath: "/"
+  hostname: localhost
+  production: false
+  tls:
+    enabled: false
+  service:
+    type: ClusterIP
+    ports:
+      http: 8080
+  extraArgs:
+    - --import-realm
+  extraVolumes:
+    - name: realm-config
+      configMap:
+        name: keycloak-realm-config
+  extraVolumeMounts:
+    - name: realm-config
+      mountPath: /opt/bitnami/keycloak/data/import
+
+postgresql:
+  enabled: true
+  auth:
+    enablePostgresUser: true
     username: zbank
     password: password
     database: common_database
 
   primary:
-    service:
-      type: NodePort
-      nodePorts:
-        postgresql: 5432 # только если нужен доступ извне
-
+#    service:
+#      type: NodePort
+#      nodePorts:
+#        postgresql: 32432 # только если нужен доступ извне
     persistence:
       enabled: true
-      existingClaim: ""  # если не используешь заранее созданный PVC
       mountPath: /bitnami/postgresql
-      storageClass: "standard"  # зависит от кластера
-      size: 8Gi
+      size: 1Gi
+    pgHbaConfiguration: |
+      local   all             all                                     trust
+      host    replication     all                   127.0.0.1/32    md5
+      host    replication     all                   ::1/128         md5
+      host    all             all                   0.0.0.0/0       md5
+      host    all             all                   ::/0            md5
 
-    extraVolumes:
-      - name: initdb
-        hostPath: # или projected, если нужно по-другому
-          path: /absolute/path/to/docker-entrypoint-initdb.d
-          type: Directory
-    extraVolumeMounts:
-      - name: initdb
-        mountPath: /docker-entrypoint-initdb.d
+    initdb:
+      scriptsConfigMap: initdb-scripts

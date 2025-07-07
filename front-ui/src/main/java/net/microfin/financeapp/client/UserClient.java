@@ -9,20 +9,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "user-client", url = "http://gateway-service:8082", fallback = UserClientFallback.class)
+@FeignClient(name = "user-client", url = "http://finance.local", fallback = UserClientFallback.class)
 public interface UserClient {
-    @PostMapping("/user")
+    @PostMapping("/api/user")
     ResponseEntity<UserDTO> create(@RequestBody UserDTO userDTO);
 
-    @PutMapping("/user")
+    @PutMapping("/api/user")
     ResponseEntity<UserDTO> update(@RequestBody UpdateUserDTO userDTO);
 
-    @PutMapping("/user/password")
+    @PutMapping("/api/user/password")
     ResponseEntity<UserDTO> updatePassword(@RequestBody PasswordDTO userDTO);
 
-    @GetMapping("/user/{username}")
+    @GetMapping("/api/user/{username}")
     ResponseEntity<UserDTO> getUserByName(@PathVariable(name = "username") String username);
 
-    @GetMapping("/user")
+    @GetMapping("/api/user")
     ResponseEntity<List<UserDTO>> getUsers();
 }

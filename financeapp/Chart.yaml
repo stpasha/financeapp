@@ -21,7 +21,7 @@ version: 0.1.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.2"
+appVersion: "0.2.6.6"
 dependencies:
   - name: account-service
     version: "0.1.0"
@@ -40,7 +40,7 @@ dependencies:
     repository: "file://charts/exchange-service"
   - name: front-ui
     version: "0.1.0"
-    repository: "file://charts/front-ui-service"
+    repository: "file://charts/front-ui"
   - name: notification-service
     version: "0.1.0"
     repository: "file://charts/notification-service"
@@ -48,7 +48,10 @@ dependencies:
     version: "0.1.0"
     repository: "file://charts/transfer-service"
   - name: postgresql
-    version: "17" # Using a specific known stable version from Bitnami history
+    version: "14.2.3"
     repository: "https://charts.bitnami.com/bitnami"
-    alias: services-db # Alias to distinguish this instance
-    condition: services-db.enabled # Allow disabling if needed
+#  - name: keycloak
+#    version: "24.7.3"
+#    repository: "https://charts.bitnami.com/bitnami"
+#    alias: keycloak
+#    condition: keycloak.enabled

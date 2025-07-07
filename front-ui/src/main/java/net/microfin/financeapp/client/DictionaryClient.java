@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "dictionary-client", url = "http://gateway-service:8082", fallback = DictionaryClientFallback.class)
+@FeignClient(name = "dictionary-client", url = "http://finance.local", fallback = DictionaryClientFallback.class)
 public interface DictionaryClient {
-    @GetMapping("/dictionary/currency")
+    @GetMapping("/api/dictionary/currency")
     ResponseEntity<List<CurrencyDTO>> listCurrency();
 }

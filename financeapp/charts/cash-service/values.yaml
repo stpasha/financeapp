@@ -11,7 +11,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2"
+  tag: "0.2.6.6"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -39,7 +39,6 @@ podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -57,16 +56,6 @@ service:
   port: 8084
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-ingress:
-  enabled: true
-  className: "nginx"
-  annotations: {}
-  hosts:
-    - host: customer.test.local # значение по умолчанию, переопределяется при деплое в prod
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
@@ -114,16 +103,16 @@ nodeSelector: {}
 
 tolerations: []
 
+affinity: {}
+secrets: {}
+
 autoscaling:
   enabled: false
 
-affinity: {}
-
-envFrom: {}
-env: {}
-secrets: {}
-
 config:
-  database_url: "jdbc:postgresql://postgres-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/common_database"
-  database_username: "myuser"
+  database_url: "jdbc:postgresql://fin-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/common_database"
+  database_username: "zbank"
   SPRING_PROFILES_ACTIVE: "dev"
+  SPRING_DATASOURCE_CASH_SCHEMA: cash_info
+  CASH_SERVER_PORT: 8084
+  CASH_SERVER_DEBUG_PORT: 5009

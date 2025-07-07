@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: initdb-scripts
+data:
+  01-init-schema.sql: |
+    CREATE SCHEMA IF NOT EXISTS account_info;
+    CREATE SCHEMA IF NOT EXISTS cash_info;
+    CREATE SCHEMA IF NOT EXISTS exchange_info;
+    CREATE SCHEMA IF NOT EXISTS rule_info;
+    CREATE SCHEMA IF NOT EXISTS transfer_info;
+    CREATE SCHEMA IF NOT EXISTS notification_info;

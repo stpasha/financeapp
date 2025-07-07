@@ -10,6 +10,18 @@ spring:
         format_sql: true
         show_sql: true
         ddl-auto: none
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, info, env
+  security:
+    enabled: true
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
   datasource:
     init: never
     hikari:

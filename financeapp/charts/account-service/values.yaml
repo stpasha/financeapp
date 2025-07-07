@@ -11,7 +11,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2"
+  tag: "0.2.6.6"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -56,19 +56,7 @@ service:
   port: 8081
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-ingress:
-  enabled: true
-  className: "nginx"
-  annotations: {}
-  hosts:
-    - host: customer.test.local # значение по умолчанию, переопределяется при деплое в prod
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -120,8 +108,9 @@ autoscaling:
   enabled: false
 
 config:
-  database_url: "jdbc:postgresql://postgres-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/common_database"
-  database_username: "myuser"
+  database_url: "jdbc:postgresql://fin-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/common_database"
+  database_username: "zbank"
+  SPRING_DATASOURCE_ACCOUNT_SCHEMA: account_info
   SPRING_PROFILES_ACTIVE: "dev"
   KEYCLOAK_SERVER_URL: http://keycloak:7080/
   KEYCLOAK_SERVER_REALM: zbank
@@ -135,5 +124,7 @@ config:
   EXCEPTIONS_DESER_FAILURE: "Cannot deserialize payload"
   EXCEPTIONS_OPERATION_FAILURE: "Operation type not recognized"
   EXCEPTIONS_PASS_EDIT_FAILURE: "Password is not updated"
+  ACCOUNT_SERVER_PORT: 8081
+  ACCOUNT_SERVER_DEBUG_PORT: 5006
 
   SCHEDULER_ENABLED: "true"

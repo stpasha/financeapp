@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'net.microfin'
-version = '0.1'
+version = '0.2'
 
 java {
     toolchain {
@@ -45,12 +45,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
     //Local
     implementation project(":chassis-api")
     implementation project(":chassis-service-client")
 
     //Db
+    implementation("org.hibernate.orm:hibernate-core:6.6.13.Final")
     //Util
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     compileOnly 'org.projectlombok:lombok:1.18.38'

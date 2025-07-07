@@ -66,5 +66,5 @@ spring:
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 exceptions:
-  deserFailure: Cannot deserialize payload
-  operationFailure: Operation type not recognized
+  deserFailure: ${EXCEPTIONS_DESER_FAILURE:Cannot deserialize payload}
+  operationFailure: ${EXCEPTIONS_OPERATION_FAILURE:Operation type not recognized}

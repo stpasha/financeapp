@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: optional:consul:consul:8500
   web:
     cors:
       allowed-origins: "*"
@@ -23,12 +21,5 @@ spring:
         jwt:
           issuer-uri: http://mynet:7080/realms/zbank
           user-name-attribute: preferred_username
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-      config:
-        enabled: true
-        format: yaml
   liquibase:
     enabled: false

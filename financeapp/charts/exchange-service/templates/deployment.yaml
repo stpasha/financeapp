@@ -58,7 +58,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "account-service.fullname" . }}
+                name: {{ include "exchange-service.fullname" . }}
           {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}

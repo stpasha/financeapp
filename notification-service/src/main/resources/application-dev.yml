@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: optional:consul:consul:8500
   web:
     cors:
       allowed-origins: "*"
@@ -44,12 +42,6 @@ spring:
           connectTimeout: 5000
           readTimeout: 5000
           loggerLevel: basic
-    consul:
-      host: consul
-      port: 8500
-      config:
-        enabled: true
-        format: yaml
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}

@@ -19,7 +19,7 @@ data:
     # Use the 'tpl' function to render the database_url which contains Helm templating itself
     SPRING_DATASOURCE_URL: {{ tpl .Values.config.database_url . | quote }}
     SPRING_DATASOURCE_USERNAME: {{ .Values.config.database_username | quote }}
-    # SPRING_DATASOURCE_PASSWORD would typically come from a secret, not this ConfigMap.
+    SPRING_DATASOURCE_PASSWORD: password
 
     # Example: Include other config defined in values.yaml
     # OTHER_CONFIG_PARAM: {{ .Values.config.some_other_config | quote }}

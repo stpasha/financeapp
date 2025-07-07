@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'net.microfin'
-version = '0.1'
+version = '0.2'
 
 java {
     toolchain {
@@ -36,8 +36,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
-    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
 
     implementation project(":chassis-api")
 
