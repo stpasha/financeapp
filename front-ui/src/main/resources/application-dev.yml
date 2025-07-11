@@ -11,7 +11,7 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://mynet:7080/realms/zbank
+            issuer-uri: http://keycloak.local/realms/zbank
             user-name-attribute: preferred_username
         registration:
           keycloak:

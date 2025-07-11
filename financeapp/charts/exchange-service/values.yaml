@@ -11,7 +11,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2.6.6"
+  tag: "0.2.7.4"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -77,14 +77,14 @@ resources: {}
 livenessProbe: # Example for Spring Boot Actuator
   httpGet:
     path: /actuator/health/liveness
-    port: http
-  initialDelaySeconds: 30
-  periodSeconds: 10
+    port: 8085
+  initialDelaySeconds: 60
+  periodSeconds: 30
 readinessProbe: # Example for Spring Boot Actuator
   httpGet:
     path: /actuator/health/readiness
-    port: http
-  initialDelaySeconds: 15
+    port: 8085
+  initialDelaySeconds: 60
   periodSeconds: 5
 
 # Additional volumes on the output Deployment definition.
@@ -111,7 +111,7 @@ autoscaling:
   enabled: false
 
 config:
-  database_url: "jdbc:postgresql://fin-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/common_database"
+  database_url: "jdbc:postgresql://{{ .Release.Name }}-postgresql.{{ .Release.Namespace }}.svc.cluster.local:5432/common_database"
   database_username: "zbank"
   SPRING_PROFILES_ACTIVE: "dev"
   INSUFFICENT_FUNDS_FAILURE: "Insufficient funds"

@@ -6,6 +6,7 @@
 {{- $auditServiceName := printf "%s-%s" .Release.Name "audit-service" }}
 {{- $notificationServiceName := printf "%s-%s" .Release.Name "notification-service" }}
 {{- $frontUIName := printf "%s-%s" .Release.Name "front-ui" }}
+{{- $keycloakName := printf "%s-%s" .Release.Name "keycloak" }}
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -79,5 +80,15 @@ spec:
             backend:
               service:
                 name: {{ $frontUIName }}
+                port:
+                  number: 8080
+    - host: keycloak.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $keycloakName }}
                 port:
                   number: 8080

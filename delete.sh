@@ -12,9 +12,9 @@ SERVICES=(
   transfer-service
 )
 
-OLD_TAG=0.2.6.6
+OLD_TAG=0.2.7.4
 TAG=0.2.6.2
-HELM_RELEASE=myapp
+HELM_RELEASE=
 HELM_CHART_PATH=./financeapp  # путь к чарту
 
 echo "Uninstalling Helm release $HELM_RELEASE..."
