@@ -11,7 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 
-//@EnableFeignClients(basePackages = "net.microfin.financeapp.client")
+@EnableFeignClients(basePackages = "net.microfin.financeapp.client")
 @Configuration
 public class FeignConfig {
     @Bean
