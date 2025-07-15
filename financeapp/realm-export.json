@@ -986,19 +986,19 @@
       "clientId": "zbankapp",
       "name": "zbankapp",
       "description": "zbankapp",
-      "rootUrl": "http://localhost:8080",
-      "adminUrl": "http://localhost:8080",
-      "baseUrl": "http://localhost:8080",
+      "rootUrl": "http://finance.local",
+      "adminUrl": "http://keycloak.local",
+      "baseUrl": "http://finance.local",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
       "secret": "g3WnFjX9r8zxmhlY7yILHV5hZ3RtLUjw",
       "redirectUris": [
-        "http://localhost:8080/*"
+        "http://finance.local/*"
       ],
       "webOrigins": [
-        "http://localhost:8080"
+        "http://finance.local"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -1015,7 +1015,9 @@
         "oidc.ciba.grant.enabled": "false",
         "client.secret.creation.time": "1747166158",
         "backchannel.logout.session.required": "true",
-        "post.logout.redirect.uris": "http://localhost:8080",
+        "standard.token.exchange.enabled": "false",
+        "frontchannel.logout.session.required": "true",
+        "post.logout.redirect.uris": "http://finance.local",
         "display.on.consent.screen": "false",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false"

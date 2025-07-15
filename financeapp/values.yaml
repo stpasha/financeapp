@@ -85,6 +85,15 @@ keycloak:
 
   httpRelativePath: "/"
   hostname: keycloak.local
+  ingress:
+    enabled: true
+    hostname: keycloak.local
+    path: /
+    pathType: Prefix
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    tls: [ ]
 
   service:
     type: ClusterIP
@@ -149,6 +158,16 @@ audit-service:
   service:
     type: ClusterIP
     port: 8087
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /api/audit
+            pathType: Prefix
+    tls: [ ]
   resources: { }
   livenessProbe: # Example for Spring Boot Actuator
     httpGet:
@@ -183,13 +202,14 @@ audit-service:
     EXCEPTIONS_OPERATION_FAILURE: "Operation type not recognized"
     AUDIT_SERVER_PORT: 8087
     AUDIT_SERVER_DEBUG_PORT: 5012
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank
 
 account-service:
   replicaCount: 1
   image:
     repository: account-service
     pullPolicy: IfNotPresent
-    tag: "0.2.7.4"
+    tag: "0.2.8.2.3"
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
@@ -202,11 +222,22 @@ account-service:
   podLabels: { }
 
   podSecurityContext: { }
-
   securityContext: { }
   service:
     type: ClusterIP
     port: 8081
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /api/account
+            pathType: Prefix
+          - path: /api/user
+            pathType: Prefix
+    tls: [ ]
   resources: { }
   livenessProbe:
     httpGet:
@@ -244,6 +275,7 @@ account-service:
     KEYCLOAK_SERVER_REALM: zbank
     KEYCLOAK_SERVER_USERNAME: gatekeeper
     KEYCLOAK_SERVER_PASSWORD: swordfish
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank
 
     EXCEPTIONS_MAKE_ACCFAILURE: "Не удалось создать счёт"
     EXCEPTIONS_SEARCH_ACCFAILURE: "Счёт не найден"
@@ -261,7 +293,7 @@ cash-service:
   image:
     repository: cash-service
     pullPolicy: IfNotPresent
-    tag: "0.2.7.4"
+    tag: "0.2.8.2.3"
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
@@ -277,6 +309,15 @@ cash-service:
   service:
     type: ClusterIP
     port: 8084
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /api/cash
+            pathType: Prefix
   resources: { }
   livenessProbe: # Example for Spring Boot Actuator
     httpGet:
@@ -305,13 +346,14 @@ cash-service:
     SPRING_DATASOURCE_CASH_SCHEMA: cash_info
     CASH_SERVER_PORT: 8084
     CASH_SERVER_DEBUG_PORT: 5009
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank
 
 dictionaries-service:
   replicaCount: 1
   image:
     repository: dictionaries-service
     pullPolicy: IfNotPresent
-    tag: "0.2.7.4"
+    tag: "0.2.8.2.3"
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
@@ -329,6 +371,16 @@ dictionaries-service:
   service:
     type: ClusterIP
     port: 8083
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /api/dictionary
+            pathType: Prefix
+    tls: [ ]
 
   resources: { }
 
@@ -364,13 +416,14 @@ dictionaries-service:
     SPRING_PROFILES_ACTIVE: "dev"
     DICTIONARIES_SERVER_PORT: 8083
     DICTIONARIES_SERVER_DEBUG_PORT: 5008
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank
 
 exchange-service:
   replicaCount: 1
   image:
     repository: exchange-service
     pullPolicy: IfNotPresent
-    tag: "0.2.7.4"
+    tag: "0.2.8.2.3"
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
@@ -388,6 +441,16 @@ exchange-service:
   service:
     type: ClusterIP
     port: 8085
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /api/exchange
+            pathType: Prefix
+    tls: [ ]
 
   resources: { }
   livenessProbe:
@@ -425,13 +488,14 @@ exchange-service:
     EXCHANGE_SERVER_PORT: 8085
     EXCHANGE_SERVER_DEBUG_PORT: 5010
     SPRING_DATASOURCE_EXCHANGE_SCHEMA: exchange_info
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank
 
 front-ui:
   replicaCount: 1
   image:
     repository: front-ui
     pullPolicy: IfNotPresent
-    tag: "0.2.7.4"
+    tag: "0.2.8.2.3"
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
@@ -449,6 +513,16 @@ front-ui:
   service:
     type: ClusterIP
     port: 8080
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: [ ]
 
   resources: { }
   livenessProbe: # Example for Spring Boot Actuator
@@ -493,6 +567,7 @@ front-ui:
     EXCEPTIONS_DESER_FAILURE: "Cannot deserialize payload"
     EXCEPTIONS_OPERATION_FAILURE: "Operation type not recognized"
     EXCEPTIONS_PASS_EDIT_FAILURE: "Password is not updated"
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank
 
     SCHEDULER_ENABLED: "true"
 
@@ -502,7 +577,7 @@ notification-service:
     repository: notification-service
 
     pullPolicy: IfNotPresent
-    tag: "0.2.7.4"
+    tag: "0.2.8.2.3"
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
@@ -522,6 +597,16 @@ notification-service:
   service:
     type: ClusterIP
     port: 8088
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /api/notification
+            pathType: Prefix
+    tls: [ ]
   resources: { }
   livenessProbe: # Example for Spring Boot Actuator
     httpGet:
@@ -558,13 +643,14 @@ notification-service:
     NOTIFICATION_SERVER_PORT: 8088
     NOTIFICATION_SERVER_DEBUG_PORT: 5013
     SPRING_DATASOURCE_NOTIFICATION_SCHEMA: notification_info
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank
 
 transfer-service:
   replicaCount: 1
   image:
     repository: transfer-service
     pullPolicy: IfNotPresent
-    tag: "0.2.7.4"
+    tag: "0.2.8.2.3"
 
   # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   imagePullSecrets: [ ]
@@ -584,6 +670,16 @@ transfer-service:
   service:
     type: ClusterIP
     port: 8086
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: { }
+    hosts:
+      - host: finance.local
+        paths:
+          - path: /api/transfer
+            pathType: Prefix
+    tls: [ ]
   resources: { }
   livenessProbe: # Example for Spring Boot Actuator
     httpGet:
@@ -619,3 +715,4 @@ transfer-service:
     INCORRECT_SOURCE_ACCOUNT_FAILURE: "Unable to get currency or account info"
     TRANSFER_SERVER_PORT: 8086
     TRANSFER_SERVER_DEBUG_PORT: 5011
+    KEYCLOAK_ISSUER_URI: http://keycloak.local/realms/zbank

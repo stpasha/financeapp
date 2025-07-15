@@ -10,17 +10,9 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://keycloak.local/realms/zbank
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
             user-name-attribute: preferred_username
         registration:
-          keycloak:
-            provider: keycloak
-            client-id: zbankapp
-            client-secret: g3WnFjX9r8zxmhlY7yILHV5hZ3RtLUjw
-            client-name: zbankapp
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope: openid, profile, email
           zbankapi:
             provider: keycloak
             client-id: zbankapi
@@ -29,29 +21,13 @@ spring:
             scope: openid
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak.local/realms/zbank
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
           user-name-attribute: preferred_username
   cloud:
     openfeign:
       oauth2:
-        clientRegistrationId: keycloak
+        clientRegistrationId: zbankapi
         enabled: true
-      client:
-        config:
-          external-api:
-            url: http://gateway-service:8082
-        default:
-          connectTimeout: 5000
-          readTimeout: 5000
-          loggerLevel: basic
-    consul:
-      host: consul
-      port: 8500
-      config:
-        enabled: true
-        prefix: config
-        defaultContext: audit-service
-        format: yaml
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}

@@ -78,8 +78,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             exchangeOperationDTO.setTargetAmount(convertedAmount);
 
             ExchangeOperation exchangeOperation = operationRepository.save(operationMapper.toEntity(exchangeOperationDTO));
-            ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = null;
-                    //operationClient.exchangeOperation(exchangeOperationDTO);
+            ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = operationClient.exchangeOperation(exchangeOperationDTO);
             exchangeOperationDTO.setId(exchangeOperation.getId());
             if (exchangedOperation.getStatusCode().is2xxSuccessful()) {
                 operationClient.saveNotification(NotificationDTO.builder()
@@ -90,7 +89,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
                         .operationType(exchangeOperationDTO.getOperationType().name()).build());
             }
 
-            return exchangedOperation;
+            return ResponseEntity.ok(exchangedOperation.getBody());
 
         } else {
             throw new RuntimeException(exceptionsProperties.getAccNotFoundFailure());

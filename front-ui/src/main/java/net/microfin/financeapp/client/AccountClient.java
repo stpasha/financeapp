@@ -14,13 +14,4 @@ public interface AccountClient {
 
     @PutMapping("/api/account/{id}/disable")
     ResponseEntity<Void> disable(@PathVariable("id") Integer id);
-
-    @PostMapping("/api/cash/operation")
-    ResponseEntity<CashOperationResultDTO> cashOperation(@RequestBody CashOperationDTO cashOperationDTO);
-
-    @PostMapping("/api/exchange/operation")
-    ResponseEntity<ExchangeOperationResultDTO> exchangeOperation(@RequestBody ExchangeOperationDTO exchangeOperationDTO);
-
-    @PostMapping("/api/transfer/operation")
-    ResponseEntity<TransferOperationResultDTO> transferOperation(@RequestBody TransferOperationDTO exchangeOperationDTO);
 }

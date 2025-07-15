@@ -11,7 +11,7 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://keycloak.local/realms/zbank
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
             user-name-attribute: preferred_username
         registration:
           keycloak:
@@ -44,11 +44,17 @@ resilience4j:
         baseConfig: default
       user-client:
         baseConfig: default
+      cash-client:
+        baseConfig: default
+      exchange-client:
+        baseConfig: default
+      transfer-client:
+        baseConfig: default
 
   timelimiter:
     configs:
       default:
-        timeoutDuration: 3s
+        timeoutDuration: 5s
     instances:
       account-client:
         baseConfig: default
@@ -57,6 +63,12 @@ resilience4j:
       notification-client:
         baseConfig: default
       user-client:
+        baseConfig: default
+      cash-client:
+        baseConfig: default
+      exchange-client:
+        baseConfig: default
+      transfer-client:
         baseConfig: default
 logging:
   level:

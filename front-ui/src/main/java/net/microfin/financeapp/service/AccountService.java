@@ -3,6 +3,9 @@ package net.microfin.financeapp.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.client.AccountClient;
+import net.microfin.financeapp.client.CashClient;
+import net.microfin.financeapp.client.ExchangeClient;
+import net.microfin.financeapp.client.TransferClient;
 import net.microfin.financeapp.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,9 +20,12 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountClient accountClient;
+    private final CashClient cashClient;
+    private final ExchangeClient exchangeClient;
+    private final TransferClient transferClient;
 
     public OperationResult createCashOperation(CashOperationDTO dto) {
-        ResponseEntity<CashOperationResultDTO> response = accountClient.cashOperation(dto);
+        ResponseEntity<CashOperationResultDTO> response = cashClient.cashOperation(dto);
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         }
@@ -28,7 +34,7 @@ public class AccountService {
 
 
     public OperationResult createExchangeOperation(ExchangeOperationDTO dto) {
-        ResponseEntity<ExchangeOperationResultDTO> response = accountClient.exchangeOperation(dto);
+        ResponseEntity<ExchangeOperationResultDTO> response = exchangeClient.exchangeOperation(dto);
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         }
@@ -36,7 +42,7 @@ public class AccountService {
     }
 
     public OperationResult createTransferOperation(TransferOperationDTO dto) {
-        ResponseEntity<TransferOperationResultDTO> response = accountClient.transferOperation(dto);
+        ResponseEntity<TransferOperationResultDTO> response = transferClient.transferOperation(dto);
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         }

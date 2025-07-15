@@ -12,31 +12,31 @@ import java.util.List;
 
 public interface GatewayClient {
 
-    @PostMapping("/account/operation")
+    @PostMapping("/api/account/operation")
     ResponseEntity<ExchangeOperationResultDTO> exchangeOperation(@RequestBody ExchangeOperationDTO exchangeOperationDTO);
 
-    @GetMapping("/dictionary/currency")
+    @GetMapping("/api/dictionary/currency")
     ResponseEntity<List<CurrencyDTO>> listCurrency();
 
-    @GetMapping("/account/{id}")
+    @GetMapping("/api/account/{id}")
     ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Integer id);
 
-    @GetMapping("/audit")
+    @GetMapping("/api/audit")
     ResponseEntity<Boolean> check(@RequestBody ExchangeOperationDTO cashOperationDTO);
 
-    @PostMapping("/notification")
+    @PostMapping("/api/notification")
     ResponseEntity<NotificationDTO> saveNotification(@RequestBody NotificationDTO notificationDTO);
 
-    @PostMapping("/account/operation")
+    @PostMapping("/api/account/operation")
     ResponseEntity<CashOperationResultDTO> cashOperation(@RequestBody CashOperationDTO cashOperationDTO);
 
-    @GetMapping("/audit")
+    @GetMapping("/api/audit")
     ResponseEntity<Boolean> check(@RequestBody CashOperationDTO cashOperationDTO);
 
-    @PostMapping("/account/operation")
+    @PostMapping("/api/account/operation")
     ResponseEntity<TransferOperationResultDTO> transferOperation(@RequestBody TransferOperationDTO transferOperationDTO);
 
-    @GetMapping("/audit")
+    @GetMapping("/api/audit")
     ResponseEntity<Boolean> check(@RequestBody TransferOperationDTO cashOperationDTO);
 
 }

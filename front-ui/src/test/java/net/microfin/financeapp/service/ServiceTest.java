@@ -1,10 +1,7 @@
 package net.microfin.financeapp.service;
 
 import net.microfin.financeapp.FinanceAppTest;
-import net.microfin.financeapp.client.AccountClient;
-import net.microfin.financeapp.client.DictionaryClient;
-import net.microfin.financeapp.client.NotificationClient;
-import net.microfin.financeapp.client.UserClient;
+import net.microfin.financeapp.client.*;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.util.OperationStatus;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +32,15 @@ public class ServiceTest {
 
     @MockitoBean
     private AccountClient accountClient;
+
+    @MockitoBean
+    private CashClient cashClient;
+
+    @MockitoBean
+    private TransferClient transferClient;
+
+    @MockitoBean
+    private ExchangeClient exchangeClient;
 
     @MockitoBean
     private JwtDecoder jwtDecoder;
@@ -78,7 +84,7 @@ public class ServiceTest {
                     .message("Cash operation processed")
                     .build();
 
-            when(accountClient.cashOperation(dto)).thenReturn(ResponseEntity.ok(result));
+            when(cashClient.cashOperation(dto)).thenReturn(ResponseEntity.ok(result));
 
             OperationResult response = accountService.createCashOperation(dto);
 
@@ -100,7 +106,7 @@ public class ServiceTest {
                     .message("Transfer done")
                     .build();
 
-            when(accountClient.transferOperation(dto)).thenReturn(ResponseEntity.ok(result));
+            when(transferClient.transferOperation(dto)).thenReturn(ResponseEntity.ok(result));
 
             OperationResult response = accountService.createTransferOperation(dto);
 
@@ -123,7 +129,7 @@ public class ServiceTest {
                     .message("Exchange done")
                     .build();
 
-            when(accountClient.exchangeOperation(dto)).thenReturn(ResponseEntity.ok(result));
+            when(exchangeClient.exchangeOperation(dto)).thenReturn(ResponseEntity.ok(result));
 
             OperationResult response = accountService.createExchangeOperation(dto);
 

@@ -12,7 +12,7 @@ SERVICES=(
   transfer-service
 )
 
-OLD_TAG=0.2.7.4
+OLD_TAG=0.2.8.2.3
 TAG=0.2.6.2
 HELM_RELEASE=
 HELM_CHART_PATH=./financeapp  # путь к чарту
