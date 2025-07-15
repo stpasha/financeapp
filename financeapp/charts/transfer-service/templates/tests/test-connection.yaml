@@ -8,8 +8,8 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['{{ include "transfer-service.fullname" . }}:{{ .Values.service.port }}']
+    - name: curl
+      image: curlimages/curl
+      command: [ 'curl' ]
+      args: [ '-v', 'http://{{ include "transfer-service.fullname" . }}:{{ .Values.service.port }}/actuator/health' ]
   restartPolicy: Never
