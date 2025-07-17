@@ -1,17 +1,23 @@
 FROM jenkins/jenkins:lts-jdk21
 
 USER root
+ENV GRADLE_VERSION=8.7
 
 # Установка зависимостей
 RUN apt-get update && apt-get install -y \
     git \
-    gradle \
     curl \
     unzip \
     ca-certificates \
     gnupg \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
+
+# Установка Gradle вручную
+RUN curl -sSL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -o gradle.zip && \
+    unzip gradle.zip -d /opt && \
+    ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/bin/gradle && \
+    rm gradle.zip
 
 # Установка Helm
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
