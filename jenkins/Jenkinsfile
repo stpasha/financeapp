@@ -106,9 +106,11 @@ pipeline {
 
         stage('tgz process') {
             steps {
-                sh """
-                helm dependency update
-                """
+                dir('financeapp') {
+                    sh """
+                    helm dependency update
+                    """
+                }
             }
         }
 
