@@ -73,14 +73,14 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh """
-                docker build -t ${DOCKER_REGISTRY}/account-service:${IMAGE_TAG} account-service
-                docker build -t ${DOCKER_REGISTRY}/audit-service:${IMAGE_TAG} audit-service
-                docker build -t ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG} cash-service
-                docker build -t ${DOCKER_REGISTRY}/dictionaries-service:${IMAGE_TAG} dictionaries-service
-                docker build -t ${DOCKER_REGISTRY}/exchange-service:${IMAGE_TAG} exchange-service
-                docker build -t ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG} front-service
-                docker build -t ${DOCKER_REGISTRY}/notification-service:${IMAGE_TAG} notification-service
-                docker build -t ${DOCKER_REGISTRY}/transfer-service:${IMAGE_TAG} transfer-service
+                docker build -t ${DOCKER_REGISTRY}/account-service:${IMAGE_TAG} ./account-service
+                docker build -t ${DOCKER_REGISTRY}/audit-service:${IMAGE_TAG} ./audit-service
+                docker build -t ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG} ./cash-service
+                docker build -t ${DOCKER_REGISTRY}/dictionaries-service:${IMAGE_TAG} ./dictionaries-service
+                docker build -t ${DOCKER_REGISTRY}/exchange-service:${IMAGE_TAG} ./exchange-service
+                docker build -t ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG} ./front-service
+                docker build -t ${DOCKER_REGISTRY}/notification-service:${IMAGE_TAG} ./notification-service
+                docker build -t ${DOCKER_REGISTRY}/transfer-service:${IMAGE_TAG} ./transfer-service
                 """
             }
         }
