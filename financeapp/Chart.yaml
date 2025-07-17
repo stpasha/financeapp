@@ -49,9 +49,9 @@ dependencies:
     repository: "file://charts/transfer-service"
   - name: postgresql
     version: "14.2.3"
-    repository: "https://charts.bitnami.com/bitnami"
+    repository: "file://charts/"
   - name: keycloak
     version: "24.7.3"
-    repository: "https://charts.bitnami.com/bitnami"
+    repository: "file://charts/"
     alias: keycloak
     condition: keycloak.enabled
