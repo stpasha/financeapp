@@ -6,7 +6,7 @@ import org.jenkinsci.plugins.workflow.multibranch.*
 def env = System.getenv()
 def instance = Jenkins.get()
 
-def jobName       = "YandexHelmApp"
+def jobName       = "Bank CI"
 def githubRepo    = env['GITHUB_REPOSITORY']
 def credentialsId = "github-creds"
 def scriptPath    = "jenkins/Jenkinsfile"

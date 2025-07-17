@@ -12,7 +12,6 @@ def githubUsername = env['GITHUB_USERNAME']
 def githubToken = env['GITHUB_TOKEN']
 def ghcrToken = env['GHCR_TOKEN']
 def dockerRegistry = env['DOCKER_REGISTRY']
-def dbPassword = env['DB_PASSWORD']
 
 // Получаем хранилище учётных данных
 def store = Jenkins.instance.getExtensionList(
@@ -68,16 +67,5 @@ if (dockerRegistry) {
     store.addCredentials(Domain.global(), registryCred)
 }
 
-// Создаём пароль базы данных (используется в helm и kubectl)
-if (dbPassword) {
-    println "--> Creating credential: DB_PASSWORD"
-    def dbCred = new StringCredentialsImpl(
-            CredentialsScope.GLOBAL,
-            "DB_PASSWORD",
-            "Database password from ENV",
-            Secret.fromString(dbPassword)
-    )
-    store.addCredentials(Domain.global(), dbCred)
-}
 
 println "--> Credential setup complete."

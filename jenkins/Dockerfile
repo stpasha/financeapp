@@ -5,7 +5,7 @@ USER root
 # Установка зависимостей
 RUN apt-get update && apt-get install -y \
     git \
-    maven \
+    gradle \
     curl \
     unzip \
     ca-certificates \
