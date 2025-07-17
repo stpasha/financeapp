@@ -79,7 +79,7 @@ pipeline {
                 docker build -t ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG} ./cash-service
                 docker build -t ${DOCKER_REGISTRY}/dictionaries-service:${IMAGE_TAG} ./dictionaries-service
                 docker build -t ${DOCKER_REGISTRY}/exchange-service:${IMAGE_TAG} ./exchange-service
-                docker build -t ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG} ./front-service
+                docker build -t ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG} ./front-ui
                 docker build -t ${DOCKER_REGISTRY}/notification-service:${IMAGE_TAG} ./notification-service
                 docker build -t ${DOCKER_REGISTRY}/transfer-service:${IMAGE_TAG} ./transfer-service
                 """
