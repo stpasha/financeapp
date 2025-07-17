@@ -73,7 +73,6 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh """
-                pwd
                 docker build -t ${DOCKER_REGISTRY}/account-service:${IMAGE_TAG} ./account-service
                 docker build -t ${DOCKER_REGISTRY}/audit-service:${IMAGE_TAG} ./audit-service
                 docker build -t ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG} ./cash-service
@@ -108,6 +107,8 @@ pipeline {
             steps {
                 dir('financeapp') {
                     sh """
+                    echo "Dependency update started"
+                    helm repo add bitnami https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami
                     helm dependency update
                     """
                 }
