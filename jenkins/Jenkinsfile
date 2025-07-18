@@ -10,7 +10,7 @@ pipeline {
 
     stages {
         stage('Build & Unit Tests') {
-            parallel {
+
                 stage('Account Service') {
                     steps {
                         dir('account-service') {
@@ -67,7 +67,7 @@ pipeline {
                         }
                     }
                 }
-            }
+
         }
 
         stage('Build Docker Images') {
