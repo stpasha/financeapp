@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KEEP_TAGS=("0.2.7.7" "0.2.8.2.4")
+KEEP_TAGS=("0.2.7.7" "0.1.0")
 
 docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | while read line; do
     IMAGE_TAG=$(echo "$line" | awk '{print $1}')
