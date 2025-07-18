@@ -11,62 +11,41 @@ pipeline {
     stages {
         stage('Build & Unit Tests') {
 
-                stage('Account Service') {
+
                     steps {
                         dir('account-service') {
                             sh 'gradle clean build'
                         }
-                    }
-                }
-                stage('Audit Service') {
-                    steps {
+
                         dir('audit-service') {
                             sh 'gradle clean build'
                         }
-                    }
-                }
-                stage('Cash Service') {
-                    steps {
+
                         dir('cash-service') {
                             sh 'gradle clean build'
                         }
-                    }
-                }
-                stage('Dictionaries Service') {
-                    steps {
+
                         dir('dictionaries-service') {
                             sh 'gradle clean build'
                         }
-                    }
-                }
-                stage('Exchange Service') {
-                    steps {
+
                         dir('exchange-service') {
                             sh 'gradle clean build'
                         }
-                    }
-                }
-                stage('Front UI') {
-                    steps {
+
                         dir('front-ui') {
                             sh 'gradle clean build'
                         }
-                    }
-                }
-                stage('Notifications Service') {
-                    steps {
+
                         dir('notification-service') {
                             sh 'gradle clean build'
                         }
-                    }
-                }
-                stage('Transfer Service') {
-                    steps {
+
                         dir('transfer-service') {
                             sh 'gradle clean build'
                         }
                     }
-                }
+
 
         }
 
