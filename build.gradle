@@ -1,6 +1,5 @@
 plugins {
 	id 'java'
-	id 'checkstyle'
 }
 
 
@@ -14,27 +13,6 @@ allprojects {
 }
 
 
-subprojects {
-	apply plugin: 'checkstyle'
-
-	tasks.withType(Checkstyle).configureEach {
-		ignoreFailures = true
-	}
-
-	if (project.name != 'bom') {
-		apply plugin: 'java'
-
-		java {
-			sourceCompatibility = JavaVersion.VERSION_21
-			targetCompatibility = JavaVersion.VERSION_21
-		}
-
-		test {
-			useJUnitPlatform()
-		}
-	}
-
-}
 
 tasks.register('copyArtifacts', Copy) {
 	dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' }}
