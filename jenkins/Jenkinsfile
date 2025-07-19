@@ -4,8 +4,7 @@ pipeline {
     environment {
         DOCKER_REGISTRY = credentials('DOCKER_REGISTRY')
         GITHUB_USERNAME = credentials('GITHUB_USERNAME')
-        DB_USER         = 'myuser'
-        IMAGE_TAG       = "${env.BUILD_NUMBER}"
+        IMAGE_TAG       = "0.1.0"
     }
 
     stages {
@@ -14,35 +13,35 @@ pipeline {
 
                     steps {
                         dir('account-service') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
 
                         dir('audit-service') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
 
                         dir('cash-service') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
 
                         dir('dictionaries-service') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
 
                         dir('exchange-service') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
 
                         dir('front-ui') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
 
                         dir('notification-service') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
 
                         dir('transfer-service') {
-                            sh 'gradle clean build'
+                            sh '../gradlew clean build'
                         }
                     }
 
@@ -52,14 +51,14 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh """
-                docker build -t ${DOCKER_REGISTRY}/account-service:${IMAGE_TAG} ./account-service
-                docker build -t ${DOCKER_REGISTRY}/audit-service:${IMAGE_TAG} ./audit-service
-                docker build -t ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG} ./cash-service
-                docker build -t ${DOCKER_REGISTRY}/dictionaries-service:${IMAGE_TAG} ./dictionaries-service
-                docker build -t ${DOCKER_REGISTRY}/exchange-service:${IMAGE_TAG} ./exchange-service
-                docker build -t ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG} ./front-ui
-                docker build -t ${DOCKER_REGISTRY}/notification-service:${IMAGE_TAG} ./notification-service
-                docker build -t ${DOCKER_REGISTRY}/transfer-service:${IMAGE_TAG} ./transfer-service
+                docker build -t account-service:${IMAGE_TAG} ./account-service
+                docker build -t audit-service:${IMAGE_TAG} ./audit-service
+                docker build -t cash-service:${IMAGE_TAG} ./cash-service
+                docker build -t dictionaries-service:${IMAGE_TAG} ./dictionaries-service
+                docker build -t exchange-service:${IMAGE_TAG} ./exchange-service
+                docker build -t front-ui:${IMAGE_TAG} ./front-ui
+                docker build -t notification-service:${IMAGE_TAG} ./notification-service
+                docker build -t transfer-service:${IMAGE_TAG} ./transfer-service
                 """
             }
         }
@@ -69,14 +68,14 @@ pipeline {
                 withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
                     sh """
                     echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
-                    docker push ${DOCKER_REGISTRY}/account-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/audit-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/dictionaries-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/exchange-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/notification-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/transfer-service:${IMAGE_TAG}
+                    docker push account-service:${IMAGE_TAG}
+                    docker push audit-service:${IMAGE_TAG}
+                    docker push cash-service:${IMAGE_TAG}
+                    docker push dictionaries-service:${IMAGE_TAG}
+                    docker push exchange-service:${IMAGE_TAG}
+                    docker push front-ui:${IMAGE_TAG}
+                    docker push notification-service:${IMAGE_TAG}
+                    docker push transfer-service:${IMAGE_TAG}
                     """
                 }
             }
