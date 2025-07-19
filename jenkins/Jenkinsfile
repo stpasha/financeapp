@@ -164,6 +164,7 @@ pipeline {
                   --set notification-service.image.tag=${IMAGE_TAG} \
                   --set transfer-service.image.repository=${DOCKER_REGISTRY}/transfer-service \
                   --set transfer-service.image.tag=${IMAGE_TAG}
+                  --set keycloak.externalDatabase.host=financeapp-postgresql.prod.svc.cluster.local
 
                 """
             }

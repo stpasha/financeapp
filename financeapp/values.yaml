@@ -12,7 +12,7 @@ keycloak:
   postgresql:
     enabled: false
   externalDatabase:
-    host: financeapp-postgresql.dev.svc.cluster.local
+    host: financeapp-postgresql.test.svc.cluster.local
     user: zbank
     database: common_database
     existingSecret: keycloak-credentials
