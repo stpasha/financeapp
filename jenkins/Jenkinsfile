@@ -66,17 +66,35 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
-                    sh """
-                    echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
-                    docker push ${DOCKER_REGISTRY}/account-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/audit-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/dictionaries-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/exchange-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/notification-service:${IMAGE_TAG}
-                    docker push ${DOCKER_REGISTRY}/transfer-service:${IMAGE_TAG}
-                    """
+                    timeout(time: 10, unit: 'SECONDS') {
+                      retry(2) {
+                        sh """
+                        echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
+                        docker push ${DOCKER_REGISTRY}/account-service:${IMAGE_TAG}
+                        docker push ${DOCKER_REGISTRY}/audit-service:${IMAGE_TAG}
+                        """
+                      }
+                    }
+                    timeout(time: 10, unit: 'SECONDS') {
+                      retry(2) {
+                        sh """
+                        echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
+                        docker push ${DOCKER_REGISTRY}/cash-service:${IMAGE_TAG}
+                        docker push ${DOCKER_REGISTRY}/dictionaries-service:${IMAGE_TAG}
+                        docker push ${DOCKER_REGISTRY}/exchange-service:${IMAGE_TAG}
+                        """
+                      }
+                    }
+                    timeout(time: 10, unit: 'SECONDS') {
+                      retry(2) {
+                        sh """
+                        echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
+                        docker push ${DOCKER_REGISTRY}/front-ui:${IMAGE_TAG}
+                        docker push ${DOCKER_REGISTRY}/notification-service:${IMAGE_TAG}
+                        docker push ${DOCKER_REGISTRY}/transfer-service:${IMAGE_TAG}
+                        """
+                      }
+                    }
                 }
             }
         }
