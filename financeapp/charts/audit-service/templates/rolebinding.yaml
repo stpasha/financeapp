@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "audit-service.fullname" . }}-rolebinding
+  namespace: {{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.audit-service.serviceAccount.name | default (include "audit-service.serviceAccountName" .) }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "audit-service.fullname" . }}-role
+  apiGroup: rbac.authorization.k8s.io

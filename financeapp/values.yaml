@@ -83,9 +83,14 @@ audit-service:
   fullnameOverride: ""
   serviceAccount:
     create: true
-    automount: true
-    annotations: { }
-    name: ""
+    name: financeapp-audit-service
+    rbac:
+      create: true
+      clusterWide: false
+      rules:
+        - apiGroups: [ "" ]
+          resources: [ "endpoints", "services" ]
+          verbs: [ "get", "list", "watch" ]
   service:
     type: ClusterIP
     port: 8087
@@ -237,9 +242,14 @@ cash-service:
   fullnameOverride: ""
   serviceAccount:
     create: true
-    automount: true
-    annotations: { }
-    name: ""
+    name: financeapp-cash-service
+    rbac:
+      create: true
+      clusterWide: false
+      rules:
+        - apiGroups: [ "" ]
+          resources: [ "endpoints", "services" ]
+          verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
   podSecurityContext: { }
@@ -375,9 +385,14 @@ exchange-service:
   fullnameOverride: ""
   serviceAccount:
     create: true
-    automount: true
-    annotations: { }
-    name: ""
+    name: financeapp-exchange-service
+    rbac:
+      create: true
+      clusterWide: false
+      rules:
+        - apiGroups: [ "" ]
+          resources: [ "endpoints", "services" ]
+          verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
 
@@ -451,9 +466,15 @@ front-ui:
   fullnameOverride: ""
   serviceAccount:
     create: true
-    automount: true
-    annotations: { }
-    name: ""
+    name: financeapp-front-ui
+
+    rbac:
+      create: true
+      clusterWide: false
+      rules:
+        - apiGroups: [ "" ]
+          resources: [ "endpoints", "services" ]
+          verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
 
@@ -537,10 +558,14 @@ notification-service:
   fullnameOverride: ""
   serviceAccount:
     create: true
-
-    automount: true
-    annotations: { }
-    name: ""
+    name: financeapp-notification-service
+    rbac:
+      create: true
+      clusterWide: false
+      rules:
+        - apiGroups: [ "" ]
+          resources: [ "endpoints", "services" ]
+          verbs: [ "get", "list", "watch" ]
 
   podAnnotations: { }
   podLabels: { }
@@ -616,9 +641,15 @@ transfer-service:
   fullnameOverride: ""
   serviceAccount:
     create: true
-    automount: true
-    annotations: { }
-    name: ""
+    name: financeapp-transfer-service
+
+    rbac:
+      create: true
+      clusterWide: false
+      rules:
+        - apiGroups: [ "" ]
+          resources: [ "endpoints", "services" ]
+          verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
 

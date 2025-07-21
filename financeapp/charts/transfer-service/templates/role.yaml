@@ -1,0 +1,8 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "transfer-service.fullname" . }}-role
+  namespace: {{ .Release.Namespace }}
+rules:
+  {{ toYaml .Values.transfer-service.rbac.rules | indent 2 }}
+  {{- end }}
