@@ -13,5 +13,10 @@ data:
     {{- end }}
     {{- end }}
 
+    KEYCLOAK_SERVER_URL: {{ .Values.config.keycloak_server_url | quote }}
+    KEYCLOAK_ISSUER_URI: {{ .Values.config.keycloak_issuer_uri | quote }}
+    SPRING_APPLICATION_NAME: {{ .Release.Name | quote }}
+    SPRING_K8S_NAMESPACE: {{ .Release.Namespace | quote }}"
+
     # Example: Include other config defined in values.yaml
     # OTHER_CONFIG_PARAM: {{ .Values.config.some_other_config | quote }}
