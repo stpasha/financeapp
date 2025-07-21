@@ -52,7 +52,7 @@ public class ServiceTest {
     private NotificationClient notificationClient;
 
     @MockitoBean
-    private UserClient userClient;
+    private AccountClient userClient;
 
     @MockitoBean
     private ClientRegistrationRepository clientRegistrationRepository;

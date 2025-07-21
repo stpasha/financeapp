@@ -3,7 +3,7 @@ package net.microfin.financeapp.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.microfin.financeapp.AbstractTest;
 import net.microfin.financeapp.FinanceAppTest;
-import net.microfin.financeapp.client.RuleClient;
+import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.domain.Rule;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
@@ -33,7 +33,7 @@ public class ServiceTest extends AbstractTest {
     @Autowired
     private RuleRepository ruleRepository;
     @MockitoBean
-    private RuleClient ruleClient;
+    private AccountClientImpl accountClient;
     @Autowired
     private DefaultRuleService ruleService;
     @MockitoBean
@@ -70,7 +70,7 @@ public class ServiceTest extends AbstractTest {
             rule.setMinAmount(new BigDecimal("100"));
             rule.setMaxAmount(new BigDecimal("500"));
 
-            when(ruleClient.getAccount(accountId)).thenReturn(ResponseEntity.ok(accountDTO));
+            when(accountClient.getAccount(accountId)).thenReturn(ResponseEntity.ok(accountDTO));
             assertTrue(ruleService.checkRulesForOperation(dto));
         }
 
@@ -82,7 +82,7 @@ public class ServiceTest extends AbstractTest {
             Integer accountId = 1;
             dto.setSourceAccountId(accountId);
 
-            when(ruleClient.getAccount(accountId)).thenReturn(ResponseEntity.ok(null));
+            when(accountClient.getAccount(accountId)).thenReturn(ResponseEntity.ok(null));
 
             assertFalse(ruleService.checkRulesForOperation(dto));
         }
@@ -105,7 +105,7 @@ public class ServiceTest extends AbstractTest {
             Integer accountId = 1;
             dto.setSourceAccountId(accountId);
 
-            when(ruleClient.getAccount(accountId)).thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            when(accountClient.getAccount(accountId)).thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
 
             assertFalse(ruleService.checkRulesForOperation(dto));
         }

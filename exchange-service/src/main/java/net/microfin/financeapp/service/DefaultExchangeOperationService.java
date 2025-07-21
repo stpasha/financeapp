@@ -2,7 +2,10 @@ package net.microfin.financeapp.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.client.ExchangeOperationClient;
+import net.microfin.financeapp.client.AccountClientImpl;
+import net.microfin.financeapp.client.AuditClientImpl;
+import net.microfin.financeapp.client.DictionaryClientImpl;
+import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.domain.ExchangeOperation;
 import net.microfin.financeapp.dto.*;
@@ -21,7 +24,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DefaultExchangeOperationService implements ExchangeOperationService {
 
-    private final ExchangeOperationClient operationClient;
+    private final AuditClientImpl auditClient;
+    private final NotificationClientImpl notificationClient;
+    private final AccountClientImpl accountClient;
+    private final DictionaryClientImpl dictionaryClient;
     private final ExchangeOperationMapper operationMapper;
     private final ExchangeOperationRepository operationRepository;
     private final ExceptionsProperties exceptionsProperties;
@@ -29,12 +35,12 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
     @Override
     @Transactional
     public ResponseEntity<ExchangeOperationResultDTO> performOperation(ExchangeOperationDTO exchangeOperationDTO) {
-        ResponseEntity<Boolean> check = operationClient.check(exchangeOperationDTO);
+        ResponseEntity<Boolean> check = auditClient.check(exchangeOperationDTO);
         if (check.getStatusCode().is2xxSuccessful()) {
             if (Boolean.TRUE.equals(check.getBody())) {
-                ResponseEntity<List<CurrencyDTO>> responseEntity = operationClient.listCurrency();
-                ResponseEntity<AccountDTO> sourceAccountResp = operationClient.getAccount(exchangeOperationDTO.getSourceAccountId());
-                ResponseEntity<AccountDTO> targetAccountResp = operationClient.getAccount(exchangeOperationDTO.getTargetAccountId());
+                ResponseEntity<List<CurrencyDTO>> responseEntity = dictionaryClient.listCurrency();
+                ResponseEntity<AccountDTO> sourceAccountResp = accountClient.getAccount(exchangeOperationDTO.getSourceAccountId());
+                ResponseEntity<AccountDTO> targetAccountResp = accountClient.getAccount(exchangeOperationDTO.getTargetAccountId());
                 return getResponseEntity(exchangeOperationDTO, responseEntity, sourceAccountResp, targetAccountResp);
             }
             return ResponseEntity.ok(ExchangeOperationResultDTO.builder().message("Operation " + exchangeOperationDTO.getOperationType() + " "
@@ -78,10 +84,10 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             exchangeOperationDTO.setTargetAmount(convertedAmount);
 
             ExchangeOperation exchangeOperation = operationRepository.save(operationMapper.toEntity(exchangeOperationDTO));
-            ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = operationClient.exchangeOperation(exchangeOperationDTO);
+            ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = accountClient.exchangeOperation(exchangeOperationDTO);
             exchangeOperationDTO.setId(exchangeOperation.getId());
             if (exchangedOperation.getStatusCode().is2xxSuccessful()) {
-                operationClient.saveNotification(NotificationDTO.builder()
+                notificationClient.saveNotification(NotificationDTO.builder()
                         .notificationDescription("Выполнена запрос на " + exchangeOperationDTO.getOperationType() + " " +
                                 exchangeOperationDTO.getAmount() + " " +
                                 sourceCurrency.name())

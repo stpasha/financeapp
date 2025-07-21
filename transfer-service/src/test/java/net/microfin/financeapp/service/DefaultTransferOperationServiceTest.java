@@ -2,7 +2,10 @@ package net.microfin.financeapp.service;
 
 import net.microfin.financeapp.AbstractTest;
 import net.microfin.financeapp.FinanceAppTest;
-import net.microfin.financeapp.client.TransferOperationClient;
+import net.microfin.financeapp.client.AccountClientImpl;
+import net.microfin.financeapp.client.AuditClientImpl;
+import net.microfin.financeapp.client.DictionaryClientImpl;
+import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.TransferOperationMapper;
 import net.microfin.financeapp.repository.TransferOperationRepository;
@@ -28,7 +31,13 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
     private DefaultTransferOperationService service;
 
     @MockitoBean
-    private TransferOperationClient operationClient;
+    private AuditClientImpl auditClient;
+    @MockitoBean
+    private NotificationClientImpl notificationClient;
+    @MockitoBean
+    private AccountClientImpl accountClient;
+    @MockitoBean
+    private DictionaryClientImpl dictionaryClient;
 
     @Autowired
     private TransferOperationMapper mapper;
@@ -75,11 +84,11 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
                 .build();
 
         // when
-        when(operationClient.check(dto)).thenReturn(ResponseEntity.ok(true));
-        when(operationClient.listCurrency()).thenReturn(ResponseEntity.ok(currencies));
-        when(operationClient.getAccount(101)).thenReturn(ResponseEntity.ok(sourceAccount));
-        when(operationClient.getAccount(202)).thenReturn(ResponseEntity.ok(targetAccount));
-        when(operationClient.transferOperation(dto)).thenReturn(ResponseEntity.ok(resultDTO));
+        when(auditClient.check(dto)).thenReturn(ResponseEntity.ok(true));
+        when(dictionaryClient.listCurrency()).thenReturn(ResponseEntity.ok(currencies));
+        when(accountClient.getAccount(101)).thenReturn(ResponseEntity.ok(sourceAccount));
+        when(accountClient.getAccount(202)).thenReturn(ResponseEntity.ok(targetAccount));
+        when(accountClient.transferOperation(dto)).thenReturn(ResponseEntity.ok(resultDTO));
 
         // then
         TransferOperationResultDTO response = service.performOperation(dto);

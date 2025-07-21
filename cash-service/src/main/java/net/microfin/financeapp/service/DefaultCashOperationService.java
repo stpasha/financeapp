@@ -2,7 +2,9 @@ package net.microfin.financeapp.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.client.CashOperationClient;
+import net.microfin.financeapp.client.AccountClientImpl;
+import net.microfin.financeapp.client.AuditClientImpl;
+import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.domain.CashOperation;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
@@ -18,21 +20,23 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DefaultCashOperationService implements CashOperationService {
 
-    private final CashOperationClient cashOperationClient;
+    private final AuditClientImpl auditClient;
+    private final NotificationClientImpl notificationClient;
+    private final AccountClientImpl accountClient;
     private final CashOperationMapper cashOperationMapper;
     private final CashOperationRepository cashOperationRepository;
 
     @Override
     @Transactional
     public ResponseEntity<CashOperationResultDTO> performOperation(CashOperationDTO operationDTO) {
-        ResponseEntity<Boolean> check = cashOperationClient.check(operationDTO);
+        ResponseEntity<Boolean> check = auditClient.check(operationDTO);
         if (check.getStatusCode().is2xxSuccessful()) {
             if (Boolean.TRUE.equals(check.getBody())) {
                 CashOperation cashOperation = cashOperationRepository.save(cashOperationMapper.toEntity(operationDTO));
                 operationDTO.setId(cashOperation.getId());
-                ResponseEntity<CashOperationResultDTO> cashOperationResultDTOResponseEntity = cashOperationClient.cashOperation(operationDTO);
+                ResponseEntity<CashOperationResultDTO> cashOperationResultDTOResponseEntity = accountClient.cashOperation(operationDTO);
                 if (cashOperationResultDTOResponseEntity.getStatusCode().is2xxSuccessful()) {
-                    cashOperationClient.saveNotification(NotificationDTO.builder()
+                    notificationClient.saveNotification(NotificationDTO.builder()
                             .notificationDescription("Выполнен запрос на " + operationDTO.getOperationType() + " " +
                                     operationDTO.getAmount() + " " +
                                     operationDTO.getCurrencyCode().getName())

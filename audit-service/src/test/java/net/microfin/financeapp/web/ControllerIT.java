@@ -3,7 +3,7 @@ package net.microfin.financeapp.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.microfin.financeapp.AbstractTest;
 import net.microfin.financeapp.ServiceApplication;
-import net.microfin.financeapp.client.RuleClient;
+import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
@@ -44,7 +44,7 @@ public class ControllerIT extends AbstractTest {
     private JwtDecoder jwtDecoder;
 
     @MockitoBean
-    private RuleClient ruleClient;
+    private AccountClientImpl accountClient;
 
     @Autowired
     private RuleRepository ruleRepository;
@@ -80,7 +80,7 @@ public class ControllerIT extends AbstractTest {
                     .currencyCode("USD")
                     .build();
 
-            when(ruleClient.getAccount(1)).thenReturn(ResponseEntity.ok(accountDTO));
+            when(accountClient.getAccount(1)).thenReturn(ResponseEntity.ok(accountDTO));
 
             boolean result = ruleService.checkRulesForOperation(dto);
             assertThat(result).isTrue();
@@ -94,7 +94,7 @@ public class ControllerIT extends AbstractTest {
                     .operationType(OperationType.EXCHANGE)
                     .build();
 
-            when(ruleClient.getAccount(1)).thenReturn(ResponseEntity.ok(null));
+            when(accountClient.getAccount(1)).thenReturn(ResponseEntity.ok(null));
 
             boolean result = ruleService.checkRulesForOperation(dto);
             assertThat(result).isFalse();

@@ -1,7 +1,7 @@
 package net.microfin.financeapp.service;
 
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.client.RuleClient;
+import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.repository.RuleRepository;
 import net.microfin.financeapp.util.Currency;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 public class DefaultRuleService implements RuleService {
 
     private final RuleRepository ruleRepository;
-    private final RuleClient ruleClient;
+    private final AccountClientImpl accountClient;
 
     @Override
     public boolean checkRulesForOperation(GenericOperationDTO genericOperationDTO) {
@@ -24,7 +24,7 @@ public class DefaultRuleService implements RuleService {
                     .findRuleByOperationTypeAndCurrencyCode(cashOperationDTO.getOperationType(), cashOperationDTO.getCurrencyCode())
                     .map(rule -> checkAmounts(rule.getMinAmount(), rule.getMaxAmount(), cashOperationDTO.getAmount())).orElse(true);
         } else if (genericOperationDTO instanceof TransferOperationDTO transferOperationDTO) {
-            ResponseEntity<AccountDTO> sourceAccount = ruleClient.getAccount(transferOperationDTO.getSourceAccountId());
+            ResponseEntity<AccountDTO> sourceAccount = accountClient.getAccount(transferOperationDTO.getSourceAccountId());
             if (sourceAccount.getStatusCode().is2xxSuccessful()) {
                 if (sourceAccount.getBody() == null) {
                     return false;
@@ -36,7 +36,7 @@ public class DefaultRuleService implements RuleService {
             }
             return false;
         } else if (genericOperationDTO instanceof ExchangeOperationDTO exchangeOperationDTO) {
-            ResponseEntity<AccountDTO> sourceAccount = ruleClient.getAccount(exchangeOperationDTO.getSourceAccountId());
+            ResponseEntity<AccountDTO> sourceAccount = accountClient.getAccount(exchangeOperationDTO.getSourceAccountId());
             if (sourceAccount.getStatusCode().is2xxSuccessful()) {
                 if (sourceAccount.getBody() == null) {
                     return false;

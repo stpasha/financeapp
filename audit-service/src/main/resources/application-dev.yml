@@ -24,6 +24,13 @@ spring:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
           user-name-attribute: preferred_username
   cloud:
+    kubernetes:
+      discovery:
+        enabled: true
+        all-namespaces: false
+        metadata:
+          addLabels: true
+          addAnnotations: true
     openfeign:
       oauth2:
         clientRegistrationId: zbankapi

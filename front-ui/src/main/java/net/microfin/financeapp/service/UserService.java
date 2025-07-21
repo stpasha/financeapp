@@ -2,7 +2,7 @@ package net.microfin.financeapp.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.microfin.financeapp.client.UserClient;
+import net.microfin.financeapp.client.AccountClient;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserClient userClient;
+    private final AccountClient userClient;
 
     @Transactional
     public boolean create(UserDTO userDTO) {

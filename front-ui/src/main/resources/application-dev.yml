@@ -1,5 +1,12 @@
 spring:
   cloud:
+    kubernetes:
+      discovery:
+        enabled: true
+        all-namespaces: false
+        metadata:
+          addLabels: true
+          addAnnotations: true
     openfeign:
       oauth2:
         clientRegistrationId: zbankapi

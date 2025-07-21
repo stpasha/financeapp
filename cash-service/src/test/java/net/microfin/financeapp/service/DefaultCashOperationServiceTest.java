@@ -2,7 +2,9 @@ package net.microfin.financeapp.service;
 
 import net.microfin.financeapp.AbstractTest;
 import net.microfin.financeapp.FinanceAppTest;
-import net.microfin.financeapp.client.CashOperationClient;
+import net.microfin.financeapp.client.AccountClientImpl;
+import net.microfin.financeapp.client.AuditClientImpl;
+import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.domain.CashOperation;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
@@ -30,7 +32,12 @@ import static org.mockito.Mockito.*;
 public class DefaultCashOperationServiceTest extends AbstractTest {
 
     @MockitoBean
-    private CashOperationClient cashOperationClient;
+    private AuditClientImpl auditClient;
+    @MockitoBean
+    private NotificationClientImpl notificationClient;
+    @MockitoBean
+    private AccountClientImpl accountClient;
+
 
     @MockitoBean
     private CashOperationMapper cashOperationMapper;
@@ -63,10 +70,10 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
                     .message("OK")
                     .build();
 
-            when(cashOperationClient.check(dto)).thenReturn(ResponseEntity.ok(true));
+            when(auditClient.check(dto)).thenReturn(ResponseEntity.ok(true));
             when(cashOperationMapper.toEntity(dto)).thenReturn(entity);
             when(cashOperationRepository.save(entity)).thenReturn(entity);
-            when(cashOperationClient.cashOperation(dto)).thenReturn(ResponseEntity.ok(resultDTO));
+            when(accountClient.cashOperation(dto)).thenReturn(ResponseEntity.ok(resultDTO));
 
 
             ResponseEntity<CashOperationResultDTO> result = cashOperationService.performOperation(dto);
@@ -76,7 +83,7 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             assertThat(result.getBody().getStatus()).isEqualTo(OperationStatus.SENT);
 
             ArgumentCaptor<NotificationDTO> captor = ArgumentCaptor.forClass(NotificationDTO.class);
-            verify(cashOperationClient).saveNotification(captor.capture());
+            verify(notificationClient).saveNotification(captor.capture());
 
             NotificationDTO notification = captor.getValue();
             assertThat(notification.getUserId()).isEqualTo(123);
@@ -91,7 +98,7 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             dto.setCurrencyCode(Currency.USD);
             dto.setOperationType(OperationType.CASH_DEPOSIT);
 
-            when(cashOperationClient.check(dto)).thenReturn(ResponseEntity.ok(false));
+            when(auditClient.check(dto)).thenReturn(ResponseEntity.ok(false));
 
             ResponseEntity<CashOperationResultDTO> result = cashOperationService.performOperation(dto);
 
@@ -110,7 +117,7 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             dto.setCurrencyCode(Currency.EUR);
             dto.setOperationType(OperationType.CASH_WITHDRAWAL);
 
-            when(cashOperationClient.check(dto)).thenReturn(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build());
+            when(auditClient.check(dto)).thenReturn(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build());
 
             ResponseEntity<CashOperationResultDTO> result = cashOperationService.performOperation(dto);
 
