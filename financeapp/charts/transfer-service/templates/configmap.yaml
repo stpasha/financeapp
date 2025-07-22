@@ -19,7 +19,6 @@ data:
     # Use the 'tpl' function to render the database_url which contains Helm templating itself
     SPRING_DATASOURCE_URL: {{ tpl .Values.config.database_url . | quote }}
     SPRING_DATASOURCE_USERNAME: {{ .Values.config.database_username | quote }}
-    KEYCLOAK_SERVER_URL: {{ tpl .Values.config.keycloak_server_url . | quote }}
     KEYCLOAK_ISSUER_URI: {{ tpl .Values.config.keycloak_issuer_uri . | quote }}
     SPRING_APPLICATION_NAME: {{ .Release.Name | quote }}
     SPRING_K8S_NAMESPACE: {{ .Release.Namespace | quote }}

@@ -43,32 +43,52 @@ c:\windows\system32\drivers\etc\hosts
 
 helm uninstall financeapp -n test
 
-Строим образы
+_Строим образы_
+
 docker build -t account-service:0.1.0 ./account-service
+
 docker build -t audit-service:0.1.0 ./audit-service
+
 docker build -t cash-service:0.1.0 ./cash-service
+
 docker build -t dictionaries-service:0.1.0 ./dictionaries-service
+
 docker build -t exchange-service:0.1.0 ./exchange-service
+
 docker build -t front-ui:0.1.0 ./front-ui  
+
 docker build -t notification-service:0.1.0 ./notification-service
+
 docker build -t transfer-service:0.1.0 ./transfer-service
 
-Импортируем образы
+_Импортируем образы_
+
 minikube image load account-service:0.1.0 
+
 minikube image load audit-service:0.1.0 
+
 minikube image load cash-service:0.1.0 
+
 minikube image load dictionaries-service:0.1.0 
+
 minikube image load exchange-service:0.1.0 
+
 minikube image load front-ui:0.1.0 
+
 minikube image load notification-service:0.1.0 
+
 minikube image load transfer-service:0.1.0 
 
-Обновляем репозитории
+
+_Обновляем репозитории_
+
 helm repo add stable https://charts.helm.sh/stable
+
 helm repo add bitnami https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami
+
 helm repo update
 
-Установка релиза
+_Установка релиза_
 helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --namespace test
 
 
@@ -87,8 +107,11 @@ https://docs.docker.com/desktop/setup/install/windows-install/
 https://helm.sh/docs/intro/install/
 
 Установите Ingress
+
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
 helm repo update
+
 helm install my-nginx-ingress ingress-nginx/ingress-nginx
 
 ./gradlew clean build

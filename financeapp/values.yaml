@@ -288,6 +288,7 @@ cash-service:
     CASH_SERVER_PORT: 8084
     CASH_SERVER_DEBUG_PORT: 5009
     keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_server_url: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080"
 
 dictionaries-service:
   replicaCount: 1
