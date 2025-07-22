@@ -19,6 +19,7 @@ keycloak:
     existingSecretPasswordKey: KEYCLOAK_DB_PASSWORD
   auth:
     adminUser: gatekeeper
+    adminPassword: swordfish
   production: false
   httpRelativePath: "/"
   hostname: keycloak.local
@@ -37,18 +38,6 @@ keycloak:
       http: 8080
   tls:
     enabled: false
-
-  extraEnvVars:
-    - name: KEYCLOAK_ADMIN
-      valueFrom:
-        secretKeyRef:
-          name: keycloak-credentials
-          key: KEYCLOAK_ADMIN
-    - name: KEYCLOAK_ADMIN_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: keycloak-credentials
-          key: KEYCLOAK_ADMIN_PASSWORD
   extraVolumes:
     - name: realm-config
       configMap:
