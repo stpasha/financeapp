@@ -28,7 +28,7 @@ serviceAccount:
     clusterWide: false
     rules:
       - apiGroups: [""]
-        resources: ["endpoints", "services"]
+        resources: ["endpoints", "services", "pods"]
         verbs: ["get", "list", "watch"]
 
 # This is for setting Kubernetes Annotations to a Pod.

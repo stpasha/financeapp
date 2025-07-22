@@ -89,7 +89,7 @@ audit-service:
       clusterWide: false
       rules:
         - apiGroups: [ "" ]
-          resources: [ "endpoints", "services" ]
+          resources: [ "endpoints", "services", "pods" ]
           verbs: [ "get", "list", "watch" ]
   service:
     type: ClusterIP
@@ -248,7 +248,7 @@ cash-service:
       clusterWide: false
       rules:
         - apiGroups: [ "" ]
-          resources: [ "endpoints", "services" ]
+          resources: [ "endpoints", "services", "pods" ]
           verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
@@ -391,7 +391,7 @@ exchange-service:
       clusterWide: false
       rules:
         - apiGroups: [ "" ]
-          resources: [ "endpoints", "services" ]
+          resources: [ "endpoints", "services", "pods" ]
           verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
@@ -472,7 +472,7 @@ front-ui:
       clusterWide: false
       rules:
         - apiGroups: [ "" ]
-          resources: [ "endpoints", "services" ]
+          resources: [ "endpoints", "services", "pods" ]
           verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
@@ -563,7 +563,7 @@ notification-service:
       clusterWide: false
       rules:
         - apiGroups: [ "" ]
-          resources: [ "endpoints", "services" ]
+          resources: [ "endpoints", "services", "pods" ]
           verbs: [ "get", "list", "watch" ]
 
   podAnnotations: { }
@@ -646,7 +646,7 @@ transfer-service:
       clusterWide: false
       rules:
         - apiGroups: [ "" ]
-          resources: [ "endpoints", "services" ]
+          resources: [ "endpoints", "services", "pods" ]
           verbs: [ "get", "list", "watch" ]
   podAnnotations: { }
   podLabels: { }
