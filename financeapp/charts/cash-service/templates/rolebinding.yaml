@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.cash-service.serviceAccount.name | default (include "cash-service.serviceAccountName" .) }}
+    name: {{ index .Values "cash-service" "serviceAccount" "name" | default (include "cash-service.serviceAccountName" .) }}
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role

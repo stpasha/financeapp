@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.notification-service.serviceAccount.name | default (include "notification-service.serviceAccountName" .) }}
+    name: {{ index .Values "notification-service" "serviceAccount" "name" | default (include "notification-service.serviceAccountName" .) }}
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role

@@ -5,4 +5,3 @@ metadata:
   namespace: {{ .Release.Namespace }}
 rules:
   {{ toYaml .Values.front-ui.rbac.rules | indent 2 }}
-  {{- end }}

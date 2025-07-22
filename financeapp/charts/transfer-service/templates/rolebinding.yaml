@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.transfer-service.serviceAccount.name | default (include "transfer-service.serviceAccountName" .) }}
+    name: {{ index .Values "transfer-service" "serviceAccount" "name" | default (include "transfer-service.serviceAccountName" .) }}
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role

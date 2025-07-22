@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.front-ui.serviceAccount.name | default (include "front-ui.serviceAccountName" .) }}
+    name: {{ index .Values "front-ui" "serviceAccount" "name" | default (include "front-ui.serviceAccountName" .) }}
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role

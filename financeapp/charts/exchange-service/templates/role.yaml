@@ -5,4 +5,3 @@ metadata:
   namespace: {{ .Release.Namespace }}
 rules:
   {{ toYaml .Values.exchange-service.rbac.rules | indent 2 }}
-  {{- end }}
