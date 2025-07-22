@@ -467,7 +467,6 @@ front-ui:
   serviceAccount:
     create: true
     name: financeapp-front-ui
-
     rbac:
       create: true
       clusterWide: false
@@ -642,7 +641,6 @@ transfer-service:
   serviceAccount:
     create: true
     name: financeapp-transfer-service
-
     rbac:
       create: true
       clusterWide: false

@@ -23,10 +23,9 @@ fullnameOverride: ""
 serviceAccount:
   create: true
   name: financeapp-audit-service
-
   rbac:
     create: true
-    clusterWide: false # true — если нужно ClusterRole
+    clusterWide: false
     rules:
       - apiGroups: [""]
         resources: ["endpoints", "services"]
