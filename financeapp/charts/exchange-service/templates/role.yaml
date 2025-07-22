@@ -4,4 +4,4 @@ metadata:
   name: {{ include "exchange-service.fullname" . }}-role
   namespace: {{ .Release.Namespace }}
 rules:
-  {{- toYaml .Values.serviceAccount.rbac.rules | indent 2 }}
+  {{- toYaml .Values.serviceAccount.rbac.rules | nindent 2 }}
