@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(name = "dictionaries-service",
         configuration = FeignConfig.class,
-        fallback = NotificationClientFallback.class
+        fallback = DictionaryClientFallback.class
 )
 public interface DictionaryClientImpl extends DictionaryClient {
 }
