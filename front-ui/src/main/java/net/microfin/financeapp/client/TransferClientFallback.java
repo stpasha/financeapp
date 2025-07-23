@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class TransferClientFallback implements TransferClient {
+public class TransferClientFallback implements TransferClientImpl {
     @Override
     public ResponseEntity<TransferOperationResultDTO> transferOperation(TransferOperationDTO dto) {
         log.warn("Fallback: transferOperation failed");

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ExchangeClientFallback implements ExchangeClient {
+public class ExchangeClientFallback implements ExchangeClientImpl {
     @Override
     public ResponseEntity<ExchangeOperationResultDTO> exchangeOperation(ExchangeOperationDTO dto) {
         log.warn("Fallback: exchangeOperation failed");

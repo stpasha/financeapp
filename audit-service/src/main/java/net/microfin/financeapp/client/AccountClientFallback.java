@@ -11,7 +11,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class AccountClientFallback implements AccountClient {
+public class AccountClientFallback implements AccountClientImpl {
 
     @Override
     public ResponseEntity<List<AccountDTO>> getAccountsByUser(Integer userId) {

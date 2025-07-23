@@ -133,6 +133,8 @@ pipeline {
                   --set transfer-service.image.repository=${DOCKER_REGISTRY}/transfer-service \
                   --set transfer-service.image.tag=${IMAGE_TAG} \
                   --set keycloak.externalDatabase.host=financeapp-postgresql.test.svc.cluster.local \
+                  --set-string keycloak.extraEnvVars[1].name=KEYCLOAK_FRONTEND_URL \
+                  --set-string keycloak.extraEnvVars[1].value=http://financeapp-keycloak.test.svc.cluster.local:8080
                 """
             }
         }
@@ -166,6 +168,8 @@ pipeline {
                   --set transfer-service.image.repository=${DOCKER_REGISTRY}/transfer-service \
                   --set transfer-service.image.tag=${IMAGE_TAG} \
                   --set keycloak.externalDatabase.host=financeapp-postgresql.prod.svc.cluster.local \
+                  --set-string keycloak.extraEnvVars[1].name=KEYCLOAK_FRONTEND_URL \
+                  --set-string keycloak.extraEnvVars[1].value=http://financeapp-keycloak.prod.svc.cluster.local:8080
 
                 """
             }

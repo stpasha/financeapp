@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class CashClientFallback implements CashClient {
+public class CashClientFallback implements CashClientImpl {
 
     @Override
     public ResponseEntity<CashOperationResultDTO> cashOperation(CashOperationDTO dto) {

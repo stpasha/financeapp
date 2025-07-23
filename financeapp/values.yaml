@@ -48,6 +48,8 @@ keycloak:
   extraEnvVars:
     - name: KEYCLOAK_EXTRA_ARGS
       value: --import-realm
+    - name: KEYCLOAK_FRONTEND_URL
+      value: http://financeapp-keycloak.test.svc.cluster.local:8080
 
 postgresql:
   enabled: true

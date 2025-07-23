@@ -5,7 +5,7 @@ import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.TransferOperationDTO;
 import org.springframework.http.ResponseEntity;
 
-public class AuditClientFallBack implements AuditClient {
+public class AuditClientFallBack implements AuditClientImpl {
 
     @Override
     public ResponseEntity<Boolean> check(CashOperationDTO cashOperationDTO) {

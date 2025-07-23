@@ -10,7 +10,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class DictionaryClientFallback implements DictionaryClient {
+public class DictionaryClientFallback implements DictionaryClientImpl {
 
     @Override
     public ResponseEntity<List<CurrencyDTO>> listCurrency() {

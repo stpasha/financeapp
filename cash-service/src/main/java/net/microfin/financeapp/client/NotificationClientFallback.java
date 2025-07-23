@@ -11,7 +11,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class NotificationClientFallback implements NotificationClient {
+public class NotificationClientFallback implements NotificationClientImpl {
 
     @Override
     public ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(Integer userId) {
