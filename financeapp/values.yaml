@@ -45,6 +45,9 @@ keycloak:
   extraVolumeMounts:
     - name: realm-config
       mountPath: /opt/bitnami/keycloak/data/import
+  extraEnvVars:
+    - name: KEYCLOAK_EXTRA_ARGS
+      value: --import-realm
 
 postgresql:
   enabled: true
