@@ -115,7 +115,7 @@ audit-service:
     EXCEPTIONS_OPERATION_FAILURE: "Operation type not recognized"
     AUDIT_SERVER_PORT: 8087
     AUDIT_SERVER_DEBUG_PORT: 5012
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
 
 account-service:
   replicaCount: 1
@@ -179,11 +179,11 @@ account-service:
     database_username: "zbank"
     SPRING_DATASOURCE_ACCOUNT_SCHEMA: account_info
     SPRING_PROFILES_ACTIVE: "dev"
-    keycloak_server_url: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080"
+    keycloak_server_url: "http://keycloak.local"
     KEYCLOAK_SERVER_REALM: zbank
     KEYCLOAK_SERVER_USERNAME: gatekeeper
     KEYCLOAK_SERVER_PASSWORD: swordfish
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
 
     EXCEPTIONS_MAKE_ACCFAILURE: "Не удалось создать счёт"
     EXCEPTIONS_SEARCH_ACCFAILURE: "Счёт не найден"
@@ -258,8 +258,8 @@ cash-service:
     SPRING_DATASOURCE_CASH_SCHEMA: cash_info
     CASH_SERVER_PORT: 8084
     CASH_SERVER_DEBUG_PORT: 5009
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
-    keycloak_server_url: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
+    keycloak_server_url: "http://keycloak.local"
 
 dictionaries-service:
   replicaCount: 1
@@ -327,7 +327,7 @@ dictionaries-service:
     SPRING_PROFILES_ACTIVE: "dev"
     DICTIONARIES_SERVER_PORT: 8083
     DICTIONARIES_SERVER_DEBUG_PORT: 5008
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
 
 exchange-service:
   replicaCount: 1
@@ -402,7 +402,7 @@ exchange-service:
     EXCHANGE_SERVER_PORT: 8085
     EXCHANGE_SERVER_DEBUG_PORT: 5010
     SPRING_DATASOURCE_EXCHANGE_SCHEMA: exchange_info
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
 
 front-ui:
   replicaCount: 1
@@ -472,7 +472,7 @@ front-ui:
 
   config:
     SPRING_PROFILES_ACTIVE: "dev"
-    keycloak_server_url: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080"
+    keycloak_server_url: "http://keycloak.local"
     KEYCLOAK_SERVER_REALM: zbank
     KEYCLOAK_SERVER_USERNAME: gatekeeper
     KEYCLOAK_SERVER_PASSWORD: swordfish
@@ -484,7 +484,7 @@ front-ui:
     EXCEPTIONS_DESER_FAILURE: "Cannot deserialize payload"
     EXCEPTIONS_OPERATION_FAILURE: "Operation type not recognized"
     EXCEPTIONS_PASS_EDIT_FAILURE: "Password is not updated"
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
 
     SCHEDULER_ENABLED: "true"
 
@@ -562,7 +562,7 @@ notification-service:
     NOTIFICATION_SERVER_PORT: 8088
     NOTIFICATION_SERVER_DEBUG_PORT: 5013
     SPRING_DATASOURCE_NOTIFICATION_SCHEMA: notification_info
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
 
 transfer-service:
   replicaCount: 1
@@ -637,4 +637,4 @@ transfer-service:
     INCORRECT_SOURCE_ACCOUNT_FAILURE: "Unable to get currency or account info"
     TRANSFER_SERVER_PORT: 8086
     TRANSFER_SERVER_DEBUG_PORT: 5011
-    keycloak_issuer_uri: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080/realms/zbank"
+    keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
