@@ -113,7 +113,7 @@ autoscaling:
 
 config:
   SPRING_PROFILES_ACTIVE: "dev"
-  keycloak_server_url: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:8080"
+  keycloak_server_url: "http://keycloak.local"
   KEYCLOAK_SERVER_REALM: zbank
   KEYCLOAK_SERVER_USERNAME: gatekeeper
   KEYCLOAK_SERVER_PASSWORD: swordfish
