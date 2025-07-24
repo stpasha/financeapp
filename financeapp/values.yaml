@@ -48,8 +48,6 @@ keycloak:
   extraEnvVars:
     - name: KEYCLOAK_EXTRA_ARGS
       value: --import-realm
-    - name: KC_FRONTEND_URL
-      value: http://keycloak.local
 
 postgresql:
   enabled: true
