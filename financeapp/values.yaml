@@ -49,7 +49,7 @@ keycloak:
     - name: KEYCLOAK_EXTRA_ARGS
       value: --import-realm
     - name: KC_FRONTEND_URL
-      value: http://financeapp-keycloak.test.svc.cluster.local:8080
+      value: http://keycloak.local
 
 postgresql:
   enabled: true
