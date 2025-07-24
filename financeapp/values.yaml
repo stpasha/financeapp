@@ -45,11 +45,6 @@ keycloak:
   extraVolumeMounts:
     - name: realm-config
       mountPath: /opt/bitnami/keycloak/data/import
-  extraEnvVars:
-    - name: KEYCLOAK_EXTRA_ARGS
-      value: --import-realm
-    - name: KC_FRONTEND_URL
-      value: http://keycloak.local
 
 postgresql:
   enabled: true
@@ -147,6 +142,10 @@ account-service:
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
+  hostAliases:
+    - ip: "192.168.65.9"
+      hostnames:
+        - keycloak.local
   serviceAccount:
     create: true
     automount: true
@@ -234,6 +233,10 @@ cash-service:
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
+  hostAliases:
+    - ip: "192.168.65.9"
+      hostnames:
+        - keycloak.local
   serviceAccount:
     create: true
     name: financeapp-cash-service
@@ -304,6 +307,10 @@ dictionaries-service:
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
+  hostAliases:
+    - ip: "192.168.65.9"
+      hostnames:
+        - keycloak.local
   serviceAccount:
     create: true
     automount: true
@@ -378,6 +385,10 @@ exchange-service:
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
+  hostAliases:
+    - ip: "192.168.65.9"
+      hostnames:
+        - keycloak.local
   serviceAccount:
     create: true
     name: financeapp-exchange-service
@@ -459,6 +470,10 @@ front-ui:
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
+  hostAliases:
+    - ip: "192.168.65.9"
+      hostnames:
+        - keycloak.local
   serviceAccount:
     create: true
     name: financeapp-front-ui
@@ -550,6 +565,10 @@ notification-service:
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
+  hostAliases:
+    - ip: "192.168.65.9"
+      hostnames:
+        - keycloak.local
   serviceAccount:
     create: true
     name: financeapp-notification-service
@@ -633,6 +652,10 @@ transfer-service:
   imagePullSecrets: [ ]
   nameOverride: ""
   fullnameOverride: ""
+  hostAliases:
+    - ip: "192.168.65.9"
+      hostnames:
+        - keycloak.local
   serviceAccount:
     create: true
     name: financeapp-transfer-service
