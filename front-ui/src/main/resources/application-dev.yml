@@ -17,19 +17,12 @@ spring:
     oauth2:
       client:
         provider:
-          keycloak-browser:
-            authorization-uri: http://keycloak.local/realms/zbank/protocol/openid-connect/auth
-            token-uri: http://financeapp-keycloak.test.svc.cluster.local:8080/realms/zbank/protocol/openid-connect/token
-            user-info-uri: http://financeapp-keycloak.test.svc.cluster.local:8080/realms/zbank/protocol/openid-connect/userinfo
-            jwk-set-uri: http://financeapp-keycloak.test.svc.cluster.local:8080/zbank/protocol/openid-connect/certs
-            logout-uri: http://keycloak.local/realms/zbank/protocol/openid-connect/logout
-            user-name-attribute: preferred_username
           keycloak:
-            issuer-uri: ${KEYCLOAK_ISSUER_URI}
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
             user-name-attribute: preferred_username
         registration:
           keycloak:
-            provider: keycloak-browser
+            provider: keycloak
             client-id: zbankapp
             client-secret: g3WnFjX9r8zxmhlY7yILHV5hZ3RtLUjw
             client-name: zbankapp

@@ -137,6 +137,15 @@ pipeline {
             }
         }
 
+        stage('Apply Core DNS test') {
+            steps {
+                sh """
+                 kubectl apply -f corednstest.yaml
+                 kubectl -n kube-system rollout restart deployment coredns
+                """
+            }
+        }
+
         stage('Manual Approval for PROD') {
             steps {
                 input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
@@ -170,5 +179,17 @@ pipeline {
                 """
             }
         }
+
+        stage('Apply Core DNS Prod') {
+            steps {
+                sh """
+                 kubectl apply -f corednsprod.yaml
+                 kubectl -n kube-system rollout restart deployment coredns
+                """
+            }
+        }
+
+
+
     }
 }
