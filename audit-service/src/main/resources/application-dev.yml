@@ -51,3 +51,6 @@ spring:
 exceptions:
   deserFailure: ${EXCEPTIONS_DESER_FAILURE:Cannot deserialize payload}
   operationFailure: ${EXCEPTIONS_OPERATION_FAILURE:Operation type not recognized}
+client:
+  service:
+    account: ${spring.release.name:financeapp}-account-service

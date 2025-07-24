@@ -3,3 +3,9 @@ spring:
     name: audit-service
   liquibase:
     enabled: false
+client:
+  service:
+    account: ${spring.release.name:financeapp}-account-service
+    audit: ${spring.release.name:financeapp}-audit-service
+    dictionaries: ${spring.release.name:financeapp}-dictionaries-service
+    notification: ${spring.release.name:financeapp}-notification-service

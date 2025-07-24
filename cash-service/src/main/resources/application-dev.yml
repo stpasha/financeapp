@@ -51,3 +51,8 @@ keycloak:
   realm: ${KEYCLOAK_SERVER_REALM:zbank}
   username: ${KEYCLOAK_SERVER_USERNAME:gatekeeper}
   password: ${KEYCLOAK_SERVER_PASSWORD:swordfish}
+client:
+  service:
+    account: ${spring.release.name:financeapp}-account-service
+    audit: ${spring.release.name:financeapp}-audit-service
+    notification: ${spring.release.name:financeapp}-notification-service

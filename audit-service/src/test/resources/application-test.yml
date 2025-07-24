@@ -10,3 +10,6 @@ spring:
         enabled: false
   liquibase:
     enabled: false
+client:
+  service:
+    account: ${spring.release.name:financeapp}-account-service

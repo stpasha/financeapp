@@ -50,3 +50,9 @@ exceptions:
   insufficientFundsFailure: ${INSUFFICENT_FUNDS_FAILURE:"Insufficient funds"}
   currencyNotFoundFailure: ${CURRENCY_NOT_FOUND_FAILURE:"Currency info not found"}
   accNotFoundFailure: ${ACC_NOT_FOUND_FAILURE:"Password is not updated"}
+client:
+  service:
+    account: ${spring.release.name:financeapp}-account-service
+    audit: ${spring.release.name:financeapp}-audit-service
+    notification: ${spring.release.name:financeapp}-notification-service
+    dictionaries: ${spring.release.name:financeapp}-dictionaries-service

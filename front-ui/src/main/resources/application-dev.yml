@@ -83,3 +83,12 @@ logging:
     org.springframework.cloud.circuitbreaker: DEBUG
     io.github.resilience4j: DEBUG
     net.microfin.financeapp.client: DEBUG
+client:
+  service:
+    account: ${spring.release.name:financeapp}-account-service
+    audit: ${spring.release.name:financeapp}-audit-service
+    cash: ${spring.release.name:financeapp}-cash-service
+    dictionaries: ${spring.release.name:financeapp}-dictionaries-service
+    exchange: ${spring.release.name:financeapp}-exchange-service
+    notification: ${spring.release.name:financeapp}-notification-service
+    transfer: ${spring.release.name:financeapp}-transfer-service

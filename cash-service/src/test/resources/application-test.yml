@@ -4,3 +4,8 @@ spring:
   cloud:
   liquibase:
     enabled: false
+client:
+  service:
+    account: ${spring.release.name:financeapp}-account-service
+    audit: ${spring.release.name:financeapp}-audit-service
+    notification: ${spring.release.name:financeapp}-notification-service
