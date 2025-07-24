@@ -13,6 +13,7 @@ kind: Ingress
 metadata:
   name: financeapp-ingress
 spec:
+  ingressClassName: nginx
   rules:
     - host: finance.local
       http:
