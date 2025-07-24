@@ -22,16 +22,7 @@ keycloak:
     adminPassword: swordfish
   production: false
   httpRelativePath: "/"
-  hostname: localhost
-  ingress:
-    enabled: true
-    hostname: keycloak.local
-    path: /
-    pathType: Prefix
-    ingressClassName: nginx
-    annotations:
-      nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    tls: [ ]
+  hostname: keycloak.local
   service:
     type: ClusterIP
     ports:
@@ -86,16 +77,6 @@ audit-service:
   service:
     type: ClusterIP
     port: 8087
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /api/audit
-            pathType: Prefix
-    tls: [ ]
   resources:
     limits:
       memory: "512Mi"
@@ -162,18 +143,6 @@ account-service:
   service:
     type: ClusterIP
     port: 8081
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /api/account
-            pathType: Prefix
-          - path: /api/user
-            pathType: Prefix
-    tls: [ ]
   resources:
     limits:
       memory: "512Mi"
@@ -257,15 +226,6 @@ cash-service:
   service:
     type: ClusterIP
     port: 8084
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /api/cash
-            pathType: Prefix
   resources:
     limits:
       memory: "512Mi"
@@ -328,16 +288,6 @@ dictionaries-service:
   service:
     type: ClusterIP
     port: 8083
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /api/dictionary
-            pathType: Prefix
-    tls: [ ]
 
   resources:
     limits:
@@ -411,16 +361,6 @@ exchange-service:
   service:
     type: ClusterIP
     port: 8085
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /api/exchange
-            pathType: Prefix
-    tls: [ ]
 
   resources:
     limits:
@@ -496,16 +436,6 @@ front-ui:
   service:
     type: ClusterIP
     port: 8080
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /
-            pathType: Prefix
-    tls: [ ]
 
   resources:
     limits:
@@ -592,16 +522,6 @@ notification-service:
   service:
     type: ClusterIP
     port: 8088
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /api/notification
-            pathType: Prefix
-    tls: [ ]
   resources:
     limits:
       memory: "512Mi"
@@ -678,16 +598,6 @@ transfer-service:
   service:
     type: ClusterIP
     port: 8086
-  ingress:
-    enabled: true
-    className: nginx
-    annotations: { }
-    hosts:
-      - host: finance.local
-        paths:
-          - path: /api/transfer
-            pathType: Prefix
-    tls: [ ]
   resources:
     limits:
       memory: "512Mi"
