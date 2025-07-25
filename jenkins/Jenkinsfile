@@ -137,7 +137,7 @@ pipeline {
             }
         }
 
-        stage('Apply Core DNS') {
+        stage('Apply Core DNS test') {
             steps {
                 sh """
                  kubectl apply -f corednstest.yaml
@@ -180,7 +180,7 @@ pipeline {
             }
         }
 
-        stage('Apply Core DNS') {
+        stage('Apply Core DNS Prod') {
             steps {
                 sh """
                  kubectl apply -f corednsprod.yaml
