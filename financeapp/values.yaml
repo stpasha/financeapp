@@ -39,10 +39,6 @@ keycloak:
   extraEnvVars:
     - name: KEYCLOAK_EXTRA_ARGS
       value: --import-realm
-    - name: KC_HTTP_PORT
-      value: "80"
-    - name: KEYCLOAK_HTTP_PORT
-      value: "80"
 
 postgresql:
   enabled: true
