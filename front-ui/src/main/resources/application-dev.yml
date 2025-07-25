@@ -17,15 +17,12 @@ spring:
     oauth2:
       client:
         provider:
-          keycloak-browser:
-            issuer-uri: http://financeapp-keycloak.test.svc.cluster.local:8080/realms/zbank
-            user-name-attribute: preferred_username
           keycloak:
-            issuer-uri: http://financeapp-keycloak.test.svc.cluster.local:8080/realms/zbank
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
             user-name-attribute: preferred_username
         registration:
           keycloak:
-            provider: keycloak-browser
+            provider: keycloak
             client-id: zbankapp
             client-secret: g3WnFjX9r8zxmhlY7yILHV5hZ3RtLUjw
             client-name: zbankapp
