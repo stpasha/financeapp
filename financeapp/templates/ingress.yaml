@@ -83,10 +83,13 @@ spec:
                 name: {{ $frontUIName }}
                 port:
                   number: 8080
-          - path: /auth
+    - host: keycloak.local
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
                 name: {{ $keycloakName }}
                 port:
-                  number: 8080
+                  number: 80
