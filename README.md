@@ -1,5 +1,4 @@
 # Spring Boot приложение онлайн банка
-![logo.png](front-ui/src/main/resources/static/logo.png)
 
 ## Installation & Run
 _run cmds_
@@ -22,11 +21,20 @@ minikube addons enable ingress
 
 minikube start
 
+Настройка dns и hosts
+
+kubectl -n kube-system get configmap coredns -o yaml > corednstest.yaml
+
+добавить rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local
+после health секции
+
+**Linux:**
+
 minikube ip
 
 полученный [IP] скопировать в
 
-**Linux:**
+
 sudo nano /etc/hosts
 добавить
 
@@ -34,10 +42,17 @@ sudo nano /etc/hosts
 **[IP] keycloak.local**
 
 **Windows:**
+
+kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer"}}'
 c:\windows\system32\drivers\etc\hosts
 добавить
-**[IP] finance.local**
-**[IP] keycloak.local**
+
+**127.0.0.1 finance.local**
+
+**127.0.0.1 keycloak.local**
+
+minikube tunel
+
 
 Воспользоваться redeploy.sh или в ручную
 
@@ -55,7 +70,7 @@ docker build -t dictionaries-service:0.1.0 ./dictionaries-service
 
 docker build -t exchange-service:0.1.0 ./exchange-service
 
-docker build -t front-ui:0.1.0 ./front-ui  
+docker build -t front-ui:0.1.0 ./front-ui
 
 docker build -t notification-service:0.1.0 ./notification-service
 
@@ -63,21 +78,21 @@ docker build -t transfer-service:0.1.0 ./transfer-service
 
 _Импортируем образы_
 
-minikube image load account-service:0.1.0 
+minikube image load account-service:0.1.0
 
-minikube image load audit-service:0.1.0 
+minikube image load audit-service:0.1.0
 
-minikube image load cash-service:0.1.0 
+minikube image load cash-service:0.1.0
 
-minikube image load dictionaries-service:0.1.0 
+minikube image load dictionaries-service:0.1.0
 
-minikube image load exchange-service:0.1.0 
+minikube image load exchange-service:0.1.0
 
-minikube image load front-ui:0.1.0 
+minikube image load front-ui:0.1.0
 
-minikube image load notification-service:0.1.0 
+minikube image load notification-service:0.1.0
 
-minikube image load transfer-service:0.1.0 
+minikube image load transfer-service:0.1.0
 
 
 _Обновляем репозитории_
@@ -89,7 +104,7 @@ helm repo add bitnami https://raw.githubusercontent.com/bitnami/charts/refs/head
 helm repo update
 
 _Установка релиза_
-helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --namespace test
+helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --namespace test --create-namespace
 
 
 
@@ -182,7 +197,7 @@ _**Integration**_
 
 Проект состоит из
 * front-ui микросервис с графическим интерфейсом реализован на thymeleaf в дальнейшем желательно переписать полностью на  
-JS, используется интеграция c keycloak для создания и аутентификации пользователей.
+  JS, используется интеграция c keycloak для создания и аутентификации пользователей.
 * gateway-service микросервис гейтвея для общения сервисов между собой перенаправляет токен безопасности
 * account-service микросервис счетов реализован паттерн Transactional Outbox
 * cash-service микросервис проведения операции с наличными средствами
