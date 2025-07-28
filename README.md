@@ -15,7 +15,7 @@ https://helm.sh/docs/intro/install/
 
 ./gradlew clean build
 
-minikube start
+minikube start --memory=8192
 
 minikube addons enable ingress
 
@@ -27,6 +27,10 @@ kubectl -n kube-system get configmap coredns -o yaml > corednstest.yaml
 
 добавить rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local
 после health секции
+
+kubectl apply -f corednstest.yaml
+
+kubectl -n kubesystem rollout restart deployment coredns
 
 **Linux:**
 
@@ -116,7 +120,7 @@ helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --nam
 Установите Docker Desktop
 https://docs.docker.com/desktop/setup/install/windows-install/
 
-В настройках включить встроенный кластер
+В настройках включить встроенный кластер, выделить достаточные ресурсы
 
 Установите Helm
 https://helm.sh/docs/intro/install/
@@ -187,18 +191,18 @@ _**Integration**_
 * UI: thymeleaf + Spring MVC + bootstrap
 * DB: Spring Data JPA + Hibernate ORM
 * PostgreSQL: Database per Service.
-* Service Discovery: Consul
-* Externalized/Distributed Config: Consul
-* Gateway API: Spring Cloud Gateway.
+* Service Discovery: K8s
+* Externalized/Distributed Config: K8s
+* K8s dns, Ingress
 * Security: Keycloak Access Token (JWT) по client credentials для выполнения запросов в другие микросервисы.
 * API: Resilence4j + Open Feign
 * Test: JUnit 5, TestContext Framework, Spring Boot Test, Spring Cloud Contract.
-* Container: Docker Compose
+* Container: K8s
+* Deploy: Minikube, Jenkins
 
 Проект состоит из
 * front-ui микросервис с графическим интерфейсом реализован на thymeleaf в дальнейшем желательно переписать полностью на  
   JS, используется интеграция c keycloak для создания и аутентификации пользователей.
-* gateway-service микросервис гейтвея для общения сервисов между собой перенаправляет токен безопасности
 * account-service микросервис счетов реализован паттерн Transactional Outbox
 * cash-service микросервис проведения операции с наличными средствами
 * transfer-service микросервис переводов
