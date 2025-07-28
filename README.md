@@ -21,12 +21,14 @@ minikube addons enable ingress
 
 minikube start
 
-Настройка dns и hosts
+**Настройка dns и hosts:**
 
 kubectl -n kube-system get configmap coredns -o yaml > corednstest.yaml
 
-добавить rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local
-после health секции
+Добавить в corednstest после health секции:
+
+rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local
+
 
 kubectl apply -f corednstest.yaml
 
@@ -58,11 +60,11 @@ c:\windows\system32\drivers\etc\hosts
 minikube tunel
 
 
-Воспользоваться redeploy.sh или в ручную
+Настройка для разных ОС заканчивается здесь.Воспользоваться redeploy.sh или в ручную
 
 helm uninstall financeapp -n test
 
-_Строим образы_
+_Строим образы:_
 
 docker build -t account-service:0.1.0 ./account-service
 
@@ -80,7 +82,7 @@ docker build -t notification-service:0.1.0 ./notification-service
 
 docker build -t transfer-service:0.1.0 ./transfer-service
 
-_Импортируем образы_
+_Импортируем образы:_
 
 minikube image load account-service:0.1.0
 
@@ -99,7 +101,7 @@ minikube image load notification-service:0.1.0
 minikube image load transfer-service:0.1.0
 
 
-_Обновляем репозитории_
+_Обновляем репозитории:_
 
 helm repo add stable https://charts.helm.sh/stable
 
@@ -107,7 +109,7 @@ helm repo add bitnami https://raw.githubusercontent.com/bitnami/charts/refs/head
 
 helm repo update
 
-_Установка релиза_
+_Установка релиза:_
 helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --namespace test --create-namespace
 
 
