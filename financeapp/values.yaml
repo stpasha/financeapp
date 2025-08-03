@@ -56,6 +56,56 @@ postgresql:
     initdb:
       scriptsConfigMap: initdb-scripts
 
+kafka:
+  enabled: true
+  clusterId: "financeapp-cluster-id"
+  controller:
+    replicaCount: 1
+  broker:
+    replicaCount: 1
+  kraft:
+    enabled: true
+    mode: combined
+
+  configurationOverrides:
+    controller.quorum.voters: "0@financeapp-kafka-0.financeapp-kafka-headless.test.svc.cluster.local:9093,1@financeapp-kafka-1.financeapp-kafka-headless.test.svc.cluster.local:9093"
+    num.partitions: "10"
+    default.replication.factor: "2"
+    min.insync.replicas: "1"
+
+  listeners:
+    client:
+      protocol: PLAINTEXT
+      port: 9094
+    controller:
+      protocol: PLAINTEXT
+      port: 9093
+    interbroker:
+      protocol: PLAINTEXT
+      port: 9092
+
+  auth:
+    enabled: false
+
+  extraEnvVars:
+    - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+      value: "true"
+
+  provisioning:
+    enabled: true
+    topics:
+      - name: input-notification
+        partitions: 10
+        replicationFactor: 2
+        config:
+          min.insync.replicas: "1"
+      - name: input-exchange
+        partitions: 10
+        replicationFactor: 2
+        config:
+          min.insync.replicas: "1"
+
+
 ingress:
   enabled: true
   ingressClassName: nginx

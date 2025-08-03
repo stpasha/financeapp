@@ -55,3 +55,8 @@ dependencies:
     repository: "https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami"
     alias: keycloak
     condition: keycloak.enabled
+  - name: kafka
+    version: "27.1.2"
+    repository: "https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami"
+    alias: kafka
+    condition: kafka.enabled
