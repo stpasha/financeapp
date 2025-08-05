@@ -43,6 +43,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation "org.springframework.cloud:spring-cloud-starter-kubernetes-client-all"
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    implementation 'org.springframework.kafka:spring-kafka'
     //Local
     implementation project(":chassis-api")
     implementation project(":chassis-service-client")

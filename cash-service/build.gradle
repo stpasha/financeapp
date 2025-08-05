@@ -42,6 +42,7 @@ dependencies {
     implementation "org.springframework.cloud:spring-cloud-starter-kubernetes-client-all"
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    implementation 'org.springframework.kafka:spring-kafka'
     //Local
     implementation project(":chassis-api")
     implementation project(":chassis-gateway-client")

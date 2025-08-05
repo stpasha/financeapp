@@ -62,7 +62,7 @@ kafka:
   controller:
     replicaCount: 1
   broker:
-    replicaCount: 1
+    replicaCount: 2
   kraft:
     enabled: true
     mode: combined
@@ -104,7 +104,11 @@ kafka:
         replicationFactor: 2
         config:
           min.insync.replicas: "1"
-
+      - name: user-notification
+        partitions: 10
+        replicationFactor: 2
+        config:
+          min.insync.replicas: "1"
 
 ingress:
   enabled: true
@@ -166,6 +170,7 @@ audit-service:
     AUDIT_SERVER_PORT: 8087
     AUDIT_SERVER_DEBUG_PORT: 5012
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
+    KAFKA_URL: "financeapp-kafka:9092"
 
 account-service:
   replicaCount: 1
@@ -234,7 +239,7 @@ account-service:
     KEYCLOAK_SERVER_USERNAME: gatekeeper
     KEYCLOAK_SERVER_PASSWORD: swordfish
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
-
+    KAFKA_URL: "financeapp-kafka:9092"
     EXCEPTIONS_MAKE_ACCFAILURE: "Не удалось создать счёт"
     EXCEPTIONS_SEARCH_ACCFAILURE: "Счёт не найден"
     EXCEPTIONS_MAKE_USERFAILURE: "Пользователь не создан"
@@ -310,6 +315,7 @@ cash-service:
     CASH_SERVER_DEBUG_PORT: 5009
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
     keycloak_server_url: "http://{{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local:80"
+    KAFKA_URL: "financeapp-kafka:9092"
 
 dictionaries-service:
   replicaCount: 1
@@ -378,6 +384,7 @@ dictionaries-service:
     DICTIONARIES_SERVER_PORT: 8083
     DICTIONARIES_SERVER_DEBUG_PORT: 5008
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
+    KAFKA_URL: "financeapp-kafka:9092"
 
 exchange-service:
   replicaCount: 1
@@ -453,6 +460,7 @@ exchange-service:
     EXCHANGE_SERVER_DEBUG_PORT: 5010
     SPRING_DATASOURCE_EXCHANGE_SCHEMA: exchange_info
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
+    KAFKA_URL: "financeapp-kafka:9092"
 
 front-ui:
   replicaCount: 1
@@ -526,7 +534,6 @@ front-ui:
     KEYCLOAK_SERVER_REALM: zbank
     KEYCLOAK_SERVER_USERNAME: gatekeeper
     KEYCLOAK_SERVER_PASSWORD: swordfish
-
     EXCEPTIONS_MAKE_ACCFAILURE: "Не удалось создать счёт"
     EXCEPTIONS_SEARCH_ACCFAILURE: "Счёт не найден"
     EXCEPTIONS_MAKE_USERFAILURE: "Пользователь не создан"
@@ -535,7 +542,7 @@ front-ui:
     EXCEPTIONS_OPERATION_FAILURE: "Operation type not recognized"
     EXCEPTIONS_PASS_EDIT_FAILURE: "Password is not updated"
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
-
+    KAFKA_URL: "financeapp-kafka:9092"
     SCHEDULER_ENABLED: "true"
 
 notification-service:
@@ -613,6 +620,7 @@ notification-service:
     NOTIFICATION_SERVER_DEBUG_PORT: 5013
     SPRING_DATASOURCE_NOTIFICATION_SCHEMA: notification_info
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
+    KAFKA_URL: "financeapp-kafka:9092"
 
 transfer-service:
   replicaCount: 1
@@ -688,3 +696,4 @@ transfer-service:
     TRANSFER_SERVER_PORT: 8086
     TRANSFER_SERVER_DEBUG_PORT: 5011
     keycloak_issuer_uri: "http://keycloak.local/realms/zbank"
+    KAFKA_URL: "financeapp-kafka:9092"

@@ -1,6 +1,5 @@
 package net.microfin.financeapp.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.service.NotificationService;
@@ -14,8 +13,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationApi {
     private final NotificationService notificationService;
-    private final ObjectMapper objectMapper;
 
+    @Deprecated
     @PostMapping
     public ResponseEntity<NotificationDTO> save(@RequestBody NotificationDTO notificationDTO) {
         return notificationService.saveNotification(notificationDTO)
@@ -23,6 +22,7 @@ public class NotificationApi {
                 .orElse(ResponseEntity.badRequest().body(notificationDTO));
     }
 
+    @Deprecated
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(@PathVariable("userId") Integer userId) {
         return ResponseEntity.ok(notificationService.receiveNotification(userId));

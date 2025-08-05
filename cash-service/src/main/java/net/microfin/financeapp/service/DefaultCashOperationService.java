@@ -4,12 +4,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.client.AuditClientImpl;
-import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.domain.CashOperation;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
 import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.mapper.CashOperationMapper;
+import net.microfin.financeapp.producer.NotificationKafkaProducer;
 import net.microfin.financeapp.repository.CashOperationRepository;
 import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class DefaultCashOperationService implements CashOperationService {
 
     private final AuditClientImpl auditClient;
-    private final NotificationClientImpl notificationClient;
+    private final NotificationKafkaProducer notificationKafkaProducer;
     private final AccountClientImpl accountClient;
     private final CashOperationMapper cashOperationMapper;
     private final CashOperationRepository cashOperationRepository;
@@ -36,7 +36,7 @@ public class DefaultCashOperationService implements CashOperationService {
                 operationDTO.setId(cashOperation.getId());
                 ResponseEntity<CashOperationResultDTO> cashOperationResultDTOResponseEntity = accountClient.cashOperation(operationDTO);
                 if (cashOperationResultDTOResponseEntity.getStatusCode().is2xxSuccessful()) {
-                    notificationClient.saveNotification(NotificationDTO.builder()
+                    notificationKafkaProducer.send(NotificationDTO.builder()
                             .notificationDescription("Выполнен запрос на " + operationDTO.getOperationType() + " " +
                                     operationDTO.getAmount() + " " +
                                     operationDTO.getCurrencyCode().getName())

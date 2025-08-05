@@ -13,6 +13,17 @@ spring:
         enabled: true
       circuitbreaker:
         enabled: true
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_URL:financeapp-kafka:9092}
+      group-id: user-app-group
+      key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: net.microfin.financeapp.dto
   security:
     oauth2:
       client:

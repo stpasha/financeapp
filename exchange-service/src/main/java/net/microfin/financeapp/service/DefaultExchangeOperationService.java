@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.client.AuditClientImpl;
 import net.microfin.financeapp.client.DictionaryClientImpl;
-import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.domain.ExchangeOperation;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.ExchangeOperationMapper;
+import net.microfin.financeapp.producer.NotificationKafkaProducer;
 import net.microfin.financeapp.repository.ExchangeOperationRepository;
 import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ import java.util.Optional;
 public class DefaultExchangeOperationService implements ExchangeOperationService {
 
     private final AuditClientImpl auditClient;
-    private final NotificationClientImpl notificationClient;
+    private final NotificationKafkaProducer notificationKafkaProducer;
     private final AccountClientImpl accountClient;
     private final DictionaryClientImpl dictionaryClient;
     private final ExchangeOperationMapper operationMapper;
@@ -87,7 +87,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             ResponseEntity<ExchangeOperationResultDTO> exchangedOperation = accountClient.exchangeOperation(exchangeOperationDTO);
             exchangeOperationDTO.setId(exchangeOperation.getId());
             if (exchangedOperation.getStatusCode().is2xxSuccessful()) {
-                notificationClient.saveNotification(NotificationDTO.builder()
+                notificationKafkaProducer.send(NotificationDTO.builder()
                         .notificationDescription("Выполнена запрос на " + exchangeOperationDTO.getOperationType() + " " +
                                 exchangeOperationDTO.getAmount() + " " +
                                 sourceCurrency.name())
