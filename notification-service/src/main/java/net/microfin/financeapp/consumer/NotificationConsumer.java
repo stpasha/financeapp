@@ -30,7 +30,7 @@ public class NotificationConsumer {
     }
 
     @KafkaListener(topics = "input-notification-for-analysis-dlt")
-    public void handleDltMessage(ConsumerRecord<Integer, String> record) {
-       log.error("Message landed in DLT {}", record.value());
+    public void handleDltMessage(ConsumerRecord<Integer, NotificationDTO> consumerRecord) {
+       log.error("Message landed in DLT {}", consumerRecord.value());
     }
 }

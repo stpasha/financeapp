@@ -50,6 +50,8 @@ spring:
           json:
             trusted:
               packages: net.microfin.financeapp.dto
+    listener:
+      ack-mode: manual
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}

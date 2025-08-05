@@ -56,6 +56,28 @@
     </section>
 
     <section id="exchange_rates" class="mt-4"></section>
+
+    <section class="mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                Уведомления
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(notifications)}" class="text-muted">Нет новых уведомлений.</div>
+                <ul class="list-group" th:if="${notifications}">
+                    <li class="list-group-item" th:each="n : ${notifications}">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong th:text="${n.operationType}">Тип операции</strong><br />
+                                <span th:text="${n.notificationDescription}">Описание</span><br />
+                                <small class="text-muted" th:text="${#temporals.format(n.createdAt, 'dd.MM.yyyy HH:mm')}">Дата</small>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
 </main>
 
 <script src="/js/bootstrap.bundle.min.js"></script>

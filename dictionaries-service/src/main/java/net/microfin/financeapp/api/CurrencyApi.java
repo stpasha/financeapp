@@ -17,6 +17,7 @@ public class CurrencyApi {
 
     private final CurrencyService currencyService;
 
+    @Deprecated
     @GetMapping("/currency")
     public ResponseEntity<List<CurrencyDTO>> listCurrencyList() {
         return ResponseEntity.ok(currencyService.listCurrency());

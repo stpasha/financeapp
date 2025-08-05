@@ -4,8 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.client.AuditClientImpl;
-import net.microfin.financeapp.client.DictionaryClientImpl;
 import net.microfin.financeapp.config.ExceptionsProperties;
+import net.microfin.financeapp.consumer.CurrencyConsumer;
 import net.microfin.financeapp.domain.ExchangeOperation;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.ExchangeOperationMapper;
@@ -27,7 +27,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
     private final AuditClientImpl auditClient;
     private final NotificationKafkaProducer notificationKafkaProducer;
     private final AccountClientImpl accountClient;
-    private final DictionaryClientImpl dictionaryClient;
+    private final CurrencyConsumer currencyConsumer;
     private final ExchangeOperationMapper operationMapper;
     private final ExchangeOperationRepository operationRepository;
     private final ExceptionsProperties exceptionsProperties;
@@ -38,7 +38,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
         ResponseEntity<Boolean> check = auditClient.check(exchangeOperationDTO);
         if (check.getStatusCode().is2xxSuccessful()) {
             if (Boolean.TRUE.equals(check.getBody())) {
-                ResponseEntity<List<CurrencyDTO>> responseEntity = dictionaryClient.listCurrency();
+                List<CurrencyDTO> responseEntity = currencyConsumer.getCurrencyList();
                 ResponseEntity<AccountDTO> sourceAccountResp = accountClient.getAccount(exchangeOperationDTO.getSourceAccountId());
                 ResponseEntity<AccountDTO> targetAccountResp = accountClient.getAccount(exchangeOperationDTO.getTargetAccountId());
                 return getResponseEntity(exchangeOperationDTO, responseEntity, sourceAccountResp, targetAccountResp);
@@ -49,13 +49,11 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
         return ResponseEntity.ok(ExchangeOperationResultDTO.builder().message("Audit server is unavailable").status(OperationStatus.FAILED).build());
     }
 
-    private ResponseEntity<ExchangeOperationResultDTO> getResponseEntity(ExchangeOperationDTO exchangeOperationDTO, ResponseEntity<List<CurrencyDTO>> responseEntity, ResponseEntity<AccountDTO> sourceAccountResp, ResponseEntity<AccountDTO> targetAccountResp) {
-        if (responseEntity.getStatusCode().is2xxSuccessful()
-                && sourceAccountResp.getStatusCode().is2xxSuccessful()
+    private ResponseEntity<ExchangeOperationResultDTO> getResponseEntity(ExchangeOperationDTO exchangeOperationDTO, List<CurrencyDTO> currencies, ResponseEntity<AccountDTO> sourceAccountResp, ResponseEntity<AccountDTO> targetAccountResp) {
+        if (sourceAccountResp.getStatusCode().is2xxSuccessful()
                 && targetAccountResp.getStatusCode().is2xxSuccessful()) {
 
 
-            List<CurrencyDTO> currencies = responseEntity.getBody();
             AccountDTO sourceAccount = sourceAccountResp.getBody();
             AccountDTO targetAccount = targetAccountResp.getBody();
 

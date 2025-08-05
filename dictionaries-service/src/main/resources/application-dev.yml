@@ -3,6 +3,14 @@ spring:
     cors:
       allowed-origins: "*"
       allowed-methods: GET,POST,PUT,DELETE
+  kafka:
+    producer:
+      acks: all
+      retries: 5
+      delivery-timeout-ms: 120000
+      bootstrap-servers: ${KAFKA_URL:financeapp-kafka:9092}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   security:
     oauth2:
       client:
@@ -23,3 +31,5 @@ spring:
           user-name-attribute: preferred_username
   liquibase:
     enabled: false
+scheduler:
+  enabled: ${SCHEDULER_ENABLED:true}

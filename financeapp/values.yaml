@@ -58,7 +58,6 @@ postgresql:
 
 kafka:
   enabled: true
-  clusterId: "financeapp-cluster-id"
   controller:
     replicaCount: 1
   broker:
@@ -71,7 +70,7 @@ kafka:
     controller.quorum.voters: "0@financeapp-kafka-0.financeapp-kafka-headless.test.svc.cluster.local:9093,1@financeapp-kafka-1.financeapp-kafka-headless.test.svc.cluster.local:9093"
     num.partitions: "10"
     default.replication.factor: "2"
-    min.insync.replicas: "1"
+    min.insync.replicas: "1" #поставить 2 если prod нужна надёжность в ущерб отказа работы
 
   listeners:
     client:

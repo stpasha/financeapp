@@ -22,6 +22,18 @@ spring:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
           user-name-attribute: preferred_username
   kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_URL:financeapp-kafka:9092}
+      group-id: exchange-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: net.microfin.financeapp.dto
     producer:
       acks: all
       retries: 5
