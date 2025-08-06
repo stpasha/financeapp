@@ -28,7 +28,7 @@ public class DefaultNotificationService implements NotificationService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                userNotificationProducer.produceUserNotification(notificationDTO);
+                userNotificationProducer.produceUserNotification(dto);
             }
         });
 

@@ -99,7 +99,7 @@ kafka:
         config:
           min.insync.replicas: "1"
       - name: input-exchange
-        partitions: 10
+        partitions: 1
         replicationFactor: 2
         config:
           min.insync.replicas: "1"

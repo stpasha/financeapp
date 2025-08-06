@@ -33,7 +33,12 @@ public class Notification {
     @Column(name = "notification_id", nullable = false)
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq_gen")
-    @SequenceGenerator(name="notification_id_seq_gen", sequenceName = "notification_id_seq", schema = "notification_info")
+    @SequenceGenerator(
+            name="notification_id_seq_gen",
+            sequenceName = "notification_id_seq",
+            schema = "notification_info",
+            allocationSize = 1
+    )
     private Integer id;
     @Column(name = "user_id", nullable = false)
     private Integer userId;

@@ -7,6 +7,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -16,8 +17,8 @@ public class CurrencyConsumer {
     private List<CurrencyDTO> currencyDTOList;
 
     @KafkaListener(topics = "input-exchange", concurrency = "1")
-    public void listen(ConsumerRecord<String, List<CurrencyDTO>> consumerRecord, Acknowledgment acknowledgment) {
-        currencyDTOList = consumerRecord.value();
+    public void listen(ConsumerRecord<String, CurrencyDTO[]> consumerRecord, Acknowledgment acknowledgment) {
+        currencyDTOList = Arrays.asList(consumerRecord.value());
         acknowledgment.acknowledge();
     }
 

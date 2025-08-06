@@ -10,9 +10,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CurrencyKafkaProducer {
-    private final KafkaTemplate<Integer, List<CurrencyDTO>> kafkaTemplate;
+    private final KafkaTemplate<String, CurrencyDTO[]> kafkaTemplate;
 
     public void send(List<CurrencyDTO> currencyDTOs) {
-        kafkaTemplate.send("input-exchange", currencyDTOs);
+        kafkaTemplate.send("input-exchange", currencyDTOs.toArray(new CurrencyDTO[0]));
     }
 }
