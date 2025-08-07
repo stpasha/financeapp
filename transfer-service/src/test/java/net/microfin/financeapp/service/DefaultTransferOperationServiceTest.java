@@ -5,26 +5,36 @@ import net.microfin.financeapp.FinanceAppTest;
 import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.client.AuditClientImpl;
 import net.microfin.financeapp.client.DictionaryClientImpl;
-import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.mapper.TransferOperationMapper;
 import net.microfin.financeapp.repository.TransferOperationRepository;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
+import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @FinanceAppTest
+@EmbeddedKafka(
+        topics = {"input-notification"}
+)
 public class DefaultTransferOperationServiceTest extends AbstractTest {
 
     @Autowired
@@ -32,8 +42,8 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
 
     @MockitoBean
     private AuditClientImpl auditClient;
-    @MockitoBean
-    private NotificationClientImpl notificationClient;
+    @Autowired
+    private EmbeddedKafkaBroker embeddedKafkaBroker;
     @MockitoBean
     private AccountClientImpl accountClient;
     @MockitoBean
@@ -96,5 +106,18 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(OperationStatus.SENT);
         assertThat(dto.getTargetAmount()).isEqualByComparingTo(BigDecimal.valueOf(90.00));
+        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("notification-group", "false", embeddedKafkaBroker);
+        consumerProps.put(JsonDeserializer.TRUSTED_PACKAGES, "net.microfin.financeapp.dto");
+        try (var consumerForTest = new DefaultKafkaConsumerFactory<>(
+                consumerProps,
+                new IntegerDeserializer(),
+                new JsonDeserializer<>()
+        ).createConsumer()) {
+            consumerForTest.subscribe(List.of("input-notification"));
+            var inputMessage = KafkaTestUtils.getSingleRecord(consumerForTest, "input-notification", Duration.ofSeconds(5));
+            assertThat(inputMessage.key()).isEqualTo(dto.getUserId());
+            assertThat(inputMessage.value()).isInstanceOf(NotificationDTO.class);
+            assertThat(((NotificationDTO)inputMessage.value()).getOperationType()).isEqualTo(dto.getOperationType().name());
+        }
     }
 }

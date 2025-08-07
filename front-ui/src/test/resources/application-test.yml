@@ -1,4 +1,11 @@
 spring:
+  kafka:
+    producer:
+      acks: all
+      retries: 5
+      delivery-timeout-ms: 120000
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   application:
     name: audit-service
 client:

@@ -73,6 +73,7 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql:1.20.6'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 
 }
 
@@ -90,6 +91,9 @@ dependencyManagement {
         dependency "com.google.errorprone:error_prone_annotations:2.27.0"
         dependency "org.apache.commons:commons-compress:1.26.1"
         dependency "org.jetbrains:annotations:17.0.0"
+        dependency "org.bitbucket.b_c:jose4j:0.9.4"
+        dependency "org.scala-lang:scala-reflect:2.13.14"
+        dependency "org.scala-lang:scala-library:2.13.15"
     }
 }
 

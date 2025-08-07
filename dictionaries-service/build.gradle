@@ -64,6 +64,7 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.20.6'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 
 }
 
@@ -74,6 +75,10 @@ dependencyManagement {
     dependencies {
         dependency "org.apache.commons:commons-text:1.12.0"
         dependency "org.apache.httpcomponents:httpclient:4.5.14"
+        dependency "org.bitbucket.b_c:jose4j:0.9.4"
+        dependency "commons-io:commons-io:2.18.0"
+        dependency "org.scala-lang:scala-reflect:2.13.14"
+        dependency "org.scala-lang:scala-library:2.13.15"
     }
 }
 

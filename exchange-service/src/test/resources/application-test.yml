@@ -3,6 +3,24 @@ spring:
     name: audit-service
   liquibase:
     enabled: false
+  kafka:
+    consumer:
+      group-id: exchange-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: net.microfin.financeapp.dto
+    producer:
+      acks: all
+      retries: 5
+      delivery-timeout-ms: 120000
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 client:
   service:
     account: ${spring.release.name:financeapp}-account-service

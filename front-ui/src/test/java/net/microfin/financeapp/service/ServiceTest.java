@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -17,14 +19,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @FinanceAppTest
+@EmbeddedKafka(
+        topics = {"input-notification", "user-notification"}
+)
 public class ServiceTest {
 
     @Autowired
@@ -49,9 +53,6 @@ public class ServiceTest {
     private DictionaryClient dictionaryClient;
 
     @MockitoBean
-    private NotificationClient notificationClient;
-
-    @MockitoBean
     private AccountClient userClient;
 
     @MockitoBean
@@ -68,6 +69,9 @@ public class ServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    KafkaTemplate<Integer, NotificationDTO> kafkaTemplate;
 
     @Nested
     class AccountServiceTest {
@@ -204,24 +208,15 @@ public class ServiceTest {
             dto2.setOperationType("CASH_DEPOSIT");
             dto2.setNotificationDescription("Пополнение 200 USD");
             dto2.setCreatedAt(LocalDateTime.now());
-
-            List<NotificationDTO> notifications = List.of(dto1, dto2);
-            when(notificationClient.listNotificationsByUserId(42)).thenReturn(ResponseEntity.ok(notifications));
-
-            List<NotificationDTO> result = notificationService.listNotifications(42);
-
-            assertThat(result).hasSize(2);
-            assertThat(result).extracting(NotificationDTO::getOperationType).containsExactly("CASH_WITHDRAWAL", "CASH_DEPOSIT");
+            kafkaTemplate.send("input-notification", dto1.getUserId(), dto1).thenAccept(result1 -> {
+                kafkaTemplate.send("input-notification", dto2.getUserId(), dto2).thenAccept(result2 -> {
+                    List<NotificationDTO> result = notificationService.listNotifications(42);
+                    assertThat(result).hasSize(2);
+                    assertThat(result).extracting(NotificationDTO::getOperationType).containsExactly("CASH_WITHDRAWAL", "CASH_DEPOSIT");
+                });
+            });
         }
 
-        @Test
-        void shouldReturnEmptyListWhenClientReturnsError() {
-            when(notificationClient.listNotificationsByUserId(42)).thenReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-
-            List<NotificationDTO> result = notificationService.listNotifications(42);
-
-            assertThat(result).isEmpty();
-        }
     }
 
     @Nested

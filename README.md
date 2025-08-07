@@ -15,11 +15,10 @@ https://helm.sh/docs/intro/install/
 
 ./gradlew clean build
 
-minikube start --memory=8192
+minikube start --memory=8192 --driver=docker
 
 minikube addons enable ingress
 
-minikube start
 
 **Настройка dns и hosts:**
 
@@ -34,22 +33,20 @@ kubectl apply -f corednstest.yaml
 
 kubectl -n kubesystem rollout restart deployment coredns
 
+kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer"}}'
+
 **Linux:**
-
-minikube ip
-
-полученный [IP] скопировать в
-
 
 sudo nano /etc/hosts
 добавить
 
-**[IP] finance.local**
-**[IP] keycloak.local**
+**127.0.0.1 finance.local**
+
+**127.0.0.1 keycloak.local**
 
 **Windows:**
 
-kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer"}}'
+
 c:\windows\system32\drivers\etc\hosts
 добавить
 
@@ -57,10 +54,13 @@ c:\windows\system32\drivers\etc\hosts
 
 **127.0.0.1 keycloak.local**
 
+Настройка для разных ОС заканчивается здесь.
+
+
 minikube tunel
 
 
-Настройка для разных ОС заканчивается здесь.Воспользоваться redeploy.sh или в ручную
+Воспользоваться redeploy.sh или в ручную
 
 helm uninstall financeapp -n test
 
@@ -137,8 +137,6 @@ helm install my-nginx-ingress ingress-nginx/ingress-nginx
 
 ./gradlew clean build
 
-docker compose up --build
-
 **Linux:**
 sudo nano /etc/hosts
 добавить
@@ -197,7 +195,7 @@ _**Integration**_
 * Externalized/Distributed Config: K8s
 * K8s dns, Ingress
 * Security: Keycloak Access Token (JWT) по client credentials для выполнения запросов в другие микросервисы.
-* API: Resilence4j + Open Feign
+* API: Resilence4j + Open Feign + Kafka
 * Test: JUnit 5, TestContext Framework, Spring Boot Test, Spring Cloud Contract.
 * Container: K8s
 * Deploy: Minikube, Jenkins

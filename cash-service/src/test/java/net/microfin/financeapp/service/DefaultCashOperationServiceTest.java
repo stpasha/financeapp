@@ -4,7 +4,6 @@ import net.microfin.financeapp.AbstractTest;
 import net.microfin.financeapp.FinanceAppTest;
 import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.client.AuditClientImpl;
-import net.microfin.financeapp.client.NotificationClientImpl;
 import net.microfin.financeapp.domain.CashOperation;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
@@ -14,27 +13,37 @@ import net.microfin.financeapp.repository.CashOperationRepository;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
+import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
+@EmbeddedKafka(
+        topics = {"input-notification"}
+)
 @FinanceAppTest
 public class DefaultCashOperationServiceTest extends AbstractTest {
 
     @MockitoBean
     private AuditClientImpl auditClient;
-    @MockitoBean
-    private NotificationClientImpl notificationClient;
     @MockitoBean
     private AccountClientImpl accountClient;
 
@@ -47,6 +56,9 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
 
     @Autowired
     private DefaultCashOperationService cashOperationService;
+
+    @Autowired
+    private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @MockitoBean
     private JwtDecoder jwtDecoder;
@@ -82,13 +94,20 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             assertThat(result.getBody()).isNotNull();
             assertThat(result.getBody().getStatus()).isEqualTo(OperationStatus.SENT);
 
-            ArgumentCaptor<NotificationDTO> captor = ArgumentCaptor.forClass(NotificationDTO.class);
-            verify(notificationClient).saveNotification(captor.capture());
 
-            NotificationDTO notification = captor.getValue();
-            assertThat(notification.getUserId()).isEqualTo(123);
-            assertThat(notification.getOperationType()).isEqualTo("CASH_WITHDRAWAL");
-            assertThat(notification.getNotificationDescription()).contains("100", "Рубль");
+            Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("notification-group", "false", embeddedKafkaBroker);
+            consumerProps.put(JsonDeserializer.TRUSTED_PACKAGES, "net.microfin.financeapp.dto");
+            try (var consumerForTest = new DefaultKafkaConsumerFactory<>(
+                    consumerProps,
+                    new IntegerDeserializer(),
+                    new JsonDeserializer<>()
+            ).createConsumer()) {
+                consumerForTest.subscribe(List.of("input-notification"));
+                var inputMessage = KafkaTestUtils.getSingleRecord(consumerForTest, "input-notification", Duration.ofSeconds(5));
+                assertThat(inputMessage.key()).isEqualTo(dto.getUserId());
+                assertThat(inputMessage.value()).isInstanceOf(NotificationDTO.class);
+                assertThat(((NotificationDTO)inputMessage.value()).getOperationType()).isEqualTo(dto.getOperationType().name());
+            }
         }
 
         @Test

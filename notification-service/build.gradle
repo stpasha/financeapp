@@ -71,6 +71,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mapstruct:mapstruct:1.6.3'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 
 }
 
@@ -88,6 +89,9 @@ dependencyManagement {
         dependency "com.google.errorprone:error_prone_annotations:2.27.0"
         dependency "org.apache.commons:commons-compress:1.26.1"
         dependency "org.jetbrains:annotations:17.0.0"
+        dependency "org.bitbucket.b_c:jose4j:0.9.4"
+        dependency "org.scala-lang:scala-reflect:2.13.14"
+        dependency "org.scala-lang:scala-library:2.13.15"
     }
 }
 
