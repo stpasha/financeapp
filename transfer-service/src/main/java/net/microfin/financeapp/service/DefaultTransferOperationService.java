@@ -90,7 +90,7 @@ public class DefaultTransferOperationService implements TransferOperationService
             ResponseEntity<TransferOperationResultDTO> transferredOperation = accountClient.transferOperation(transferOperationDTO);
             if (transferredOperation.getStatusCode().is2xxSuccessful()) {
                 notificationKafkaProducer.send(NotificationDTO.builder()
-                        .notificationDescription("Выполнена запрос на " + transferOperationDTO.getOperationType() + " " +
+                        .notificationDescription("Выполнен запрос на " + transferOperationDTO.getOperationType() + " " +
                                 transferOperationDTO.getAmount() + " " +
                                 sourceCurrency.name())
                                 .userId(transferOperationDTO.getUserId())

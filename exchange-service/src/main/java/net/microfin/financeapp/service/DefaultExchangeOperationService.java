@@ -86,7 +86,7 @@ public class DefaultExchangeOperationService implements ExchangeOperationService
             exchangeOperationDTO.setId(exchangeOperation.getId());
             if (exchangedOperation.getStatusCode().is2xxSuccessful()) {
                 notificationKafkaProducer.send(NotificationDTO.builder()
-                        .notificationDescription("Выполнена запрос на " + exchangeOperationDTO.getOperationType() + " " +
+                        .notificationDescription("Выполнен запрос на " + exchangeOperationDTO.getOperationType() + " " +
                                 exchangeOperationDTO.getAmount() + " " +
                                 sourceCurrency.name())
                                 .userId(exchangeOperationDTO.getUserId())
