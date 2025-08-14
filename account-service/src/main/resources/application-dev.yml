@@ -49,3 +49,10 @@ exceptions:
   passEditFailure: ${EXCEPTIONS_PASS_EDIT_FAILURE:Password is not updated}
 scheduler:
   enabled: ${SCHEDULER_ENABLED:true}
+management:
+  zipkin:
+    tracing:
+      endpoint:  http://${spring.release.name:financeapp}-zipkin:9411/api/v2/spans # Эндпоинт Zipkin для приёма спанов
+  tracing:
+    sampling:
+      probability: 1 # Сэмплируем все запросы

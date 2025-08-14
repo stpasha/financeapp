@@ -109,6 +109,15 @@ kafka:
         config:
           min.insync.replicas: "1"
 
+zipkin:
+  enabled: true
+  storageType: mem # указываем способ хранения в памяти
+  self-tracing:
+    # Параметр трассировки самого себя
+    enabled: false
+  cassandra:
+    enabled: false # отключаем поднятие Cassandra (использовалась по умолчанию)
+
 ingress:
   enabled: true
   ingressClassName: nginx

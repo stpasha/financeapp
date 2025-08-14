@@ -65,3 +65,10 @@ spring:
     default-schema: ${SPRING_DATASOURCE_NOTIFICATION_SCHEMA}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+management:
+  zipkin:
+    tracing:
+      endpoint:  http://${spring.release.name:financeapp}-zipkin:9411/api/v2/spans # Эндпоинт Zipkin для приёма спанов
+  tracing:
+    sampling:
+      probability: 1 # Сэмплируем все запросы

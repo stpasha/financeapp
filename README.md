@@ -13,31 +13,31 @@ https://kubernetes.io/ru/docs/tasks/tools/install-minikube/
 Установите Helm
 https://helm.sh/docs/intro/install/
 
-./gradlew clean build
+`./gradlew clean build`
 
-minikube start --memory=8192 --driver=docker
+`minikube start --memory=8192 --driver=docker`
 
-minikube addons enable ingress
+`minikube addons enable ingress`
 
 
 **Настройка dns и hosts:**
 
-kubectl -n kube-system get configmap coredns -o yaml > corednstest.yaml
+`kubectl -n kube-system get configmap coredns -o yaml > corednstest.yaml`
 
 Добавить в corednstest после health секции:
 
 rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local
 
 
-kubectl apply -f corednstest.yaml
+`kubectl apply -f corednstest.yaml`
 
-kubectl -n kubesystem rollout restart deployment coredns
+`kubectl -n kubesystem rollout restart deployment coredns`
 
-kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer"}}'
+`kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer"}}'`
 
 **Linux:**
 
-sudo nano /etc/hosts
+`sudo nano /etc/hosts`
 добавить
 
 **127.0.0.1 finance.local**
@@ -57,60 +57,60 @@ c:\windows\system32\drivers\etc\hosts
 Настройка для разных ОС заканчивается здесь.
 
 
-minikube tunel
+`minikube tunel`
 
 
 Воспользоваться redeploy.sh или в ручную
 
-helm uninstall financeapp -n test
+`helm uninstall financeapp -n test`
 
 _Строим образы:_
 
-docker build -t account-service:0.1.0 ./account-service
+`docker build -t account-service:0.1.0 ./account-service`
 
-docker build -t audit-service:0.1.0 ./audit-service
+`docker build -t audit-service:0.1.0 ./audit-service`
 
-docker build -t cash-service:0.1.0 ./cash-service
+`docker build -t cash-service:0.1.0 ./cash-service`
 
-docker build -t dictionaries-service:0.1.0 ./dictionaries-service
+`docker build -t dictionaries-service:0.1.0 ./dictionaries-service`
 
-docker build -t exchange-service:0.1.0 ./exchange-service
+`docker build -t exchange-service:0.1.0 ./exchange-service`
 
-docker build -t front-ui:0.1.0 ./front-ui
+`docker build -t front-ui:0.1.0 ./front-ui`
 
-docker build -t notification-service:0.1.0 ./notification-service
+`docker build -t notification-service:0.1.0 ./notification-service`
 
-docker build -t transfer-service:0.1.0 ./transfer-service
+`docker build -t transfer-service:0.1.0 ./transfer-service`
 
 _Импортируем образы:_
 
-minikube image load account-service:0.1.0
+`minikube image load account-service:0.1.0`
 
-minikube image load audit-service:0.1.0
+`minikube image load audit-service:0.1.0`
 
-minikube image load cash-service:0.1.0
+`minikube image load cash-service:0.1.0`
 
-minikube image load dictionaries-service:0.1.0
+`minikube image load dictionaries-service:0.1.0`
 
-minikube image load exchange-service:0.1.0
+`minikube image load exchange-service:0.1.0`
 
-minikube image load front-ui:0.1.0
+`minikube image load front-ui:0.1.0`
 
-minikube image load notification-service:0.1.0
+`minikube image load notification-service:0.1.0`
 
-minikube image load transfer-service:0.1.0
+`minikube image load transfer-service:0.1.0`
 
 
 _Обновляем репозитории:_
 
-helm repo add stable https://charts.helm.sh/stable
+`helm repo add stable https://charts.helm.sh/stable`
 
-helm repo add bitnami https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami
+`helm repo add bitnami https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami`
 
-helm repo update
+`helm repo update`
 
 _Установка релиза:_
-helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --namespace test --create-namespace
+`helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --namespace test --create-namespace`
 
 
 

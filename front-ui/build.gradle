@@ -63,7 +63,9 @@ dependencies {
 
     testImplementation 'org.mapstruct:mapstruct:1.6.3'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-    implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.4.5'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.4.5'  // Мост между Micrometer и Brave
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave' // Библиотека для отправки спанов в zipkin
+    implementation 'io.github.openfeign:feign-micrometer:13.6'
     //Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'

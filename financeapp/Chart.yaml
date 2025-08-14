@@ -60,3 +60,8 @@ dependencies:
     repository: "https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami"
     alias: kafka
     condition: kafka.enabled
+  - name: zipkin
+    version: "1.3.10"
+    repository: "https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami"
+    alias: zipkin
+    condition: zipkin.enabled

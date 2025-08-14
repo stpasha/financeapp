@@ -73,3 +73,10 @@ client:
     audit: ${spring.release.name:financeapp}-audit-service
     dictionaries: ${spring.release.name:financeapp}-dictionaries-service
     notification: ${spring.release.name:financeapp}-notification-service
+management:
+  zipkin:
+    tracing:
+      endpoint:  http://${spring.release.name:financeapp}-zipkin:9411/api/v2/spans # Эндпоинт Zipkin для приёма спанов
+  tracing:
+    sampling:
+      probability: 1 # Сэмплируем все запросы
