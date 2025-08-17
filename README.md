@@ -1,26 +1,28 @@
 # Spring Boot приложение онлайн банка
 
-## Installation & Run
-_run cmds_
+# Installation & Run 🚀
 
-### Minikube way
+## Minikube way
 
-Удалите данные установки для Jenkins (Docker desktop)
+1. Удалите данные установки для Jenkins (Docker desktop)
 
-Установите Minikube
-https://kubernetes.io/ru/docs/tasks/tools/install-minikube/
+2. Установите Minikube
+[Minikube Installation Guide](https://kubernetes.io/ru/docs/tasks/tools/install-minikube/)
 
-Установите Helm
-https://helm.sh/docs/intro/install/
+3. Установите Helm
+[Helm Installation Guide](https://helm.sh/docs/intro/install/)
 
+4. Соберите проект
 `./gradlew clean build`
+
+5. Запустите minikube
 
 `minikube start --memory=8192 --driver=docker`
 
 `minikube addons enable ingress`
 
 
-**Настройка dns и hosts:**
+6. **Настройка dns и hosts:**
 
 `kubectl -n kube-system get configmap coredns -o yaml > corednstest.yaml`
 
@@ -56,9 +58,10 @@ c:\windows\system32\drivers\etc\hosts
 
 Настройка для разных ОС заканчивается здесь.
 
-
+7. Запуск тунеля
 `minikube tunel`
 
+8. Сборка Docker-образов и импорт в Minikube:
 
 Воспользоваться redeploy.sh или в ручную
 
@@ -101,7 +104,7 @@ _Импортируем образы:_
 `minikube image load transfer-service:0.1.0`
 
 
-_Обновляем репозитории:_
+9. Обновляем репозитории:
 
 `helm repo add stable https://charts.helm.sh/stable`
 
@@ -109,36 +112,36 @@ _Обновляем репозитории:_
 
 `helm repo update`
 
-_Установка релиза:_
+10. Установка релиза:
 `helm upgrade --install financeapp ./financeapp -f ./financeapp/values.yaml --namespace test --create-namespace`
 
 
 
 
-### Docker Desktop Jenkins way
+## Docker Desktop Jenkins way
 
-Удалите данные установки для Minikube
+1. Удалите данные установки для Minikube
 
 Установите Docker Desktop
 https://docs.docker.com/desktop/setup/install/windows-install/
 
-В настройках включить встроенный кластер, выделить достаточные ресурсы
+2. В настройках включить встроенный кластер, выделить достаточные ресурсы
 
-Установите Helm
+3. Установите Helm
 https://helm.sh/docs/intro/install/
 
-Установите Ingress
+4. Установите Ingress
 
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+`helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx`
 
-helm repo update
+`helm repo update`
 
-helm install my-nginx-ingress ingress-nginx/ingress-nginx
+`helm install my-nginx-ingress ingress-nginx/ingress-nginx`
 
-./gradlew clean build
+`./gradlew clean build`
 
 **Linux:**
-sudo nano /etc/hosts
+`sudo nano /etc/hosts`
 добавить
 
 **127.0.0.1 finance.local**
@@ -150,15 +153,60 @@ c:\windows\system32\drivers\etc\hosts
 **127.0.0.1 finance.local**
 **127.0.0.1 keycloak.local**
 
-docker compose up --build
+`docker compose up --build`
 
 дальше работать с Jenkins
 
 http://localhost:8080/
 
+# Мониторинг и логи
+
+После установки приложения
+
+## Zipkin
+
+`kubectl port-forward svc/financeapp-zipkin 9411:9411 -n test`
+
+зайти на http://localhost:9411/zipkin/
+
+![zipkin.png](screenshot/zipkin.png)
+
+## Prometheus
+
+`kubectl port-forward svc/financeapp-kube-prometheus-prometheus   9090:9090 -n test`
+
+зайти на http://localhost:9090/
+
+![prometheus.png](screenshot/prometheus.png)
+
+## Grafana
+
+`kubectl port-forward  svc/financeapp-grafana 3000:80 -n test`
+
+зайти на http://localhost:3000/dashboards нажать кнопку "New" - "Import" перекинуть файлы из папки dashboard
+[custom.json](dashboard/custom.json)
+
+[http.json](dashboard/http.json)
+
+[jvm.json](dashboard/jvm.json)
+
+[springboot.json](dashboard/springboot.json)
+
+Открываем необходимый dashboard
+
+Стандартный с метриками по микросервисам
+![standart.png](screenshot/standart.png)
+
+JVM
+![jvm.png](screenshot/jvm.png)
+
+Custom включает 2 линейных виджета, шкала, панель alerts
+![grafana1.png](screenshot/grafana1.png)
+
+![grafana2.png](screenshot/grafana2.png)
 
 
-## Database
+# 🗄 Database
 [account](account-service/src/main/resources/db/changelog/init-data-account.xml)
 
 [audit](audit-service/src/main/resources/db/changelog/init-storedata-rule.xml)
@@ -173,7 +221,7 @@ http://localhost:8080/
 
 
 
-## Run tests
+# ✅ Run tests
 _**Module**_
 
 ./gradlew test
@@ -182,10 +230,10 @@ _**Integration**_
 
 ./gradlew verify
 
-## Build
+# ⚙ Build
 ./gradlew build
 
-Использовано для реализации:
+# 🛠 Использованные технологии:
 * Build: Gradle.
 * Java: 21.
 * UI: thymeleaf + Spring MVC + bootstrap
@@ -199,8 +247,10 @@ _**Integration**_
 * Test: JUnit 5, TestContext Framework, Spring Boot Test, Spring Cloud Contract.
 * Container: K8s
 * Deploy: Minikube, Jenkins
+* Tracing - Zipkin
+* Monitoring - Prometheus + Grafana
 
-Проект состоит из
+# 📦 Микросервисы
 * front-ui микросервис с графическим интерфейсом реализован на thymeleaf в дальнейшем желательно переписать полностью на  
   JS, используется интеграция c keycloak для создания и аутентификации пользователей.
 * account-service микросервис счетов реализован паттерн Transactional Outbox

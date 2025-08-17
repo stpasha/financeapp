@@ -21,13 +21,13 @@ public class DefaultRuleService implements RuleService {
     private final AccountClientImpl accountClient;
     private final MeterRegistry meterRegistry;
     @Setter
-    @Value("${testPrometeus}")
-    private boolean testPrometeus;
+    @Value("${testPrometheus}")
+    private boolean testPrometheus;
 
     @Override
     public boolean checkRulesForOperation(GenericOperationDTO genericOperationDTO) {
         boolean isAllowed = performCheck(genericOperationDTO);
-        if (!isAllowed && testPrometeus) {
+        if (!isAllowed && testPrometheus) {
             updateMetric(genericOperationDTO);
         }
         return isAllowed;

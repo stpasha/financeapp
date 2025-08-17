@@ -65,7 +65,7 @@ spring:
     default-schema: ${SPRING_DATASOURCE_NOTIFICATION_SCHEMA}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-testPrometeus: true
+testPrometheus: true
 management:
   zipkin:
     tracing:

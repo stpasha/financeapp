@@ -29,8 +29,8 @@ public class AccountService {
     private final TransferClient transferClient;
     private final MeterRegistry meterRegistry;
     @Setter
-    @Value("${testPrometeus}")
-    private boolean testPrometeus;
+    @Value("${testPrometheus}")
+    private boolean testPrometheus;
 
     public OperationResult createCashOperation(CashOperationDTO dto) {
         ResponseEntity<CashOperationResultDTO> response = cashClient.cashOperation(dto);
@@ -46,7 +46,7 @@ public class AccountService {
         if (response.getStatusCode().is2xxSuccessful() && !OperationStatus.FAILED.equals(response.getBody().getStatus())) {
             return response.getBody();
         }
-        if (testPrometeus) {
+        if (testPrometheus) {
             meterRegistry.counter("financeapp_failed_transfers_total",
                     "userId", String.valueOf(dto.getUserId()),
                     "sourceAccountId", String.valueOf(dto.getSourceAccountId()),
@@ -60,7 +60,7 @@ public class AccountService {
         if (response.getStatusCode().is2xxSuccessful() && !OperationStatus.FAILED.equals(response.getBody().getStatus())) {
             return response.getBody();
         }
-        if (testPrometeus) {
+        if (testPrometheus) {
             meterRegistry.counter("financeapp_failed_transfers_total",
                     "userId", String.valueOf(dto.getUserId()),
                     "sourceAccountId", String.valueOf(dto.getSourceAccountId()),

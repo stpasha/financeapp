@@ -26,8 +26,8 @@ public class DefaultNotificationService implements NotificationService {
     private final UserNotificationProducer userNotificationProducer;
     private final MeterRegistry meterRegistry;
     @Setter
-    @Value("${testPrometeus}")
-    private boolean testPrometeus;
+    @Value("${testPrometheus}")
+    private boolean testPrometheus;
 
     @Override
     @Transactional
@@ -40,7 +40,7 @@ public class DefaultNotificationService implements NotificationService {
                     userNotificationProducer.produceUserNotification(dto);
                 }
             });
-            if (testPrometeus && ThreadLocalRandom.current().nextInt(10) > 5) {
+            if (testPrometheus && ThreadLocalRandom.current().nextInt(10) > 5) {
                 throw new RuntimeException("internal error");
             }
 

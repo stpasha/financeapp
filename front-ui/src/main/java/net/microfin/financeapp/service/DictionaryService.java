@@ -18,14 +18,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DictionaryService {
     private final DictionaryClient dictionaryClient;
     private final MeterRegistry meterRegistry;
-    @Value("${testPrometeus}")
+    @Value("${testPrometheus}")
     @Setter
-    private boolean testPrometeus;
+    private boolean testPrometheus;
 
     public List<CurrencyDTO> getCurrencies() {
         Timer.Sample timer = Timer.start(meterRegistry);
         try {
-            if (testPrometeus) {
+            if (testPrometheus) {
                 long delay = ThreadLocalRandom.current().nextInt(100, 6000);
                 Thread.sleep(delay);
             }
