@@ -45,6 +45,7 @@ dependencies {
     implementation project(":chassis-gateway-client")
 
     //Util
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.15.3'
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     implementation 'org.mapstruct:mapstruct:1.6.3'

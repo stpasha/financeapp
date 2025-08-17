@@ -9,7 +9,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, info, env
+        include: refresh, health, info, env, prometheus 
   security:
     enabled: true
   endpoint:

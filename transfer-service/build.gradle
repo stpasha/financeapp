@@ -56,6 +56,7 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-core:6.6.13.Final")
     implementation 'org.liquibase:liquibase-core:4.31.0'
     //Util
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.15.3'
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     implementation 'org.mapstruct:mapstruct:1.6.3'

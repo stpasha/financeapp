@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: additional-scrape
+  namespace: {{ .Release.Namespace }}
+data:
+  additional-scrape.yaml: |
+    scrape_configs:
+      - job_name: 'front-ui'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-front-ui:8080' ]
+            labels:
+              application: 'front-ui'
+      - job_name: 'dictionaries-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-dictionaries-service:8083' ]
+            labels:
+              application: 'dictionaries-service'
+      - job_name: 'audit-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-audit-service:8087' ]
+            labels:
+              application: 'audit-service'
+      - job_name: 'account-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-account-service:8081' ]
+            labels:
+              application: 'account-service'
+      - job_name: 'notification-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-notification-service:8088' ]
+            labels:
+              application: 'notification-service'

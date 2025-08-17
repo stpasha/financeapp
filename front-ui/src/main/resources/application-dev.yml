@@ -46,6 +46,7 @@ spring:
             client-secret: yBxbVdRbMIgOHjEhDaV8aTp8pYl1UXe1
             authorization-grant-type: client_credentials
             scope: openid
+testPrometeus: true
 resilience4j:
   circuitbreaker:
     configs:

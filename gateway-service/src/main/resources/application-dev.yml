@@ -69,7 +69,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, info, env
+        include: refresh, health, info, env, prometheus 
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

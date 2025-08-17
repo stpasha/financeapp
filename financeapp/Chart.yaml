@@ -65,3 +65,9 @@ dependencies:
     repository: "https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami"
     alias: zipkin
     condition: zipkin.enabled
+  - name: kube-prometheus
+    version: "11.2.6"
+    repository: "https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami"
+  - name: grafana
+    version: "8.5.12"
+    repository: https://grafana.github.io/helm-charts

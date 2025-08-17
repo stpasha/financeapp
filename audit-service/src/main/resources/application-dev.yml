@@ -48,6 +48,7 @@ spring:
     default-schema: ${SPRING_DATASOURCE_AUDIT_SCHEMA}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+testPrometeus: true
 exceptions:
   deserFailure: ${EXCEPTIONS_DESER_FAILURE:Cannot deserialize payload}
   operationFailure: ${EXCEPTIONS_OPERATION_FAILURE:Operation type not recognized}
