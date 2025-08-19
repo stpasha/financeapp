@@ -21,7 +21,7 @@ public class DefaultRuleService implements RuleService {
     private final AccountClientImpl accountClient;
     private final MeterRegistry meterRegistry;
     @Setter
-    @Value("${testPrometheus}")
+    @Value("${testPrometheus:false}")
     private boolean testPrometheus;
 
     @Override

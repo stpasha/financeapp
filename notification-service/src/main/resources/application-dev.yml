@@ -34,6 +34,8 @@ spring:
         clientRegistrationId: zbankapi
         enabled: true
   kafka:
+    observation:
+      enabled: true
     producer:
       bootstrap-servers: ${KAFKA_URL:financeapp-kafka:9092}
       key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
@@ -52,6 +54,7 @@ spring:
               packages: net.microfin.financeapp.dto
     listener:
       ack-mode: manual
+      observation-enabled: true
   datasource:
     init: never
     url: ${SPRING_DATASOURCE_URL}

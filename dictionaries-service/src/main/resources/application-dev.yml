@@ -4,6 +4,8 @@ spring:
       allowed-origins: "*"
       allowed-methods: GET,POST,PUT,DELETE
   kafka:
+    observation:
+      enabled: true
     producer:
       acks: all
       retries: 5

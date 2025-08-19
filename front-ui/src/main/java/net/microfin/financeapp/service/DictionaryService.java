@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DictionaryService {
     private final DictionaryClient dictionaryClient;
     private final MeterRegistry meterRegistry;
-    @Value("${testPrometheus}")
+    @Value("${testPrometheus:false}")
     @Setter
     private boolean testPrometheus;
 

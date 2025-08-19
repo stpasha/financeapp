@@ -39,6 +39,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     //Local
     implementation project(":chassis-api")
     implementation project(":chassis-service-client")
@@ -57,6 +58,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.4.5'  // Мост между Micrometer и Brave
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave' // Библиотека для отправки спанов в zipkin
     implementation 'io.github.openfeign:feign-micrometer:13.6'
+    //implementation 'org.apache.kafka:kafka-log4j-appender:3.9.1'
     //Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
@@ -67,7 +69,9 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.20.6'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     testImplementation 'org.assertj:assertj-core'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation("org.springframework.kafka:spring-kafka-test") {
+        exclude group: "ch.qos.logback"
+    }
 
 }
 
@@ -93,4 +97,8 @@ configurations.configureEach {
     resolutionStrategy {
         failOnVersionConflict()
     }
+}
+
+configurations.configureEach {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
 }

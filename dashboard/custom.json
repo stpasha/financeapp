@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -71,7 +71,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -166,7 +167,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -200,7 +202,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (login) (increase(financeapp_failed_audit_total[5m]))",
+          "expr": "sum by (userId) (increase(financeapp_failed_audit_total[5m]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -257,7 +259,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -323,6 +326,6 @@
   "timezone": "browser",
   "title": "New dashboard",
   "uid": "bev7gi12kl3b4b",
-  "version": 14,
+  "version": 2,
   "weekStart": ""
 }

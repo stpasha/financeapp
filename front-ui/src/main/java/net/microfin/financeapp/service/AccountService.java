@@ -29,7 +29,7 @@ public class AccountService {
     private final TransferClient transferClient;
     private final MeterRegistry meterRegistry;
     @Setter
-    @Value("${testPrometheus}")
+    @Value("${testPrometheus:false}")
     private boolean testPrometheus;
 
     public OperationResult createCashOperation(CashOperationDTO dto) {

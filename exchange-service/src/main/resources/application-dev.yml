@@ -22,6 +22,8 @@ spring:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak.local/realms/zbank}
           user-name-attribute: preferred_username
   kafka:
+    observation:
+      enabled: true
     consumer:
       bootstrap-servers: ${KAFKA_URL:financeapp-kafka:9092}
       group-id: exchange-group
@@ -43,6 +45,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     listener:
       ack-mode: manual
+      observation-enabled: true
   cloud:
     kubernetes:
       discovery:

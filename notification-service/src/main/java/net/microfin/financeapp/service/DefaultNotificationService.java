@@ -26,7 +26,7 @@ public class DefaultNotificationService implements NotificationService {
     private final UserNotificationProducer userNotificationProducer;
     private final MeterRegistry meterRegistry;
     @Setter
-    @Value("${testPrometheus}")
+    @Value("${testPrometheus:false}")
     private boolean testPrometheus;
 
     @Override

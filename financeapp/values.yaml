@@ -108,6 +108,11 @@ kafka:
         replicationFactor: 2
         config:
           min.insync.replicas: "1"
+      - name: log-kafka
+        partitions: 1
+        replicationFactor: 2
+        config:
+          min.insync.replicas: "1"
 
 zipkin:
   enabled: true
@@ -235,6 +240,32 @@ grafana:
     datasources:
       enabled: true
       label: grafana_datasource
+
+logstash:
+  image: "elastic/logstash"
+  imageTag: "7.17.3"
+  imagePullPolicy: IfNotPresent
+  esJavaOpts: "-Xmx1g -Xms1g"
+  logstashPipeline:
+    monitoring.conf: |
+      input {
+        kafka {
+          bootstrap_servers => "financeapp-kafka:9092"
+          topics => ["log-kafka"]
+          consumer_threads => 1
+        }
+      }
+      
+      filter {
+        grok {
+          match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log-level} \[%{DATA:microservice}\] \[traceId=%{DATA:traceId}, spanId=%{DATA:spanId}\] - %{GREEDYDATA:text}" }
+        }
+      }
+      
+      output {
+        stdout { codec => rubydebug }
+      }
+  enabled: true
 
 
 ingress:
