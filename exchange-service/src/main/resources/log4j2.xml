@@ -3,11 +3,11 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
-                pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [exchange-service] [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"/>
+                pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %level [exchange-service] [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"/>
         </Console>
         <Kafka name="Kafka" topic="log-kafka" syncSend="false">
             <PatternLayout
-                pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [exchange-service] [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"/>
+                pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %level [exchange-service] [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"/>
             <Property name="bootstrap.servers">${env:KAFKA_URL:-financeapp-kafka:9092}</Property>
             <Property name="linger.ms">1000</Property>
             <Property name="acks">all</Property>

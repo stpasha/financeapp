@@ -3,7 +3,7 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
-                pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [account-service] [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"/>
+                pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %level [account-service] [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"/>
         </Console>
     </Appenders>
 
