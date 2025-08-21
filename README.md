@@ -13,11 +13,14 @@
 [Helm Installation Guide](https://helm.sh/docs/intro/install/)
 
 4. Соберите проект
+В корне проекта
 `./gradlew clean build`
+В директории financeapp
+`helm dependency build`
 
 5. Запустите minikube
 
-`minikube start --memory=8192 --driver=docker`
+`minikube start --memory=10240 --driver=docker`
 
 `minikube addons enable ingress`
 
@@ -46,6 +49,8 @@ rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local
 
 **127.0.0.1 keycloak.local**
 
+**127.0.0.1 kibana.local**
+
 **Windows:**
 
 
@@ -55,6 +60,8 @@ c:\windows\system32\drivers\etc\hosts
 **127.0.0.1 finance.local**
 
 **127.0.0.1 keycloak.local**
+
+**127.0.0.1 kibana.local**
 
 Настройка для разных ОС заканчивается здесь.
 
@@ -146,12 +153,14 @@ https://helm.sh/docs/intro/install/
 
 **127.0.0.1 finance.local**
 **127.0.0.1 keycloak.local**
+**127.0.0.1 kibana.local**
 
 **Windows:**
 c:\windows\system32\drivers\etc\hosts
 добавить
 **127.0.0.1 finance.local**
 **127.0.0.1 keycloak.local**
+**127.0.0.1 kibana.local**
 
 `docker compose up --build`
 
@@ -183,7 +192,7 @@ http://localhost:8080/
 
 `kubectl port-forward  svc/financeapp-grafana 3000:80 -n test`
 
-зайти на http://localhost:3000/dashboards нажать кнопку "New" - "Import" перекинуть файлы из папки dashboard
+зайти на http://localhost:3000/dashboards нажать кнопку "New" - "Import" перекинуть файл из папки dashboard
 [custom.json](dashboard/custom.json)
 
 [http.json](dashboard/http.json)
@@ -204,6 +213,28 @@ Custom включает 2 линейных виджета, шкала, пане�
 ![grafana1.png](screenshot/grafana1.png)
 
 ![grafana2.png](screenshot/grafana2.png)
+
+## Kibana
+
+Зайти на http://kibana.local/
+
+Для импорта настроек перекинуть файл export.ndjson из папки dashboard
+
+Management → Saved Objects. -> Import
+
+[export.ndjson](dashboard/export.ndjson)
+
+круговая диаграмма записей по микросервисам
+![pie.png](screenshot/pie.png)
+
+линейный график записей
+![lin.png](screenshot/lin.png)
+поиск по логам
+![discover.png](screenshot/discover.png)
+панель управления
+![dashboard.png](screenshot/dashboard.png)
+
+
 
 
 # 🗄 Database
