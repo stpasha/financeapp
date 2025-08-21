@@ -14,8 +14,11 @@
 
 4. Соберите проект
 В корне проекта
+
 `./gradlew clean build`
+
 В директории financeapp
+
 `helm dependency build`
 
 5. Запустите minikube
@@ -31,7 +34,7 @@
 
 Добавить в corednstest после health секции:
 
-rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local
+**rewrite name keycloak.local financeapp-keycloak.test.svc.cluster.local**
 
 
 `kubectl apply -f corednstest.yaml`
@@ -152,14 +155,21 @@ https://helm.sh/docs/intro/install/
 добавить
 
 **127.0.0.1 finance.local**
+
 **127.0.0.1 keycloak.local**
+
 **127.0.0.1 kibana.local**
 
 **Windows:**
+
 c:\windows\system32\drivers\etc\hosts
+
 добавить
+
 **127.0.0.1 finance.local**
+
 **127.0.0.1 keycloak.local**
+
 **127.0.0.1 kibana.local**
 
 `docker compose up --build`
