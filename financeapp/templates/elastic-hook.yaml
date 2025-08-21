@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-indx-elastic
+  annotations:
+    # Выполняет хук после запуска Elasticsearch
+    "helm.sh/hook": post-install
+    # Определяет порядок выполнения хуков
+    "helm.sh/hook-weight": "5"
+    # Удаляет Job после успешного выполнения
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+        - name: create-indx-elastic
+          image: curlimages/curl:7.88.1
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              # Ждём, пока Elasticsearch станет доступен
+              until curl -s http://elasticsearch:9200 | grep -q '"cluster_name"'; do
+                echo "Elasticsearch is not ready yet. Retrying in 1 minute..."
+                sleep 60
+              done
+              
+              # Создаём шаблон индекса
+              curl -X PUT "http://elasticsearch:9200/_ilm/policy/financeapp-logs-policy" \
+                -H 'Content-Type: application/json' \
+                -d '{
+                  "policy": {
+                    "phases": {
+                      "hot": {
+                        "min_age": "0ms",
+                        "actions": {
+                          "rollover": {
+                            "max_size": "50GB",
+                            "max_age": "7d"
+                          }
+                        }
+                      },
+                      "delete": {
+                        "min_age": "30d",
+                        "actions": {
+                          "delete": {}
+                        }
+                      }
+                    }
+                  }
+                } '
+              # Создаём шаблон индекса
+              curl -X PUT "http://elasticsearch:9200/_index_template/logs-template" \
+                -H 'Content-Type: application/json' \
+                -d '
+              {
+                "index_patterns": ["financeapp-logs-*"],
+                "settings": {
+                  "number_of_shards": 1,
+                  "number_of_replicas": 1,
+                  "index.lifecycle.name": "financeapp-logs-policy"
+                },
+                "mappings": {
+                  "properties": {
+                    "timestamp": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS" },
+                    "log-level": { "type": "keyword" },
+                    "microservice": { "type": "keyword" },
+                    "traceId": { "type": "keyword" },
+                    "spanId": { "type": "keyword" },
+                    "text": { "type": "text" }
+                  }
+                }
+              }'
+      restartPolicy: OnFailure

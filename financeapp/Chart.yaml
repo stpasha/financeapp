@@ -72,5 +72,8 @@ dependencies:
     version: "8.5.12"
     repository: https://grafana.github.io/helm-charts
   - name: logstash
-    version: 7.17.3
+    version: "7.17.3"
+    repository: https://helm.elastic.co
+  - name: elasticsearch
+    version: "8.5.1"
     repository: https://helm.elastic.co

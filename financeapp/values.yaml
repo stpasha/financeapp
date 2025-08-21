@@ -264,8 +264,40 @@ logstash:
       
       output {
         stdout { codec => rubydebug }
+        elasticsearch {
+            hosts => ["http://elasticsearch:9200"]
+            index => "financeapp-logs-%{+dd.MM.YYYY}"
+            retry_on_conflict => 3
+        }
       }
   enabled: true
+
+
+elasticsearch:
+  protocol: http
+  createCert: false
+  esJavaOpts: "-Xmx1g -Xms1g"
+  clusterHealthCheckParams: ""
+  tls:
+    enabled: false
+  masterService: "elasticsearch"
+  imageTag: 8.5.1
+  sysctlInitContainer:
+    enabled: true
+
+  replicas: 1
+  rbac:
+    create: false
+  esConfig:
+    elasticsearch.yml: |
+      xpack.security.enabled: false
+      xpack.security.http.ssl.enabled: false
+      cluster.initial_master_nodes: ["elasticsearch-master-0"]
+      xpack.security.authc:
+        anonymous:
+          username: anonymous_user 
+          roles: superuser
+          authz_exception: true
 
 
 ingress:
