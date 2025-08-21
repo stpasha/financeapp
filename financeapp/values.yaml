@@ -299,6 +299,24 @@ elasticsearch:
           roles: superuser
           authz_exception: true
 
+kibana:
+  ingress:
+    enabled: true
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 5601
+  elasticsearch:
+    hosts:
+      - "elasticsearch"
+    port: 9200
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
 
 ingress:
   enabled: true
