@@ -274,6 +274,8 @@ logstash:
 
 
 elasticsearch:
+  image: "elastic/elasticsearch"
+  imagePullPolicy: IfNotPresent
   protocol: http
   createCert: false
   esJavaOpts: "-Xmx1g -Xms1g"
