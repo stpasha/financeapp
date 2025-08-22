@@ -105,7 +105,6 @@ pipeline {
                     sh """
                     echo "Dependency update started"
                     helm repo add bitnami https://raw.githubusercontent.com/bitnami/charts/refs/heads/archive-full-index/bitnami
-                    helm dependency update
                     """
                 }
             }
