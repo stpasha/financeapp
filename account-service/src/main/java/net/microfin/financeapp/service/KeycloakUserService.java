@@ -1,10 +1,10 @@
 package net.microfin.financeapp.service;
 
 import jakarta.ws.rs.core.Response;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
+import net.microfin.financeapp.util.KeycloakProperties;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleMappingResource;
@@ -13,21 +13,23 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class KeycloakUserService {
 
     private final Keycloak keycloak;
     private final UsersResource usersResource;
+    private final KeycloakProperties keycloakProperties;
 
-    @Value("${keycloak.realm}")
-    private String realm;
+    public KeycloakUserService(Keycloak keycloak, UsersResource usersResource, KeycloakProperties keycloakProperties) {
+        this.keycloak = keycloak;
+        this.usersResource = usersResource;
+        this.keycloakProperties = keycloakProperties;
+    }
 
     public UserRepresentation createUser(UserDTO signupFormDTO) {
         log.info("Ready to create user {}", signupFormDTO);
@@ -56,7 +58,7 @@ public class KeycloakUserService {
     }
 
     private void addRealmRoleToUser(String username, String roleName) {
-        RealmResource realmResource = keycloak.realm(realm);
+        RealmResource realmResource = keycloak.realm(keycloakProperties.realm());
         List<UserRepresentation> users = realmResource.users().search(username);
         UserResource userResource =  realmResource.users().get(users.getFirst().getId());
         RoleRepresentation role = realmResource.roles().get(roleName).toRepresentation();

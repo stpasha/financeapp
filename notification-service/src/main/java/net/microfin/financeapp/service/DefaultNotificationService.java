@@ -2,8 +2,6 @@ package net.microfin.financeapp.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.mapper.NotificationMapper;
 import net.microfin.financeapp.producer.UserNotificationProducer;
@@ -18,16 +16,25 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
-@RequiredArgsConstructor
+
 public class DefaultNotificationService implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final UserNotificationProducer userNotificationProducer;
     private final MeterRegistry meterRegistry;
-    @Setter
-    @Value("${testPrometheus:false}")
-    private boolean testPrometheus;
+    private final boolean testPrometheus;
+
+    public DefaultNotificationService(NotificationRepository notificationRepository,
+                                      NotificationMapper notificationMapper,
+                                      UserNotificationProducer userNotificationProducer, MeterRegistry meterRegistry,
+                                      @Value("${testPrometheus:false}") boolean testPrometheus) {
+        this.notificationRepository = notificationRepository;
+        this.notificationMapper = notificationMapper;
+        this.userNotificationProducer = userNotificationProducer;
+        this.meterRegistry = meterRegistry;
+        this.testPrometheus = testPrometheus;
+    }
 
     @Override
     @Transactional

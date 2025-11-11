@@ -2,8 +2,6 @@ package net.microfin.financeapp.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import net.microfin.financeapp.client.DictionaryClient;
 import net.microfin.financeapp.dto.CurrencyDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,13 +12,17 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
-@RequiredArgsConstructor
 public class DictionaryService {
     private final DictionaryClient dictionaryClient;
     private final MeterRegistry meterRegistry;
-    @Value("${testPrometheus:false}")
-    @Setter
-    private boolean testPrometheus;
+    private final boolean testPrometheus;
+
+    public DictionaryService(DictionaryClient dictionaryClient, MeterRegistry meterRegistry,
+                             @Value("${testPrometheus:false}") boolean testPrometheus) {
+        this.dictionaryClient = dictionaryClient;
+        this.meterRegistry = meterRegistry;
+        this.testPrometheus = testPrometheus;
+    }
 
     public List<CurrencyDTO> getCurrencies() {
         Timer.Sample timer = Timer.start(meterRegistry);

@@ -1,8 +1,6 @@
 package net.microfin.financeapp.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.repository.RuleRepository;
@@ -14,15 +12,20 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 @Service
-@RequiredArgsConstructor
 public class DefaultRuleService implements RuleService {
 
     private final RuleRepository ruleRepository;
     private final AccountClientImpl accountClient;
     private final MeterRegistry meterRegistry;
-    @Setter
-    @Value("${testPrometheus:false}")
-    private boolean testPrometheus;
+    private final boolean testPrometheus;
+
+    public DefaultRuleService(RuleRepository ruleRepository, AccountClientImpl accountClient, MeterRegistry meterRegistry,
+                              @Value("${testPrometheus:false}") boolean testPrometheus) {
+        this.ruleRepository = ruleRepository;
+        this.accountClient = accountClient;
+        this.meterRegistry = meterRegistry;
+        this.testPrometheus = testPrometheus;
+    }
 
     @Override
     public boolean checkRulesForOperation(GenericOperationDTO genericOperationDTO) {

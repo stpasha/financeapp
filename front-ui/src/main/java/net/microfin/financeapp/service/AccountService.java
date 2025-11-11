@@ -1,8 +1,6 @@
 package net.microfin.financeapp.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.client.AccountClient;
 import net.microfin.financeapp.client.CashClient;
@@ -20,7 +18,6 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class AccountService {
 
     private final AccountClient accountClient;
@@ -28,9 +25,18 @@ public class AccountService {
     private final ExchangeClient exchangeClient;
     private final TransferClient transferClient;
     private final MeterRegistry meterRegistry;
-    @Setter
-    @Value("${testPrometheus:false}")
-    private boolean testPrometheus;
+    private final boolean testPrometheus;
+
+    public AccountService(AccountClient accountClient, CashClient cashClient, ExchangeClient exchangeClient,
+                          TransferClient transferClient, MeterRegistry meterRegistry,
+                          @Value("${testPrometheus:false}") boolean testPrometheus) {
+        this.accountClient = accountClient;
+        this.cashClient = cashClient;
+        this.exchangeClient = exchangeClient;
+        this.transferClient = transferClient;
+        this.meterRegistry = meterRegistry;
+        this.testPrometheus = testPrometheus;
+    }
 
     public OperationResult createCashOperation(CashOperationDTO dto) {
         ResponseEntity<CashOperationResultDTO> response = cashClient.cashOperation(dto);

@@ -97,22 +97,22 @@ kafka:
         partitions: 10
         replicationFactor: 2
         config:
-          min.insync.replicas: "1"
+          min.insync.replicas: "2"
       - name: input-exchange
         partitions: 1
         replicationFactor: 2
         config:
-          min.insync.replicas: "1"
+          min.insync.replicas: "2"
       - name: user-notification
         partitions: 10
         replicationFactor: 2
         config:
-          min.insync.replicas: "1"
+          min.insync.replicas: "2"
       - name: log-kafka
         partitions: 1
         replicationFactor: 2
         config:
-          min.insync.replicas: "1"
+          min.insync.replicas: "2"
 
 zipkin:
   enabled: true
@@ -304,6 +304,7 @@ elasticsearch:
 kibana:
   ingress:
     enabled: true
+    ingressClassName: nginx
   replicaCount: 1
   service:
     type: ClusterIP
