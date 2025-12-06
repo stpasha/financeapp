@@ -1,3 +1,6 @@
+global:
+  security:
+    allowInsecureImages: true
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
@@ -8,6 +11,8 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 keycloak:
+  image:
+    repository: bitnamilegacy/keycloak
   enabled: true
   postgresql:
     enabled: false
@@ -41,6 +46,8 @@ keycloak:
       value: --import-realm
 
 postgresql:
+  image:
+    repository: bitnamilegacy/postgresql
   enabled: true
   auth:
     enablePostgresUser: true
@@ -57,6 +64,8 @@ postgresql:
       scriptsConfigMap: initdb-scripts
 
 kafka:
+  image:
+    repository: bitnamilegacy/kafka
   enabled: true
   controller:
     replicaCount: 1
@@ -115,6 +124,8 @@ kafka:
           min.insync.replicas: "2"
 
 zipkin:
+  image:
+    repository: bitnamilegacy/zipkin
   enabled: true
   storageType: mem # указываем способ хранения в памяти
   self-tracing:
@@ -126,110 +137,116 @@ zipkin:
 
 
 
-kube-prometheus:
-  prometheus:
-    additionalPrometheusRules:
-      - name: custom-recording-rules
-        groups:
-          - name: first-group
-            rules:
-              - alert: HighFailedTransfers
-                expr: sum(increase(financeapp_failed_transfers_total[5m])) > 10
-                for: 1m
-                labels:
-                  severity: warning
-                annotations:
-                  summary: "High number of failed transfers"
-                  description: "More than 10 failed transfers in 5 minutes"
-              - alert: HighFailedAuditOperations
-                expr: sum(increase(financeapp_failed_audit_total[5m])) > 5
-                for: 1m
-                labels:
-                  severity: critical
-                annotations:
-                  summary: "Suspicious operations blocked frequently"
-                  description: "More than 5 suspicious operations blocked in 5 minutes"
-              - alert: HighFailedNotifications
-                expr: sum(increase(financeapp_failed_notification_total[5m])) > 3
-                for: 1m
-                labels:
-                  severity: warning
-                annotations:
-                  summary: "Notification sending failures"
-                  description: "More than 3 notification sending failures in 5 minutes"
-              - alert: CurrencyRatesNotUpdated
-                expr: rate(financeapp_currency_duration_seconds_count[1m]) == 0
-                for: 1m
-                labels:
-                  severity: critical
-                annotations:
-                  summary: "Currency rates are not being updated"
-                  description: "No currency rate updates in the last 1m"
+prometheus:
+  prometheusSpec:
     additionalScrapeConfigs:
-      enabled: true
-      type: internal
-      internal:
-        jobList:
-          - job_name: 'notification-service'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-notification-service:8088' ]
-                labels:
-                  application: 'notification-service'
+      - job_name: 'notification-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-notification-service:8088' ]
+            labels:
+              application: 'notification-service'
 
-          - job_name: 'account-service'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-account-service:8081' ]
-                labels:
-                  application: 'account-service'
+      - job_name: 'account-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-account-service:8081' ]
+            labels:
+              application: 'account-service'
 
-          - job_name: 'audit-service'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-audit-service:8087' ]
-                labels:
-                  application: 'audit-service'
+      - job_name: 'audit-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-audit-service:8087' ]
+            labels:
+              application: 'audit-service'
 
-          - job_name: 'dictionaries-service'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-dictionaries-service:8083' ]
-                labels:
-                  application: 'dictionaries-service'
+      - job_name: 'dictionaries-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-dictionaries-service:8083' ]
+            labels:
+              application: 'dictionaries-service'
 
-          - job_name: 'front-ui'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-front-ui:8080' ]
-                labels:
-                  application: 'front-ui'
-          - job_name: 'cash-service'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-cash-service:8084' ]
-                labels:
-                  application: 'cash-service'
-          - job_name: 'exchange-service'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-exchange-service:8085' ]
-                labels:
-                  application: 'exchange-service'
-          - job_name: 'transfer-service'
-            metrics_path: '/actuator/prometheus'
-            scrape_interval: 5s
-            static_configs:
-              - targets: [ '{{ .Release.Name }}-transfer-service:8086' ]
-                labels:
-                  application: 'transfer-service'
+      - job_name: 'front-ui'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-front-ui:8080' ]
+            labels:
+              application: 'front-ui'
+
+      - job_name: 'cash-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-cash-service:8084' ]
+            labels:
+              application: 'cash-service'
+
+      - job_name: 'exchange-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-exchange-service:8085' ]
+            labels:
+              application: 'exchange-service'
+
+      - job_name: 'transfer-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [ '{{ .Release.Name }}-transfer-service:8086' ]
+            labels:
+              application: 'transfer-service'
+
+prometheusRule:
+  additionalRules:
+    - name: custom-recording-rules
+      groups:
+        - name: first-group
+          rules:
+            - alert: HighFailedTransfers
+              expr: sum(increase(financeapp_failed_transfers_total[5m])) > 10
+              for: 1m
+              labels:
+                severity: warning
+              annotations:
+                summary: "High number of failed transfers"
+                description: "More than 10 failed transfers in 5 minutes"
+
+            - alert: HighFailedAuditOperations
+              expr: sum(increase(financeapp_failed_audit_total[5m])) > 5
+              for: 1m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Suspicious operations blocked frequently"
+                description: "More than 5 suspicious operations blocked in 5 minutes"
+
+            - alert: HighFailedNotifications
+              expr: sum(increase(financeapp_failed_notification_total[5m])) > 3
+              for: 1m
+              labels:
+                severity: warning
+              annotations:
+                summary: "Notification sending failures"
+                description: "More than 3 notification sending failures in 5 minutes"
+
+            - alert: CurrencyRatesNotUpdated
+              expr: rate(financeapp_currency_duration_seconds_count[1m]) == 0
+              for: 1m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Currency rates are not being updated"
+                description: "No currency rate updates in the last 1m"
+
+
 grafana:
   adminPassword: admin
   service:
@@ -242,6 +259,7 @@ grafana:
       label: grafana_datasource
 
 logstash:
+  enabled: false
   image: "elastic/logstash"
   imageTag: "7.17.3"
   imagePullPolicy: IfNotPresent
@@ -255,13 +273,13 @@ logstash:
           consumer_threads => 1
         }
       }
-      
+
       filter {
         grok {
           match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log-level} \[%{DATA:microservice}\] \[traceId=%{DATA:traceId}, spanId=%{DATA:spanId}\] - %{GREEDYDATA:text}" }
         }
       }
-      
+
       output {
         stdout { codec => rubydebug }
         elasticsearch {
@@ -270,10 +288,10 @@ logstash:
             retry_on_conflict => 3
         }
       }
-  enabled: true
 
 
 elasticsearch:
+  enabled: false
   image: "elastic/elasticsearch"
   imagePullPolicy: IfNotPresent
   protocol: http
@@ -297,11 +315,12 @@ elasticsearch:
       cluster.initial_master_nodes: ["elasticsearch-master-0"]
       xpack.security.authc:
         anonymous:
-          username: anonymous_user 
+          username: anonymous_user
           roles: superuser
           authz_exception: true
 
 kibana:
+  enabled: false
   ingress:
     enabled: true
     ingressClassName: nginx
