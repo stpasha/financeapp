@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.dto.*;
 import net.microfin.financeapp.service.AccountService;
+import net.microfin.financeapp.service.OutboxAccountService;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class AccountApi {
     private final AccountService accountService;
     private final ObjectMapper objectMapper;
     private final ExceptionsProperties exceptionsProperties;
+    private final OutboxAccountService outboxAccountService;
 
 
     @PostMapping
@@ -63,7 +65,7 @@ public class AccountApi {
             }
             default -> throw new RuntimeException(exceptionsProperties.getOperationFailure());
         }
-        return ResponseEntity.ok(accountService.processOperation(genericOperationDTO).orElseGet(() -> EmptyOperationResult.builder().status(OperationStatus.FAILED).message("Unnable to process").build()));
+        return ResponseEntity.ok(outboxAccountService.processOperation(genericOperationDTO).orElseGet(() -> EmptyOperationResult.builder().status(OperationStatus.FAILED).message("Unnable to process").build()));
     }
 
     private <T> T fromJson(String json, Class<T> valueType) {

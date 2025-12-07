@@ -1,7 +1,6 @@
 package net.microfin.financeapp.service;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.AccountClientImpl;
 import net.microfin.financeapp.client.AuditClientImpl;
 import net.microfin.financeapp.domain.CashOperation;

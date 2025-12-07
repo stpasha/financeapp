@@ -12,9 +12,9 @@ import java.util.UUID;
 
 @Repository
 public interface OutboxEventRepository extends JpaRepository <OutboxEvent, UUID> {
-    @Query(value = "SELECT e.* FROM account_info.outbox_events e WHERE e.status = 'PENDING' OR e.status = 'RETRYABLE'", nativeQuery = true)
+    @Query(value = "SELECT e.* FROM account_info.outbox_events e WHERE e.status = 'PENDING' OR e.status = 'RETRYABLE' FOR UPDATE SKIP LOCKED", nativeQuery = true)
     List<OutboxEvent> findOutboxEventByPendingStatus();
-    @Query(value = "SELECT e.* FROM account_info.outbox_events e WHERE e.status = 'FAILED' and e.retry_count < 5 and e.next_attempt_at < :now",
+    @Query(value = "SELECT e.* FROM account_info.outbox_events e WHERE e.status = 'FAILED' and e.retry_count < 5 and e.next_attempt_at < :now FOR UPDATE SKIP LOCKED",
     nativeQuery = true)
     List<OutboxEvent> findRetryableOutboxEvent(@Param("now") LocalDateTime now);
 }

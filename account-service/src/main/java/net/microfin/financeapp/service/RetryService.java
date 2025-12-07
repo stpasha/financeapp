@@ -1,8 +1,8 @@
 package net.microfin.financeapp.service;
 
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.repository.OutboxEventRepository;
@@ -18,7 +18,7 @@ public class RetryService {
 
     private final OutboxEventRepository outboxEventRepository;
 
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleRetry(OutboxEvent outboxEvent, Exception e) {
         outboxEvent.setRetryCount(outboxEvent.getRetryCount() + 1);
         outboxEvent.setLastAttemptAt(LocalDateTime.now());

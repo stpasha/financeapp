@@ -1,0 +1,67 @@
+package net.microfin.financeapp.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.microfin.financeapp.config.ExceptionsProperties;
+import net.microfin.financeapp.domain.OutboxEvent;
+import net.microfin.financeapp.dto.PasswordDTO;
+import net.microfin.financeapp.dto.UserDTO;
+import net.microfin.financeapp.repository.UserRepository;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class OutboxUserService {
+
+    private final UserRepository userRepository;
+    private final KeycloakUserService keycloakUserService;
+    private final ObjectMapper objectMapper;
+    private final ExceptionsProperties exceptionsProperties;
+    private final OutboxService outboxService;
+
+    @Transactional
+    public void processUserCreateEvent(OutboxEvent outboxEvent) {
+        outboxService.registerSynchronization(outboxEvent);
+        UserDTO userDTO = fromJson(outboxEvent.getPayload(), UserDTO.class);
+        UserRepresentation keycloakUser = keycloakUserService.createUser(userDTO);
+        log.info("Keycloak response: {}", keycloakUser);
+        userRepository.findById(userDTO.getId()).map(user -> {
+            user.setEnabled(true);
+            user.setKeycloakId(UUID.fromString(keycloakUser.getId()));
+            userRepository.save(user);
+            log.info("Processed successfully Outbox event result - {} \n userDTO - {}", outboxEvent, userDTO);
+            return user;
+        }).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        outboxService.markSent(outboxEvent);
+    }
+
+    @Transactional
+    public void processChangePasswordEvent(OutboxEvent outboxEvent) {
+        outboxService.registerSynchronization(outboxEvent);
+        PasswordDTO passwordDTO = fromJson(outboxEvent.getPayload(), PasswordDTO.class);
+        userRepository.findById(passwordDTO.getId()).map(user -> {
+            passwordDTO.setKeycloakId(user.getKeycloakId());
+            keycloakUserService.updateUserPassword(passwordDTO);
+            userRepository.save(user);
+            log.info("Processed successfully for password Outbox event result - {}", outboxEvent);
+            return user;
+        }).orElseThrow(() -> new EntityNotFoundException("User not found for password update"));
+        outboxService.markSent(outboxEvent);
+    }
+
+    private <T> T fromJson(String json, Class<T> valueType) {
+        try {
+            return objectMapper.readValue(json, valueType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(exceptionsProperties.getDeserFailure(), e);
+        }
+    }
+}

@@ -1,8 +1,7 @@
 package net.microfin.financeapp.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import jakarta.transaction.Transactional;
-import net.microfin.financeapp.dto.NotificationDTO;
+import org.springframework.transaction.annotation.Transactional;import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.mapper.NotificationMapper;
 import net.microfin.financeapp.producer.UserNotificationProducer;
 import net.microfin.financeapp.repository.NotificationRepository;

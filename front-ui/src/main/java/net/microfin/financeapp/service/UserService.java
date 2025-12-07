@@ -1,7 +1,6 @@
 package net.microfin.financeapp.service;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.client.AccountClient;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UpdateUserDTO;
