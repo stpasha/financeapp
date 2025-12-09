@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class OutboxService {
@@ -20,12 +22,6 @@ public class OutboxService {
         outboxEventRepository.save(event);
     }
 
-    public void markFailed(OutboxEvent event, Exception e) {
-        event.setStatus(OperationStatus.FAILED);
-        outboxEventRepository.save(event);
-    }
-
-
     public void registerSynchronization(OutboxEvent outboxEvent) {
         TransactionSynchronizationManager.registerSynchronization(
                 new TransactionSynchronization() {
@@ -33,14 +29,15 @@ public class OutboxService {
                     @Override
                     public void afterCompletion(int status) {
                         if (status != STATUS_COMMITTED) {
-                            retryService.handleRetry(outboxEvent, new RuntimeException("During process of " +
-                                    outboxEvent.getAggregateType() +
-                                    " " + outboxEvent.getOperationType() +
-                                    " " + outboxEvent.getId()));
+                            retryService.handleRetry(outboxEvent.getId());
                         }
                     }
                 }
         );
+    }
+
+    public Optional<OutboxEvent> findOutboxWithSkipLock(OutboxEvent outboxEvent) {
+        return outboxEventRepository.findByIdForUpdate(outboxEvent.getId());
     }
 
 }

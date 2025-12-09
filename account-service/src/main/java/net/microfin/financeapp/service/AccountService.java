@@ -2,23 +2,25 @@ package net.microfin.financeapp.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.AccType;
 import net.microfin.financeapp.domain.Account;
+import net.microfin.financeapp.domain.IdempotencyRecord;
 import net.microfin.financeapp.domain.OutboxEvent;
-import net.microfin.financeapp.dto.*;
+import net.microfin.financeapp.dto.AccountDTO;
+import net.microfin.financeapp.dto.CashOperationDTO;
+import net.microfin.financeapp.dto.ExchangeOperationDTO;
+import net.microfin.financeapp.dto.TransferOperationDTO;
 import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
-import net.microfin.financeapp.repository.OutboxEventRepository;
 import net.microfin.financeapp.repository.UserRepository;
-import net.microfin.financeapp.util.OperationStatus;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -53,7 +55,6 @@ public class AccountService {
 
     @Transactional
     public void processCashDeposit(OutboxEvent outboxEvent) {
-        outboxService.registerSynchronization(outboxEvent);
         CashOperationDTO cashDeposit = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
         if (outboxEvent.getAccountId() == null) {
             userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
@@ -68,12 +69,10 @@ public class AccountService {
                 return account;
             }).orElseThrow(() -> new RuntimeException("Account not found"));
         }
-        outboxService.markSent(outboxEvent);
     }
 
     @Transactional
     public void processCashWithdraw(OutboxEvent outboxEvent) {
-        outboxService.registerSynchronization(outboxEvent);
         CashOperationDTO cashWithdraw = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
         if (cashWithdraw.getAccountId() == null) {
             throw new RuntimeException("Account not found");
@@ -85,17 +84,17 @@ public class AccountService {
                 account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
                 return accountRepository.save(account);
             }).orElseThrow(() -> new RuntimeException("Account not found"));
-            outboxService.markSent(outboxEvent);
         }
     }
 
     @Transactional
     public void processExchange(OutboxEvent outboxEvent) {
-        outboxService.registerSynchronization(outboxEvent);
         ExchangeOperationDTO exchange = fromJson(outboxEvent.getPayload(), ExchangeOperationDTO.class);
         if (exchange.getSourceAccountId() == null || exchange.getTargetAccountId() == null) {
             throw new RuntimeException("Account not found");
         } else {
+            Account depositAccount = null;
+            Account withdrawAccount = null;
             int max = Math.max(exchange.getSourceAccountId(), exchange.getTargetAccountId());
             Pair<Integer, AccType> firstAccount = Pair.of(
                     max,
@@ -107,26 +106,28 @@ public class AccountService {
                     min == exchange.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
             if(AccType.SOURCE.equals(firstAccount.getRight())) {
-                withdraw(firstAccount.getLeft(), exchange.getAmount());
+                withdrawAccount = withdraw(firstAccount.getLeft(), exchange.getAmount());
             } else {
-                deposit(firstAccount.getLeft(), exchange.getAmount());
+                depositAccount = deposit(firstAccount.getLeft(), exchange.getAmount());
             }
             if(AccType.SOURCE.equals(secondAccount.getRight())) {
-                withdraw(secondAccount.getLeft(), exchange.getAmount());
+                withdrawAccount = withdraw(secondAccount.getLeft(), exchange.getAmount());
             } else {
-                deposit(secondAccount.getLeft(), exchange.getAmount());
+                depositAccount = deposit(secondAccount.getLeft(), exchange.getAmount());
             }
-            outboxService.markSent(outboxEvent);
+
+            accountRepository.saveAll(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
         }
     }
 
     @Transactional
     public void processTransfer(OutboxEvent outboxEvent) {
-        outboxService.registerSynchronization(outboxEvent);
         TransferOperationDTO transfer = fromJson(outboxEvent.getPayload(), TransferOperationDTO.class);
         if (transfer.getSourceAccountId() == null || transfer.getTargetAccountId() == null) {
             throw new RuntimeException("Account not found");
         } else {
+            Account depositAccount = null;
+            Account withdrawAccount = null;
             int max = Math.max(transfer.getSourceAccountId(), transfer.getTargetAccountId());
             Pair<Integer, AccType> firstAccount = Pair.of(
                     max,
@@ -138,28 +139,28 @@ public class AccountService {
                     min == transfer.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
             if(AccType.SOURCE.equals(firstAccount.getRight())) {
-                withdraw(firstAccount.getLeft(), transfer.getAmount());
+                withdrawAccount = withdraw(firstAccount.getLeft(), transfer.getAmount());
             } else {
-                deposit(firstAccount.getLeft(), transfer.getAmount());
+                depositAccount = deposit(firstAccount.getLeft(), transfer.getAmount());
             }
             if(AccType.SOURCE.equals(secondAccount.getRight())) {
-                withdraw(secondAccount.getLeft(), transfer.getAmount());
+                withdrawAccount = withdraw(secondAccount.getLeft(), transfer.getAmount());
             } else {
-                deposit(secondAccount.getLeft(), transfer.getAmount());
+                depositAccount = deposit(secondAccount.getLeft(), transfer.getAmount());
             }
-            outboxService.markSent(outboxEvent);
+            accountRepository.saveAll(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
         }
     }
 
-    private void deposit(Integer transfer, BigDecimal amount) {
-        accountRepository.findByIdForUpdate(transfer).map(account -> {
+    private Account deposit(Integer transfer, BigDecimal amount) {
+        return accountRepository.findByIdForUpdate(transfer).map(account -> {
             account.setBalance(account.getBalance().add(amount));
             return account;
         }).orElseThrow(() -> new RuntimeException("Account not found"));
     }
 
-    private void withdraw(Integer transfer, BigDecimal amount) {
-        accountRepository.findByIdForUpdate(transfer).map(account -> {
+    private Account withdraw(Integer transfer, BigDecimal amount) {
+        return accountRepository.findByIdForUpdate(transfer).map(account -> {
             if (account.getBalance().compareTo(amount) < 0) {
                 throw new RuntimeException("Insufficient funds in the account");
             }

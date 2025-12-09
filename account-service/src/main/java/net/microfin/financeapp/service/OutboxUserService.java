@@ -29,7 +29,6 @@ public class OutboxUserService {
 
     @Transactional
     public void processUserCreateEvent(OutboxEvent outboxEvent) {
-        outboxService.registerSynchronization(outboxEvent);
         UserDTO userDTO = fromJson(outboxEvent.getPayload(), UserDTO.class);
         UserRepresentation keycloakUser = keycloakUserService.createUser(userDTO);
         log.info("Keycloak response: {}", keycloakUser);
@@ -40,12 +39,10 @@ public class OutboxUserService {
             log.info("Processed successfully Outbox event result - {} \n userDTO - {}", outboxEvent, userDTO);
             return user;
         }).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        outboxService.markSent(outboxEvent);
     }
 
     @Transactional
     public void processChangePasswordEvent(OutboxEvent outboxEvent) {
-        outboxService.registerSynchronization(outboxEvent);
         PasswordDTO passwordDTO = fromJson(outboxEvent.getPayload(), PasswordDTO.class);
         userRepository.findById(passwordDTO.getId()).map(user -> {
             passwordDTO.setKeycloakId(user.getKeycloakId());
@@ -54,7 +51,6 @@ public class OutboxUserService {
             log.info("Processed successfully for password Outbox event result - {}", outboxEvent);
             return user;
         }).orElseThrow(() -> new EntityNotFoundException("User not found for password update"));
-        outboxService.markSent(outboxEvent);
     }
 
     private <T> T fromJson(String json, Class<T> valueType) {

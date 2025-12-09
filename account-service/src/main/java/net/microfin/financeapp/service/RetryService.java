@@ -10,6 +10,7 @@ import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,16 +20,19 @@ public class RetryService {
     private final OutboxEventRepository outboxEventRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleRetry(OutboxEvent outboxEvent, Exception e) {
+    public void handleRetry(UUID outboxEventId) {
+        OutboxEvent outboxEvent = outboxEventRepository.findByIdForUpdate(outboxEventId)
+                .orElseThrow(() -> new RuntimeException("OutBox not Found " + outboxEventId));
         outboxEvent.setRetryCount(outboxEvent.getRetryCount() + 1);
         outboxEvent.setLastAttemptAt(LocalDateTime.now());
-        outboxEvent.setNextAttemptAt(LocalDateTime.now().plusMinutes(5));
-        if (outboxEvent.getRetryCount() > 5) {
+        if (outboxEvent.getRetryCount() >= 5) {
             outboxEvent.setStatus(OperationStatus.FAILED);
+            outboxEvent.setNextAttemptAt(null);
         } else {
+            outboxEvent.setNextAttemptAt(LocalDateTime.now().plusMinutes(5L * outboxEvent.getRetryCount()));
             outboxEvent.setStatus(OperationStatus.RETRYABLE);
         }
         outboxEventRepository.save(outboxEvent);
-        log.error("Error occurred for event {}, exception", outboxEvent, e);
+        log.error("Error occurred for event {}, exception", outboxEvent);
     }
 }

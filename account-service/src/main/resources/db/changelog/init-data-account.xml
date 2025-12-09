@@ -198,4 +198,34 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="009" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="idempotency_records" schemaName="account_info"/>
+            </not>
+        </preConditions>
+
+        <createTable schemaName="account_info" tableName="idempotency_records">
+            <column name="outbox_id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex
+                indexName="idx_idempotency_created_at"
+                tableName="idempotency_records"
+                schemaName="account_info">
+            <column name="created_at"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="idempotency_records" schemaName="account_info" cascadeConstraints="true"/>
+        </rollback>
+    </changeSet>
+
+
 </databaseChangeLog>

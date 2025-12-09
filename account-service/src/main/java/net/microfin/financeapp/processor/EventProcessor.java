@@ -1,5 +1,9 @@
 package net.microfin.financeapp.processor;
 
+import net.microfin.financeapp.domain.IdempotencyRecord;
+import net.microfin.financeapp.service.IdempotencyService;
+import net.microfin.financeapp.service.OutboxService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.domain.OutboxEvent;
@@ -12,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Component
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", havingValue = "true", matchIfMissing = true)
@@ -21,46 +26,63 @@ public class EventProcessor {
     private final OutboxEventRepository outboxEventRepository;
     private final AccountService accountService;
     private final OutboxUserService outboxUserService;
+    private final IdempotencyService idempotencyService;
+    private final OutboxService outboxService;
+    public static final int TTL = 7;
+
+
 
     @Scheduled(fixedDelay = 5000)
     public void process() {
-        for (OutboxEvent outboxEvent : outboxEventRepository.findOutboxEventByPendingStatus()) {
-            switch (outboxEvent.getOperationType()) {
+        for (OutboxEvent outboxEvent : outboxEventRepository.findOutboxEventByPendingStatus(Pageable.ofSize(1000))) {
+            processSingleEvent(outboxEvent);
+        }
+    }
+
+    @Transactional
+    private void processSingleEvent(OutboxEvent outboxEvent) {
+        if (!idempotencyService.tryStart(IdempotencyRecord.builder()
+                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().plusDays(TTL))
+                .outboxId(outboxEvent.getId())
+                .build())
+        ) {
+            return;
+        }
+        Optional<OutboxEvent> outboxWithScipLock = outboxService.findOutboxWithSkipLock(outboxEvent);
+        outboxWithScipLock.ifPresent(outbox -> {
+            outboxService.registerSynchronization(outbox);
+            switch (outbox.getOperationType()) {
                 case OperationType.USER_CREATED -> {
-                    outboxUserService.processUserCreateEvent(outboxEvent);
+                    outboxUserService.processUserCreateEvent(outbox);
                 }
                 case OperationType.PASSWORD_CHANGED -> {
-                    outboxUserService.processChangePasswordEvent(outboxEvent);
+                    outboxUserService.processChangePasswordEvent(outbox);
                 }
                 case OperationType.CASH_DEPOSIT -> {
-                    accountService.processCashDeposit(outboxEvent);
+                    accountService.processCashDeposit(outbox);
                 }
                 case OperationType.CASH_WITHDRAWAL -> {
-                    accountService.processCashWithdraw(outboxEvent);
+                    accountService.processCashWithdraw(outbox);
                 }
                 case OperationType.EXCHANGE -> {
-                    accountService.processExchange(outboxEvent);
+                    accountService.processExchange(outbox);
                 }
                 case OperationType.TRANSFER -> {
-                    accountService. processTransfer(outboxEvent);
+                    accountService. processTransfer(outbox);
                 }
             }
-        }
+            outboxService.markSent(outbox);
+        });
+
     }
 
 
     @Scheduled(fixedDelay = 15000)
     @Transactional
     public void processErrorEvents() {
-        for (OutboxEvent outboxEvent : outboxEventRepository.findRetryableOutboxEvent(LocalDateTime.now())) {
-            switch (outboxEvent.getOperationType()) {
-                case OperationType.USER_CREATED -> {
-                    outboxUserService.processUserCreateEvent(outboxEvent);
-                }
-                case OperationType.PASSWORD_CHANGED -> {
-                    outboxUserService.processChangePasswordEvent(outboxEvent);
-                }
-            }
+        for (OutboxEvent outboxEvent : outboxEventRepository.findRetryableOutboxEvent(LocalDateTime.now(), Pageable.ofSize(1000))) {
+            processSingleEvent(outboxEvent);
         }
     }
 
