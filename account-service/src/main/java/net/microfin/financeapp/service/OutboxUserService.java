@@ -3,6 +3,8 @@ package net.microfin.financeapp.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Validator;
+import net.microfin.financeapp.exception.InvalidPayloadException;
 import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.config.ExceptionsProperties;
@@ -25,11 +27,15 @@ public class OutboxUserService {
     private final KeycloakUserService keycloakUserService;
     private final ObjectMapper objectMapper;
     private final ExceptionsProperties exceptionsProperties;
-    private final OutboxService outboxService;
+    private final Validator validator;
 
     @Transactional
     public void processUserCreateEvent(OutboxEvent outboxEvent) {
         UserDTO userDTO = fromJson(outboxEvent.getPayload(), UserDTO.class);
+        var violations = validator.validate(userDTO);
+        if (!violations.isEmpty()) {
+            throw new InvalidPayloadException(violations.toString());
+        }
         UserRepresentation keycloakUser = keycloakUserService.createUser(userDTO);
         log.info("Keycloak response: {}", keycloakUser);
         userRepository.findById(userDTO.getId()).map(user -> {
@@ -44,6 +50,10 @@ public class OutboxUserService {
     @Transactional
     public void processChangePasswordEvent(OutboxEvent outboxEvent) {
         PasswordDTO passwordDTO = fromJson(outboxEvent.getPayload(), PasswordDTO.class);
+        var violations = validator.validate(passwordDTO);
+        if (!violations.isEmpty()) {
+            throw new InvalidPayloadException(violations.toString());
+        }
         userRepository.findById(passwordDTO.getId()).map(user -> {
             passwordDTO.setKeycloakId(user.getKeycloakId());
             keycloakUserService.updateUserPassword(passwordDTO);
@@ -57,7 +67,7 @@ public class OutboxUserService {
         try {
             return objectMapper.readValue(json, valueType);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(exceptionsProperties.getDeserFailure(), e);
+            throw new InvalidPayloadException(exceptionsProperties.getDeserFailure(), e);
         }
     }
 }

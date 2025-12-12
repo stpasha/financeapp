@@ -49,6 +49,8 @@ exceptions:
   passEditFailure: ${EXCEPTIONS_PASS_EDIT_FAILURE:Password is not updated}
 scheduler:
   enabled: ${SCHEDULER_ENABLED:true}
+  ttl:
+    idempotency: 50
 management:
   zipkin:
     tracing:

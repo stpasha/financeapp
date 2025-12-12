@@ -4,5 +4,6 @@ public enum OperationStatus {
     PENDING,
     SENT,
     RETRYABLE,
-    FAILED
+    FAILED,
+    PROCESSING
 }

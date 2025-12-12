@@ -5,18 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.AccType;
 import net.microfin.financeapp.domain.Account;
-import net.microfin.financeapp.domain.IdempotencyRecord;
 import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.TransferOperationDTO;
+import net.microfin.financeapp.exception.AccountNotFoundException;
+import net.microfin.financeapp.exception.InsufficientFundsException;
+import net.microfin.financeapp.exception.InvalidPayloadException;
 import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.UserRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.validation.Validator;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,7 +33,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final UserRepository userRepository;
-    private final OutboxService outboxService;
+    private final Validator validator;
     private final ObjectMapper objectMapper;
 
     public List<AccountDTO> getAccountsByUserId(Integer userId) {
@@ -43,6 +46,10 @@ public class AccountService {
 
     @Transactional
     public Optional<AccountDTO> createAccount(AccountDTO accountDTO) {
+        var violations = validator.validate(accountDTO);
+        if (!violations.isEmpty()) {
+            throw new InvalidPayloadException(violations.toString());
+        }
         Account account = accountMapper.toEntity(accountDTO);
         Account saved = accountRepository.save(account);
         return Optional.of(accountMapper.toDto(saved));
@@ -56,6 +63,10 @@ public class AccountService {
     @Transactional
     public void processCashDeposit(OutboxEvent outboxEvent) {
         CashOperationDTO cashDeposit = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
+        var violations = validator.validate(cashDeposit);
+        if (!violations.isEmpty()) {
+            throw new InvalidPayloadException(violations.toString());
+        }
         if (outboxEvent.getAccountId() == null) {
             userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
                     .active(true)
@@ -67,23 +78,27 @@ public class AccountService {
             accountRepository.findByIdForUpdate(cashDeposit.getAccountId()).map(account -> {
                 account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
                 return account;
-            }).orElseThrow(() -> new RuntimeException("Account not found"));
+            }).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashDeposit.getAccountId()));
         }
     }
 
     @Transactional
     public void processCashWithdraw(OutboxEvent outboxEvent) {
         CashOperationDTO cashWithdraw = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
+        var violations = validator.validate(cashWithdraw);
+        if (!violations.isEmpty()) {
+            throw new InvalidPayloadException(violations.toString());
+        }
         if (cashWithdraw.getAccountId() == null) {
-            throw new RuntimeException("Account not found");
+            throw new AccountNotFoundException("Account not found" + cashWithdraw.getAccountId());
         } else {
             accountRepository.findByIdForUpdate(cashWithdraw.getAccountId()).map(account -> {
                 if (account.getBalance().compareTo(cashWithdraw.getAmount()) < 0) {
-                    throw new RuntimeException("Insufficient funds in the account");
+                    throw new InsufficientFundsException("Insufficient funds in the account" + account.getId());
                 }
                 account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
                 return accountRepository.save(account);
-            }).orElseThrow(() -> new RuntimeException("Account not found"));
+            }).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashWithdraw.getAccountId()));
         }
     }
 
@@ -91,10 +106,18 @@ public class AccountService {
     public void processExchange(OutboxEvent outboxEvent) {
         ExchangeOperationDTO exchange = fromJson(outboxEvent.getPayload(), ExchangeOperationDTO.class);
         if (exchange.getSourceAccountId() == null || exchange.getTargetAccountId() == null) {
-            throw new RuntimeException("Account not found");
+            throw new AccountNotFoundException("Account not found" + exchange.getSourceAccountId() + " " + exchange.getTargetAccountId());
         } else {
+            var violations = validator.validate(exchange);
+            if (!violations.isEmpty()) {
+                throw new InvalidPayloadException(violations.toString());
+            }
             Account depositAccount = null;
             Account withdrawAccount = null;
+            if (exchange.getSourceAccountId().equals(exchange.getTargetAccountId())) {
+                throw new IllegalArgumentException("Source and target account cannot be the same");
+            }
+
             int max = Math.max(exchange.getSourceAccountId(), exchange.getTargetAccountId());
             Pair<Integer, AccType> firstAccount = Pair.of(
                     max,
@@ -116,6 +139,11 @@ public class AccountService {
                 depositAccount = deposit(secondAccount.getLeft(), exchange.getAmount());
             }
 
+            if (firstAccount.getRight() == secondAccount.getRight()) {
+                throw new IllegalStateException("Both accounts have same role (SOURCE/SOURCE or TARGET/TARGET)");
+            }
+
+
             accountRepository.saveAll(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
         }
     }
@@ -124,10 +152,19 @@ public class AccountService {
     public void processTransfer(OutboxEvent outboxEvent) {
         TransferOperationDTO transfer = fromJson(outboxEvent.getPayload(), TransferOperationDTO.class);
         if (transfer.getSourceAccountId() == null || transfer.getTargetAccountId() == null) {
-            throw new RuntimeException("Account not found");
+            throw new AccountNotFoundException("Account not found" + transfer.getSourceAccountId() + " " + transfer.getTargetAccountId());
         } else {
+            var violations = validator.validate(transfer);
+            if (!violations.isEmpty()) {
+                throw new InvalidPayloadException(violations.toString());
+            }
             Account depositAccount = null;
             Account withdrawAccount = null;
+
+            if (transfer.getSourceAccountId().equals(transfer.getTargetAccountId())) {
+                throw new IllegalArgumentException("Source and target account cannot be the same");
+            }
+
             int max = Math.max(transfer.getSourceAccountId(), transfer.getTargetAccountId());
             Pair<Integer, AccType> firstAccount = Pair.of(
                     max,
@@ -148,6 +185,11 @@ public class AccountService {
             } else {
                 depositAccount = deposit(secondAccount.getLeft(), transfer.getAmount());
             }
+
+            if (firstAccount.getRight() == secondAccount.getRight()) {
+                throw new IllegalStateException("Both accounts have same role (SOURCE/SOURCE or TARGET/TARGET)");
+            }
+
             accountRepository.saveAll(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
         }
     }
@@ -156,24 +198,24 @@ public class AccountService {
         return accountRepository.findByIdForUpdate(transfer).map(account -> {
             account.setBalance(account.getBalance().add(amount));
             return account;
-        }).orElseThrow(() -> new RuntimeException("Account not found"));
+        }).orElseThrow(() -> new AccountNotFoundException("Account not found" + transfer));
     }
 
     private Account withdraw(Integer transfer, BigDecimal amount) {
         return accountRepository.findByIdForUpdate(transfer).map(account -> {
             if (account.getBalance().compareTo(amount) < 0) {
-                throw new RuntimeException("Insufficient funds in the account");
+                throw new InsufficientFundsException("Insufficient funds in the account" + transfer);
             }
             account.setBalance(account.getBalance().subtract(amount));
             return account;
-        }).orElseThrow(() -> new RuntimeException("Account not found"));
+        }).orElseThrow(() -> new AccountNotFoundException("Account not found" + transfer));
     }
 
     private <T> T fromJson(String json, Class<T> valueType) {
         try {
             return objectMapper.readValue(json, valueType);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Cannot deserialize payload", e);
+            throw new InvalidPayloadException("Cannot deserialize payload", e);
         }
     }
 

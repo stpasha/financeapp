@@ -21,7 +21,7 @@ public class RetryService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleRetry(UUID outboxEventId) {
-        OutboxEvent outboxEvent = outboxEventRepository.findByIdForUpdate(outboxEventId)
+        OutboxEvent outboxEvent = outboxEventRepository.findByIdForUpdateSkipLocked(outboxEventId)
                 .orElseThrow(() -> new RuntimeException("OutBox not Found " + outboxEventId));
         outboxEvent.setRetryCount(outboxEvent.getRetryCount() + 1);
         outboxEvent.setLastAttemptAt(LocalDateTime.now());
