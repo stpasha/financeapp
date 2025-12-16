@@ -12,23 +12,15 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "users", schema = "account_info")
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq_gen")
-    @SequenceGenerator(schema = "account_info",
-            name = "user_id_seq_gen",
-            sequenceName = "user_id_seq",
-            allocationSize = 1
-    )
-    @EqualsAndHashCode.Include
-    @Column(name = "user_id")
-    private Integer id;
+@AttributeOverride(
+        name = "id",
+        column = @Column(name = "user_id", nullable = false, updatable = false)
+)
+public class User extends BaseEntity {
     @Column(name = "keycloak_id")
     private UUID keycloakId;
-    @EqualsAndHashCode.Include
     @Column(name = "user_name", nullable = false, unique = true, updatable = false)
     private String username;
     @Column(name = "full_name", nullable = false)

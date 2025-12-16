@@ -36,7 +36,7 @@ public class CashOperation {
     private Integer userId;
     @Column(name = "currency_code", nullable = false, length = 3)
     private String currencyCode;
-    @Column(name = "amount", nullable = false, precision = 12, scale = 2)
+    @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
     @Column(name = "created_at")
     private LocalDateTime createdAt;

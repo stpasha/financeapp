@@ -30,9 +30,9 @@ public class Rule {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "operation_type")
     private OperationType operationType;
-    @Column(nullable = false, name = "min_amount")
+    @Column(nullable = false, name = "min_amount", precision = 19, scale = 2)
     private BigDecimal minAmount;
-    @Column(nullable = false, name = "max_amount")
+    @Column(nullable = false, name = "max_amount", precision = 19, scale = 2)
     private BigDecimal maxAmount;
     @Enumerated(EnumType.STRING)
     @Column(name = "currency_code", nullable = false, length = 3)

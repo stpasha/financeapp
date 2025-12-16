@@ -27,7 +27,7 @@ public class IdempotencyService {
         try {
             idempotencyRecordRepository.save(idempotencyRecord);
         } catch (DataIntegrityViolationException e) {
-            log.warn("Idempotency record already exists for event {}", idempotencyRecord.getOutboxId());
+            log.warn("Idempotency record already exists for event {}", idempotencyRecord.getId());
             return false;
         }
         return true;

@@ -66,6 +66,12 @@ public class ServiceTest extends AbstractTest {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private OutboxUserService outboxUserService;
+    @Autowired
+    private IdempotencyService idempotencyService;
+    @Autowired
+    private OutboxService outboxService;
 
 
     @Autowired
@@ -302,33 +308,35 @@ public class ServiceTest extends AbstractTest {
     @Nested
     public class EventProcessorUnitTest {
 
-        private OutboxEventRepository outboxEventRepository = mock(OutboxEventRepository.class);
-        private UserRepository userRepository = mock(UserRepository.class);
-        private AccountRepository accountRepository = mock(AccountRepository.class);
-        private KeycloakUserService keycloakUserService = mock(KeycloakUserService.class);
-        private RetryService retryService = mock(RetryService.class);
-        private ObjectMapper objectMapper = mock(ObjectMapper.class);
-
         private EventProcessor processor;
+        Map<String,>
 
-//        @BeforeEach
-//        void setUp() {
-//            processor = new EventProcessor(
-//                    outboxEventRepository,
-//                    userRepository,
-//                    accountRepository,
-//                    keycloakUserService,
-//                    retryService,
-//                    objectMapper
-//            );
-//        }
+        @BeforeEach
+        void setUp() {
+            processor = new EventProcessor(accountService, outboxUserService, idempotencyService, outboxService);
+            User testUser = new User();
+            testUser.setUsername("user1");
+            testUser.setFullName("Test User");
+            testUser.setEnabled(true);
+            testUser.setKeycloakId(UUID.randomUUID());
+            testUser.setDob(LocalDateTime.now().minusYears(20L));
+            User savedUser = userRepository.save(testUser);
+            Account accountFirst = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
+            Account savedAccount = accountRepository.save(accountFirst);
+        }
 
         @Test
         void processUserCreatedEvent_success() throws Exception {
-            Integer userId = 1;
-            OutboxEvent event = new OutboxEvent();
-            event.setOperationType(OperationType.USER_CREATED);
-            event.setPayload("{}");
+            Integer userId = 99;
+            UUID eventId = UUID.randomUUID();
+            OutboxEvent event = OutboxEvent.builder()
+                    .aggregateId(accountId)
+                    .accountId(accountId)
+                    .aggregateType("ACCOUNT")
+                    .operationType(operationDTO.getOperationType())
+                    .payload(objectMapper.writeValueAsString(operationDTO))
+                    .build();
+
 
             UserDTO dto = new UserDTO();
             dto.setId(userId);
@@ -339,9 +347,10 @@ public class ServiceTest extends AbstractTest {
             UserRepresentation representation = new UserRepresentation();
             representation.setId(UUID.randomUUID().toString());
 
-            when(objectMapper.readValue(anyString(), eq(UserDTO.class))).thenReturn(dto);
-            when(keycloakUserService.createUser(dto)).thenReturn(representation);
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+//            when(objectMapper.readValue(anyString(), eq(UserDTO.class))).thenReturn(dto);
+//            when(keycloakUserService.createUser(dto)).thenReturn(representation);
+//            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(outboxService.findOutboxWithSkipLock(eventId)).thenReturn(Optional.of(event));
             Method method = EventProcessor.class.getDeclaredMethod("processUserCreateEvent", OutboxEvent.class);
             method.setAccessible(true);
             method.invoke(processor, event);

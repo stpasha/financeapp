@@ -4,33 +4,15 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-
-    <!-- Create user_id sequence -->
-    <changeSet id="002" author="nomatter">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <sequenceExists sequenceName="user_id_seq" schemaName="account_info" />
-            </not>
-        </preConditions>
-        <createSequence
-                sequenceName="user_id_seq"
-                schemaName="account_info"
-                startValue="3"
-                incrementBy="1"/>
-        <rollback>
-            <dropSequence sequenceName="user_id_seq" schemaName="account_info"/>
-        </rollback>
-    </changeSet>
-
     <!-- Create users table -->
-    <changeSet id="003" author="nomatter">
+    <changeSet id="001" author="nomatter">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="users" schemaName="account_info" />
             </not>
         </preConditions>
         <createTable schemaName="account_info" tableName="users">
-            <column name="user_id" type="INTEGER">
+            <column name="user_id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="keycloak_id" type="UUID">
@@ -46,48 +28,35 @@
             <column name="is_enabled" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
-
-        <addAutoIncrement tableName="users" columnName="user_id" schemaName="account_info"
-                          sequenceName="user_id_seq" />
 
         <rollback>
             <dropTable tableName="users" schemaName="account_info" cascadeConstraints="true"/>
         </rollback>
     </changeSet>
 
-    <!-- Create account_id sequence -->
-    <changeSet id="004" author="nomatter">
-        <preConditions>
-            <not>
-                <sequenceExists sequenceName="account_id_seq" schemaName="account_info"/>
-            </not>
-        </preConditions>
-        <createSequence
-                sequenceName="account_id_seq"
-                schemaName="account_info"
-                startValue="3"
-                incrementBy="1"/>
-        <rollback>
-            <dropSequence sequenceName="account_id_seq" schemaName="account_info"/>
-        </rollback>
-    </changeSet>
 
     <!-- Create accounts table -->
-    <changeSet id="005" author="nomatter">
+    <changeSet id="002" author="nomatter">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="accounts" schemaName="account_info" />
             </not>
         </preConditions>
         <createTable schemaName="account_info" tableName="accounts">
-            <column name="account_id" type="INTEGER">
+            <column name="account_id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="INTEGER">
+            <column name="user_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="balance" type="DECIMAL(12,2)">
+            <column name="balance" type="DECIMAL(19,2)">
                 <constraints nullable="false"/>
             </column>
             <column name="currency_code" type="VARCHAR(3)">
@@ -96,16 +65,20 @@
             <column name="is_active" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
-        <addAutoIncrement tableName="accounts" columnName="account_id" schemaName="account_info"
-                          sequenceName="account_id_seq" />
         <rollback>
             <dropTable tableName="accounts" schemaName="account_info" cascadeConstraints="true"/>
         </rollback>
     </changeSet>
 
     <!-- Add foreign key to accounts.user_id -->
-    <changeSet id="006" author="nomatter">
+    <changeSet id="003" author="nomatter">
         <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_accounts_user" schemaName="account_info"/>
@@ -125,7 +98,7 @@
     </changeSet>
 
     <!-- Create index on accounts.user_id -->
-    <changeSet id="007" author="nomatter">
+    <changeSet id="004" author="nomatter">
         <preConditions>
             <not>
                 <indexExists schemaName="account_info" indexName="accounts_idx_user_id" tableName="accounts" columnNames="user_id"/>
@@ -142,7 +115,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="008" author="nomatter">
+    <changeSet id="005" author="nomatter">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="outbox_events" schemaName="account_info"/>
@@ -150,15 +123,15 @@
         </preConditions>
 
         <createTable schemaName="account_info" tableName="outbox_events">
-            <column name="id" type="UUID">
+            <column name="outbox_id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="aggregate_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="account_id" type="INTEGER">
+            <column name="account_id" type="UUID">
             </column>
-            <column name="aggregate_id" type="INTEGER">
+            <column name="aggregate_id" type="UUID">
             </column>
             <column name="operation_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -210,8 +183,11 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
                 <constraints nullable="false"/>
+            </column>
+            <column name="expire_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="true"/>
             </column>
         </createTable>
 

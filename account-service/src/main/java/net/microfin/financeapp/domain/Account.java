@@ -8,31 +8,24 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @Entity
 @Builder
 @Table(name = "accounts", schema = "account_info")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
-    @EqualsAndHashCode.Include
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_id_seq_gen")
-    @SequenceGenerator(schema = "account_info",
-            name = "account_id_seq_gen",
-            sequenceName = "account_id_seq",
-            allocationSize = 1
-    )
-    @Column(name = "account_id", nullable = false)
-    private Integer id;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+@AttributeOverride(
+        name = "id",
+        column = @Column(name = "account_id", nullable = false, updatable = false)
+)
+public class Account extends BaseEntity {
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @Column(name = "balance", nullable = false, scale = 2)
+    @Column(name = "balance", nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
     @Enumerated(EnumType.STRING)
     @Column(name = "currency_code", nullable = false)
     private Currency currencyCode;
     @Column(name = "is_active", nullable = false)
-    private Boolean active;
+    private boolean active;
 }

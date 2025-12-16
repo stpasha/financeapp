@@ -45,7 +45,7 @@ public class ExchangeOperation {
     private Integer targetAccountId;
     @Column(name = "source_account_id", nullable = false)
     private Integer sourceAccountId;
-    @Column(name = "amount", nullable = false, precision = 12, scale = 2)
+    @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
