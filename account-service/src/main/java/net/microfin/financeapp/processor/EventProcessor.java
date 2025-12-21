@@ -35,7 +35,7 @@ public class EventProcessor {
         if (!idempotencyService.tryStart(IdempotencyRecord.builder()
                 .createdAt(LocalDateTime.now())
                 .expireAt(LocalDateTime.now().plusDays(TTL))
-                .id(uuid)
+                .outboxId(uuid)
                 .build())
         ) {
             return;

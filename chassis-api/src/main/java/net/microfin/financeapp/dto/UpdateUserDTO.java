@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @EqualsAndHashCode
 @Getter
@@ -20,7 +21,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UpdateUserDTO {
     @EqualsAndHashCode.Include
-    private Integer id;
+    private UUID id;
     @Size(max = 25, min = 5, message = "Фамилия Имя должны быть от 5 до 25 символов")
     @NotNull
     private String fullName;

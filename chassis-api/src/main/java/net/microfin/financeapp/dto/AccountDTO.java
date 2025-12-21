@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class AccountDTO {
     @EqualsAndHashCode.Include
-    private Integer id;
+    private UUID id;
     private UserDTO user;
     @NotNull
     @DecimalMin(value = "0.00", inclusive = true)

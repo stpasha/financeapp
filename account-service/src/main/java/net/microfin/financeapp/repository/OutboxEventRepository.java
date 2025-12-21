@@ -39,7 +39,7 @@ public interface OutboxEventRepository extends JpaRepository <OutboxEvent, UUID>
     List<UUID> findRetryableOutboxEvent(@Param("now") LocalDateTime now, @Param("limit") int limit);
 
     @Query(
-            value = "SELECT * FROM account_info.outbox_events e WHERE e.id = :id FOR UPDATE SKIP LOCKED",
+            value = "SELECT * FROM account_info.outbox_events e WHERE e.outbox_id = :id FOR UPDATE SKIP LOCKED",
             nativeQuery = true
     )
     Optional<OutboxEvent> findByIdForUpdateSkipLocked(@Param("id") UUID id);

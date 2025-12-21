@@ -24,6 +24,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -77,8 +78,8 @@ public class ControllerIT extends AbstractTest {
         @Test
         void testPerformCashDepositOperation() throws Exception {
             CashOperationDTO cash = CashOperationDTO.builder()
-                    .accountId(1)
-                    .userId(1)
+                    .accountId(UUID.randomUUID())
+                    .userId(UUID.randomUUID())
                     .operationType(OperationType.CASH_DEPOSIT)
                     .currencyCode(Currency.USD)
                     .amount(BigDecimal.valueOf(500))
@@ -102,9 +103,9 @@ public class ControllerIT extends AbstractTest {
         @Test
         void testPerformExchangeOperation() throws Exception {
             ExchangeOperationDTO exchange = ExchangeOperationDTO.builder()
-                    .sourceAccountId(1)
-                    .targetAccountId(2)
-                    .userId(1)
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
+                    .userId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(100))
                     .operationType(OperationType.EXCHANGE)
                     .status(OperationStatus.SENT)
@@ -128,9 +129,9 @@ public class ControllerIT extends AbstractTest {
         @Test
         void testPerformTransferOperation() throws Exception {
             TransferOperationDTO transfer = TransferOperationDTO.builder()
-                    .sourceAccountId(1)
-                    .targetAccountId(2)
-                    .userId(1)
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
+                    .userId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(200))
                     .operationType(OperationType.TRANSFER)
                     .status(OperationStatus.SENT)

@@ -14,6 +14,7 @@ import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -24,16 +25,16 @@ import java.time.LocalDateTime;
 public class TransferOperationDTO implements GenericOperationDTO {
 
     @EqualsAndHashCode.Include
-    private Integer id;
+    private UUID id;
 
     @NotNull
-    private Integer userId;
+    private UUID userId;
 
     @NotNull
-    private Integer targetAccountId;
+    private UUID targetAccountId;
 
     @NotNull
-    private Integer sourceAccountId;
+    private UUID sourceAccountId;
 
     @NotNull
     @DecimalMin(value = "0.00", inclusive = false, message = "Amount must be positive")

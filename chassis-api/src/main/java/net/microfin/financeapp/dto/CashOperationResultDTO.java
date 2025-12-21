@@ -5,6 +5,7 @@ import lombok.*;
 import net.microfin.financeapp.util.OperationStatus;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 public class CashOperationResultDTO implements OperationResult {
     @EqualsAndHashCode.Include
     @NotNull
-    private Integer operationId;
+    private UUID operationId;
     @NotNull
     private BigDecimal newBalance;
     @NotNull

@@ -10,6 +10,7 @@ import net.microfin.financeapp.util.OperationStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class OutboxAccountService {
 
     @Transactional
     public Optional<OperationResult> processOperation(GenericOperationDTO operationDTO) {
-        Integer accountId = null;
+        UUID accountId = null;
         OperationResult result;
         result = TransferOperationResultDTO.builder()
                 .operationId(operationDTO.getId())
@@ -35,7 +36,7 @@ public class OutboxAccountService {
     }
 
 
-    private void saveOutboxEvent(Integer accountId, GenericOperationDTO operationDTO) {
+    private void saveOutboxEvent(UUID accountId, GenericOperationDTO operationDTO) {
         try {
             OutboxEvent event = OutboxEvent.builder()
                     .aggregateId(operationDTO.getId())

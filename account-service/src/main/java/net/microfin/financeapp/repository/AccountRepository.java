@@ -12,17 +12,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Integer> {
-    List<Account> findAccountsByUserId(Integer userId);
+public interface AccountRepository extends JpaRepository<Account, UUID> {
+    List<Account> findAccountsByUserId(UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Account a WHERE a.id = :id")
-    Optional<Account> findByIdForUpdate(@Param("id") Integer id);
+    Optional<Account> findByIdForUpdate(@Param("id") UUID id);
 
     @Modifying
     @Query("UPDATE Account a SET a.active = false WHERE a.id = :id")
     void disableAccount(@Param("id") Integer accountId);
-    Optional<Account> findByCurrencyCodeAndUserId(Currency currencyCode, Integer userId);
+    Optional<Account> findByCurrencyCodeAndUserId(Currency currencyCode, UUID userId);
 }

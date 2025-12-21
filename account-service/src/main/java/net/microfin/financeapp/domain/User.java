@@ -3,7 +3,7 @@ package net.microfin.financeapp.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +26,7 @@ public class User extends BaseEntity {
     @Column(name = "full_name", nullable = false)
     private String fullName;
     @Column
-    private LocalDateTime dob;
+    private LocalDate dob;
     @OneToMany(mappedBy = "user")
     private List<Account> accounts;
     @Column(name = "is_enabled", nullable = false)

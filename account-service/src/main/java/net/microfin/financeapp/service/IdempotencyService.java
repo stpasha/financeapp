@@ -12,13 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class IdempotencyService {
     private final IdempotencyRecordRepository idempotencyRecordRepository;
-    private Long ttlDays;
+    private final Long ttlDays;
 
-    public IdempotencyService(IdempotencyRecordRepository idempotencyRecordRepository,@Value("${spring.scheduler.ttl.idempotency:30}") Long ttlDays) {
+    public IdempotencyService(IdempotencyRecordRepository idempotencyRecordRepository, @Value("${spring.scheduler.ttl.idempotency:30}") Long ttlDays) {
         this.idempotencyRecordRepository = idempotencyRecordRepository;
         this.ttlDays = ttlDays;
     }
@@ -27,7 +26,7 @@ public class IdempotencyService {
         try {
             idempotencyRecordRepository.save(idempotencyRecord);
         } catch (DataIntegrityViolationException e) {
-            log.warn("Idempotency record already exists for event {}", idempotencyRecord.getId());
+            log.warn("Idempotency record already exists for event {}", idempotencyRecord.getOutboxId());
             return false;
         }
         return true;

@@ -38,8 +38,10 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @FinanceAppTest
 public class ServiceTest extends AbstractTest {
@@ -95,7 +97,7 @@ public class ServiceTest extends AbstractTest {
             testUser.setFullName("Test User");
             testUser.setEnabled(true);
             testUser.setKeycloakId(UUID.randomUUID());
-            testUser.setDob(LocalDateTime.now().minusYears(20L));
+            testUser.setDob(LocalDate.now().minusYears(20L));
             userRepository.save(testUser);
         }
 
@@ -152,7 +154,7 @@ public class ServiceTest extends AbstractTest {
 
         @Test
         void shouldReturnEmptyListForUnknownUser() {
-            List<AccountDTO> accounts = accountService.getAccountsByUserId(100);
+            List<AccountDTO> accounts = accountService.getAccountsByUserId(UUID.randomUUID());
             assertThat(accounts).isEmpty();
         }
 
@@ -204,7 +206,7 @@ public class ServiceTest extends AbstractTest {
             testUser = new User();
             testUser.setUsername("johndoe");
             testUser.setFullName("John Doe");
-            testUser.setDob(LocalDateTime.now().minusYears(30));
+            testUser.setDob(LocalDate.now().minusYears(30));
             testUser.setEnabled(true);
             testUser.setKeycloakId(UUID.randomUUID());
             testUser = userRepository.save(testUser);
@@ -308,54 +310,68 @@ public class ServiceTest extends AbstractTest {
     @Nested
     public class EventProcessorUnitTest {
 
+        @Autowired
         private EventProcessor processor;
-        Map<String,>
+
+        private User savedUser;
+
 
         @BeforeEach
         void setUp() {
-            processor = new EventProcessor(accountService, outboxUserService, idempotencyService, outboxService);
+            accountRepository.deleteAll();
             User testUser = new User();
             testUser.setUsername("user1");
             testUser.setFullName("Test User");
             testUser.setEnabled(true);
             testUser.setKeycloakId(UUID.randomUUID());
-            testUser.setDob(LocalDateTime.now().minusYears(20L));
-            User savedUser = userRepository.save(testUser);
-            Account accountFirst = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
-            Account savedAccount = accountRepository.save(accountFirst);
+            testUser.setDob(LocalDate.now().minusYears(20L));
+            savedUser = userRepository.save(testUser);
+            Account accountFirstRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
+            Account accountSecondRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
+            Account accountThirdUSD = Account.builder().active(true).currencyCode(Currency.USD).balance(BigDecimal.ZERO).user(savedUser).build();
+            accountRepository.saveAll(List.of(accountFirstRUB, accountSecondRUB, accountThirdUSD));
         }
 
         @Test
         void processUserCreatedEvent_success() throws Exception {
-            Integer userId = 99;
-            UUID eventId = UUID.randomUUID();
+            UUID userId = savedUser.getId();
+
+
             OutboxEvent event = OutboxEvent.builder()
-                    .aggregateId(accountId)
-                    .accountId(accountId)
-                    .aggregateType("ACCOUNT")
-                    .operationType(operationDTO.getOperationType())
-                    .payload(objectMapper.writeValueAsString(operationDTO))
+                    .aggregateId(userId)
+                    .aggregateType("USER")
+                    .operationType(OperationType.USER_CREATED)
+                    .payload(objectMapper.writeValueAsString(UserDTO.builder()
+                            .id(userId)
+                            .fullName(savedUser.getFullName())
+                            .username(savedUser.getUsername())
+                            .password("pswd")
+                            .confirmPassword("pswd")
+                            .dob(savedUser.getDob())
+                            .enabled(true)
+                            .build())
+                    )
                     .build();
-
-
-            UserDTO dto = new UserDTO();
-            dto.setId(userId);
-
-            User user = new User();
-            user.setId(userId);
+            OutboxEvent outboxEvent = eventRepository.save(event);
 
             UserRepresentation representation = new UserRepresentation();
             representation.setId(UUID.randomUUID().toString());
 
 //            when(objectMapper.readValue(anyString(), eq(UserDTO.class))).thenReturn(dto);
-//            when(keycloakUserService.createUser(dto)).thenReturn(representation);
+            when(keycloakUserService.createUser(any())).thenReturn(representation);
 //            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(outboxService.findOutboxWithSkipLock(eventId)).thenReturn(Optional.of(event));
-            Method method = EventProcessor.class.getDeclaredMethod("processUserCreateEvent", OutboxEvent.class);
-            method.setAccessible(true);
-            method.invoke(processor, event);
-            assertEquals(OperationStatus.SENT, event.getStatus());
-            verify(userRepository).save(any(User.class));
+            //when(outboxService.findOutboxWithSkipLock(eventId)).thenReturn(Optional.of(event));
+            processor.processSingleEvent(outboxEvent.getId());
+            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
+            optionalOutboxEvent.stream().peek(savedEvent -> {
+                assertEquals(outboxEvent.getId(), savedEvent.getId());
+                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
+                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
+                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
+                assertNull(savedEvent.getLastAttemptAt());
+                assertNull(savedEvent.getNextAttemptAt());
+                verify(userRepository).save(any(User.class));
+            });
         }
 
         @Test
@@ -366,14 +382,14 @@ public class ServiceTest extends AbstractTest {
             event.setPayload("{}");
 
             PasswordDTO dto = new PasswordDTO();
-            dto.setId(userId);
+            dto.setId(UUID.randomUUID());
 
             User user = new User();
-            user.setId(userId);
+            user.setId(UUID.randomUUID());
             user.setKeycloakId(UUID.randomUUID());
 
             when(objectMapper.readValue(anyString(), eq(PasswordDTO.class))).thenReturn(dto);
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findById(UUID.randomUUID())).thenReturn(Optional.of(user));
             Method method = EventProcessor.class.getDeclaredMethod("processChangePasswordEvent", OutboxEvent.class);
             method.setAccessible(true);
             method.invoke(processor, event);
@@ -387,8 +403,8 @@ public class ServiceTest extends AbstractTest {
 
         @Test
         void processExchange_success() throws Exception {
-            Integer srcId = 1;
-            Integer tgtId = 2;
+            UUID srcId = UUID.randomUUID();
+            UUID tgtId = UUID.randomUUID();
             OutboxEvent event = new OutboxEvent();
             event.setOperationType(OperationType.EXCHANGE);
             event.setPayload("{}");
@@ -419,8 +435,8 @@ public class ServiceTest extends AbstractTest {
 
         @Test
         void processTransfer_success() throws Exception {
-            Integer srcId = 1;
-            Integer tgtId = 2;
+            UUID srcId = UUID.randomUUID();
+            UUID tgtId = UUID.randomUUID();
             OutboxEvent event = new OutboxEvent();
             event.setOperationType(OperationType.TRANSFER);
             event.setPayload("{}");

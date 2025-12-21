@@ -20,7 +20,7 @@ import java.util.UUID;
 public class PasswordDTO {
     @EqualsAndHashCode.Include
     @NotNull
-    private Integer id;
+    private UUID id;
     @EqualsAndHashCode.Include
     private UUID keycloakId;
     @NotNull

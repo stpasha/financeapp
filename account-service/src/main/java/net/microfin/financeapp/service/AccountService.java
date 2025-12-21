@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +37,11 @@ public class AccountService {
     private final Validator validator;
     private final ObjectMapper objectMapper;
 
-    public List<AccountDTO> getAccountsByUserId(Integer userId) {
+    public List<AccountDTO> getAccountsByUserId(UUID userId) {
         return accountMapper.toDtoList(accountRepository.findAccountsByUserId(userId));
     }
 
-    public Optional<AccountDTO> getAccount(Integer id) {
+    public Optional<AccountDTO> getAccount(UUID id) {
         return accountRepository.findById(id).map(accountMapper::toDto);
     }
 
@@ -118,13 +119,13 @@ public class AccountService {
                 throw new IllegalArgumentException("Source and target account cannot be the same");
             }
 
-            int max = Math.max(exchange.getSourceAccountId(), exchange.getTargetAccountId());
-            Pair<Integer, AccType> firstAccount = Pair.of(
+            UUID max = exchange.getSourceAccountId().timestamp() > exchange.getTargetAccountId().timestamp() ? exchange.getSourceAccountId() : exchange.getTargetAccountId();
+            Pair<UUID, AccType> firstAccount = Pair.of(
                     max,
                     max == exchange.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
-            int min = Math.min(exchange.getSourceAccountId(), exchange.getTargetAccountId());
-            Pair<Integer, AccType> secondAccount = Pair.of(
+            UUID min = exchange.getSourceAccountId().timestamp() > exchange.getTargetAccountId().timestamp() ? exchange.getTargetAccountId() : exchange.getSourceAccountId();
+            Pair<UUID, AccType> secondAccount = Pair.of(
                     min,
                     min == exchange.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
@@ -165,13 +166,13 @@ public class AccountService {
                 throw new IllegalArgumentException("Source and target account cannot be the same");
             }
 
-            int max = Math.max(transfer.getSourceAccountId(), transfer.getTargetAccountId());
-            Pair<Integer, AccType> firstAccount = Pair.of(
+            UUID max = transfer.getSourceAccountId().timestamp() > transfer.getTargetAccountId().timestamp() ? transfer.getSourceAccountId() : transfer.getTargetAccountId();
+            Pair<UUID, AccType> firstAccount = Pair.of(
                     max,
                     max == transfer.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
-            int min = Math.min(transfer.getSourceAccountId(), transfer.getTargetAccountId());
-            Pair<Integer, AccType> secondAccount = Pair.of(
+            UUID min = transfer.getSourceAccountId().timestamp() > transfer.getTargetAccountId().timestamp() ? transfer.getTargetAccountId() : transfer.getSourceAccountId();
+            Pair<UUID, AccType> secondAccount = Pair.of(
                     min,
                     min == transfer.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
@@ -194,14 +195,14 @@ public class AccountService {
         }
     }
 
-    private Account deposit(Integer transfer, BigDecimal amount) {
+    private Account deposit(UUID transfer, BigDecimal amount) {
         return accountRepository.findByIdForUpdate(transfer).map(account -> {
             account.setBalance(account.getBalance().add(amount));
             return account;
         }).orElseThrow(() -> new AccountNotFoundException("Account not found" + transfer));
     }
 
-    private Account withdraw(Integer transfer, BigDecimal amount) {
+    private Account withdraw(UUID transfer, BigDecimal amount) {
         return accountRepository.findByIdForUpdate(transfer).map(account -> {
             if (account.getBalance().compareTo(amount) < 0) {
                 throw new InsufficientFundsException("Insufficient funds in the account" + transfer);

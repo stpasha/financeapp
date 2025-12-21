@@ -21,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserDTO {
     @EqualsAndHashCode.Include
-    private Integer id;
+    private UUID id;
     private UUID keycloakId;
     @EqualsAndHashCode.Include
     @Size(max = 255, message = "Username should be not greater than 255 symbols")

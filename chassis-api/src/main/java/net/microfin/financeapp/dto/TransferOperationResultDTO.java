@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.microfin.financeapp.util.OperationStatus;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -18,7 +20,7 @@ import net.microfin.financeapp.util.OperationStatus;
 public class TransferOperationResultDTO implements OperationResult {
     @EqualsAndHashCode.Include
     @NotNull
-    private Integer operationId;
+    private UUID operationId;
     private OperationStatus status;
     private String message;
 }

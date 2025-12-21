@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/account")
@@ -39,12 +40,12 @@ public class AccountApi {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<AccountDTO>> getAccountsByUser(@PathVariable("userId") Integer userId) {
+    public ResponseEntity<List<AccountDTO>> getAccountsByUser(@PathVariable("userId") UUID userId) {
         return ResponseEntity.ok(accountService.getAccountsByUserId(userId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Integer id) {
+    public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") UUID id) {
         return accountService.getAccount(id).map(ResponseEntity::ok).orElseThrow(() -> new RuntimeException(exceptionsProperties.getSearchAccFailure()));
     }
 

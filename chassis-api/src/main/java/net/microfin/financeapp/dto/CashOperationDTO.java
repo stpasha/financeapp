@@ -9,6 +9,7 @@ import net.microfin.financeapp.util.OperationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @EqualsAndHashCode
 @Getter
@@ -19,15 +20,15 @@ import java.time.LocalDateTime;
 public class CashOperationDTO implements GenericOperationDTO {
 
     @EqualsAndHashCode.Include
-    private Integer id;
+    private UUID id;
 
-    private Integer accountId;
+    private UUID accountId;
 
     @NotNull
     private OperationType operationType;
 
     @NotNull
-    private Integer userId;
+    private UUID userId;
 
     @NotNull
     private Currency currencyCode;

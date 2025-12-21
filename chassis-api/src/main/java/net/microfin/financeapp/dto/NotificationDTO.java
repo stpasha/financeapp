@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,13 +21,13 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 public class NotificationDTO {
     @NotNull
-    private Integer id;
+    private UUID id;
     @NotNull
     private String operationType;
     @Size(max = 255, message = "Notification Description should be not greater than 255 symbols")
     private String notificationDescription;
     @PastOrPresent
     private LocalDateTime createdAt;
-    private Integer userId;
+    private UUID userId;
     private boolean delivered;
 }
