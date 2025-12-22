@@ -17,7 +17,7 @@ import java.util.UUID;
 public class AccountDTO {
     @EqualsAndHashCode.Include
     private UUID id;
-    private UserDTO user;
+    private UUID userId;
     @NotNull
     @DecimalMin(value = "0.00", inclusive = true)
     private BigDecimal balance;

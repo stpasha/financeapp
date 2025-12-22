@@ -70,11 +70,14 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'net.datafaker:datafaker:2.4.2'
     testImplementation 'org.testcontainers:junit-jupiter:1.20.6'
+    testImplementation 'org.testcontainers:testcontainers:1.20.6'
     testImplementation 'org.testcontainers:postgresql:1.20.6'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mapstruct:mapstruct:1.6.3'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    testImplementation 'org.testng:testng:7.10.2'
+    testImplementation 'org.wiremock:wiremock-standalone:3.5.4'
 //    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
 //    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 
@@ -101,6 +104,46 @@ dependencyManagement {
 //contracts {
 //    baseClassForTests = 'net.microfin.financeapp.contract.BaseContractTest'
 //}
+
+sourceSets {
+    integrationtest {
+        java {
+            srcDir 'src/integrationtest/java'
+        }
+        resources {
+            srcDir 'src/integrationtest/resources'
+        }
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    integrationtestImplementation.extendsFrom testImplementation
+    integrationtestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('integrationtest', Test) {
+    description = 'Runs integration tests with TestNG'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.integrationtest.output.classesDirs
+    classpath = sourceSets.integrationtest.runtimeClasspath
+
+    useTestNG()
+
+    include '**/*IT.class'
+    include '**/*IntegrationTest.class'
+
+    shouldRunAfter tasks.test
+}
+tasks.named('processIntegrationtestResources') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.check {
+    dependsOn tasks.integrationtest
+}
 
 tasks.named('test') {
     useJUnitPlatform()

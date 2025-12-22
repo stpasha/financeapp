@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -61,24 +62,27 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
     @Test
     void shouldPerformTransferSuccessfully() {
         // given
+        UUID user1 = UUID.randomUUID();
+        UUID accId = UUID.randomUUID();
+        UUID accId2 = UUID.randomUUID();
         TransferOperationDTO dto = TransferOperationDTO.builder()
-                .userId(1)
-                .sourceAccountId(101)
-                .targetAccountId(202)
+                .userId(user1)
+                .sourceAccountId(accId)
+                .targetAccountId(accId2)
                 .amount(BigDecimal.valueOf(100))
                 .operationType(OperationType.TRANSFER)
                 .status(OperationStatus.PENDING)
                 .build();
 
         AccountDTO sourceAccount = AccountDTO.builder()
-                .id(101)
+                .id(accId)
                 .balance(BigDecimal.valueOf(500))
                 .currencyCode(Currency.USD.name())
-                .user(UserDTO.builder().id(1).build())
+                .userId(UUID.randomUUID())
                 .build();
 
         AccountDTO targetAccount = AccountDTO.builder()
-                .id(202)
+                .id(accId2)
                 .balance(BigDecimal.valueOf(300))
                 .currencyCode(Currency.EUR.name())
                 .build();
@@ -96,8 +100,8 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
         // when
         when(auditClient.check(dto)).thenReturn(ResponseEntity.ok(true));
         when(dictionaryClient.listCurrency()).thenReturn(ResponseEntity.ok(currencies));
-        when(accountClient.getAccount(101)).thenReturn(ResponseEntity.ok(sourceAccount));
-        when(accountClient.getAccount(202)).thenReturn(ResponseEntity.ok(targetAccount));
+        when(accountClient.getAccount(accId)).thenReturn(ResponseEntity.ok(sourceAccount));
+        when(accountClient.getAccount(accId2)).thenReturn(ResponseEntity.ok(targetAccount));
         when(accountClient.transferOperation(dto)).thenReturn(ResponseEntity.ok(resultDTO));
 
         // then

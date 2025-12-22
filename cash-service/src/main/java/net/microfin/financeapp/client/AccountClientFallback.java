@@ -8,19 +8,20 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
 public class AccountClientFallback implements AccountClientImpl {
 
     @Override
-    public ResponseEntity<List<AccountDTO>> getAccountsByUser(Integer userId) {
+    public ResponseEntity<List<AccountDTO>> getAccountsByUser(UUID userId) {
         log.warn("Fallback: getAccountsByUser failed for userId={}", userId);
         return ResponseEntity.ok(List.of());
     }
 
     @Override
-    public ResponseEntity<Void> disable(Integer id) {
+    public ResponseEntity<Void> disable(UUID id) {
         log.warn("Fallback: disable failed for id={}", id);
         return ResponseEntity.status(503).build();
     }
@@ -31,7 +32,7 @@ public class AccountClientFallback implements AccountClientImpl {
     }
 
     @Override
-    public ResponseEntity<Void> disableAccount(Integer accountId) {
+    public ResponseEntity<Void> disableAccount(UUID accountId) {
         return null;
     }
 
@@ -52,7 +53,7 @@ public class AccountClientFallback implements AccountClientImpl {
     }
 
     @Override
-    public ResponseEntity<AccountDTO> getAccount(Integer id) {
+    public ResponseEntity<AccountDTO> getAccount(UUID id) {
         return ResponseEntity.status(503).body(null);
     }
 

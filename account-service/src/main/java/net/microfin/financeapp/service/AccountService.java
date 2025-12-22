@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.AccType;
 import net.microfin.financeapp.domain.Account;
 import net.microfin.financeapp.domain.OutboxEvent;
+import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
@@ -37,10 +38,12 @@ public class AccountService {
     private final Validator validator;
     private final ObjectMapper objectMapper;
 
+    @Transactional(readOnly = true)
     public List<AccountDTO> getAccountsByUserId(UUID userId) {
         return accountMapper.toDtoList(accountRepository.findAccountsByUserId(userId));
     }
 
+    @Transactional(readOnly = true)
     public Optional<AccountDTO> getAccount(UUID id) {
         return accountRepository.findById(id).map(accountMapper::toDto);
     }
@@ -51,7 +54,10 @@ public class AccountService {
         if (!violations.isEmpty()) {
             throw new InvalidPayloadException(violations.toString());
         }
+        Optional<User> userOptional = userRepository.findById(accountDTO.getUserId());
+        User user = userOptional.orElseThrow(() -> new IllegalArgumentException("User not provided for account"));
         Account account = accountMapper.toEntity(accountDTO);
+        account.setUser(user);
         Account saved = accountRepository.save(account);
         return Optional.of(accountMapper.toDto(saved));
     }

@@ -19,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -145,7 +146,7 @@ public class ServiceTest {
         void shouldReturnAccountsByUser() {
             AccountDTO account = AccountDTO.builder()
                     .id(101)
-                    .user(UserDTO.builder().id(1).build())
+                    .userId(UUID.randomUUID())
                     .balance(BigDecimal.valueOf(1000))
                     .currencyCode("RUB")
                     .build();

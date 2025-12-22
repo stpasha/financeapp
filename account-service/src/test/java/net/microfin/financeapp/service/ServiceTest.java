@@ -37,8 +37,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -104,7 +103,7 @@ public class ServiceTest extends AbstractTest {
         @Test
         void shouldCreateAccountSuccessfully() {
             AccountDTO dto = AccountDTO.builder()
-                    .user(userMapper.toDto(testUser))
+                    .userId(testUser.getId())
                     .balance(BigDecimal.valueOf(1000).setScale(2))
                     .currencyCode("USD")
                     .active(true)
@@ -146,6 +145,7 @@ public class ServiceTest extends AbstractTest {
                     .active(true)
                     .build();
             accountRepository.save(account);
+
 
             List<AccountDTO> accounts = accountService.getAccountsByUserId(testUser.getId());
             assertThat(accounts).hasSize(1);
@@ -314,11 +314,14 @@ public class ServiceTest extends AbstractTest {
         private EventProcessor processor;
 
         private User savedUser;
-
+        private Account accountFirstRUB;
+        private Account accountSecondRUB;
+        private Account accountThirdUSD;
 
         @BeforeEach
         void setUp() {
             accountRepository.deleteAll();
+            userRepository.deleteAll();
             User testUser = new User();
             testUser.setUsername("user1");
             testUser.setFullName("Test User");
@@ -326,9 +329,9 @@ public class ServiceTest extends AbstractTest {
             testUser.setKeycloakId(UUID.randomUUID());
             testUser.setDob(LocalDate.now().minusYears(20L));
             savedUser = userRepository.save(testUser);
-            Account accountFirstRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
-            Account accountSecondRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
-            Account accountThirdUSD = Account.builder().active(true).currencyCode(Currency.USD).balance(BigDecimal.ZERO).user(savedUser).build();
+            accountFirstRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.valueOf(200)).user(savedUser).build();
+            accountSecondRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
+            accountThirdUSD = Account.builder().active(true).currencyCode(Currency.USD).balance(BigDecimal.ZERO).user(savedUser).build();
             accountRepository.saveAll(List.of(accountFirstRUB, accountSecondRUB, accountThirdUSD));
         }
 
@@ -356,11 +359,7 @@ public class ServiceTest extends AbstractTest {
 
             UserRepresentation representation = new UserRepresentation();
             representation.setId(UUID.randomUUID().toString());
-
-//            when(objectMapper.readValue(anyString(), eq(UserDTO.class))).thenReturn(dto);
             when(keycloakUserService.createUser(any())).thenReturn(representation);
-//            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            //when(outboxService.findOutboxWithSkipLock(eventId)).thenReturn(Optional.of(event));
             processor.processSingleEvent(outboxEvent.getId());
             Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
             optionalOutboxEvent.stream().peek(savedEvent -> {
@@ -376,26 +375,37 @@ public class ServiceTest extends AbstractTest {
 
         @Test
         void processPasswordChangedEvent_success() throws Exception {
-            Integer userId = 1;
-            OutboxEvent event = new OutboxEvent();
-            event.setOperationType(OperationType.PASSWORD_CHANGED);
-            event.setPayload("{}");
+            UUID userId = savedUser.getId();
 
-            PasswordDTO dto = new PasswordDTO();
-            dto.setId(UUID.randomUUID());
 
-            User user = new User();
-            user.setId(UUID.randomUUID());
-            user.setKeycloakId(UUID.randomUUID());
+            UUID keycloakId = UUID.randomUUID();
+            OutboxEvent event = OutboxEvent.builder()
+                    .aggregateId(userId)
+                    .aggregateType("USER")
+                    .operationType(OperationType.PASSWORD_CHANGED)
+                    .payload(objectMapper.writeValueAsString(PasswordDTO.builder()
+                            .id(userId)
+                            .keycloakId(keycloakId)
+                            .password("pswd")
+                            .confirmPassword("pswd")
+                            .build())
+                    )
+                    .build();
+            OutboxEvent outboxEvent = eventRepository.save(event);
 
-            when(objectMapper.readValue(anyString(), eq(PasswordDTO.class))).thenReturn(dto);
-            when(userRepository.findById(UUID.randomUUID())).thenReturn(Optional.of(user));
-            Method method = EventProcessor.class.getDeclaredMethod("processChangePasswordEvent", OutboxEvent.class);
-            method.setAccessible(true);
-            method.invoke(processor, event);
 
-            assertEquals(OperationStatus.SENT, event.getStatus());
-            verify(keycloakUserService).updateUserPassword(dto);
+            processor.processSingleEvent(outboxEvent.getId());
+            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
+            assertEquals(1, optionalOutboxEvent.stream().count());
+            optionalOutboxEvent.ifPresent(savedEvent -> {
+                assertEquals(outboxEvent.getId(), savedEvent.getId());
+                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
+                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
+                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
+                assertNull(savedEvent.getLastAttemptAt());
+                assertNull(savedEvent.getNextAttemptAt());
+                verify(keycloakUserService).updateUserPassword(any(PasswordDTO.class));
+            });
         }
 
 
@@ -403,64 +413,77 @@ public class ServiceTest extends AbstractTest {
 
         @Test
         void processExchange_success() throws Exception {
-            UUID srcId = UUID.randomUUID();
-            UUID tgtId = UUID.randomUUID();
-            OutboxEvent event = new OutboxEvent();
-            event.setOperationType(OperationType.EXCHANGE);
-            event.setPayload("{}");
+            BigDecimal rubBalance = accountFirstRUB.getBalance();
 
-            ExchangeOperationDTO dto = new ExchangeOperationDTO();
-            dto.setSourceAccountId(srcId);
-            dto.setTargetAccountId(tgtId);
-            dto.setAmount(BigDecimal.TEN);
-            dto.setTargetAmount(BigDecimal.valueOf(8));
+            BigDecimal transferVal = BigDecimal.valueOf(100);
+            OutboxEvent event = OutboxEvent.builder()
+                    .aggregateId(accountFirstRUB.getId())
+                    .aggregateType("ACCOUNT")
+                    .operationType(OperationType.EXCHANGE)
+                    .payload(objectMapper.writeValueAsString(ExchangeOperationDTO.builder()
+                            .operationType(OperationType.EXCHANGE)
+                            .amount(transferVal)
+                            .createdAt(LocalDateTime.now())
+                            .sourceAccountId(accountFirstRUB.getId())
+                            .targetAccountId(accountThirdUSD.getId())
+                            .status(OperationStatus.PENDING)
+                            .build())
+                    )
+                    .build();
+            OutboxEvent outboxEvent = eventRepository.save(event);
 
-            Account src = new Account();
-            src.setBalance(BigDecimal.valueOf(100));
-
-            Account tgt = new Account();
-            tgt.setBalance(BigDecimal.valueOf(50));
-
-            when(objectMapper.readValue(anyString(), eq(ExchangeOperationDTO.class))).thenReturn(dto);
-            when(accountRepository.findById(srcId)).thenReturn(Optional.of(src));
-            when(accountRepository.findById(tgtId)).thenReturn(Optional.of(tgt));
-
-            Method method = EventProcessor.class.getDeclaredMethod("processExchange", OutboxEvent.class);
-            method.setAccessible(true);
-            method.invoke(processor, event);
-
-
-            assertEquals(OperationStatus.SENT, event.getStatus());
+            processor.processSingleEvent(outboxEvent.getId());
+            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
+            optionalOutboxEvent.ifPresent(savedEvent -> {
+                assertEquals(outboxEvent.getId(), savedEvent.getId());
+                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
+                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
+                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
+                assertNull(savedEvent.getLastAttemptAt());
+                assertNull(savedEvent.getNextAttemptAt());
+                accountRepository.findById(accountFirstRUB.getId())
+                        .ifPresent(account -> assertEquals(0, account.getBalance().compareTo(rubBalance.subtract(transferVal))));
+                accountRepository.findById(accountThirdUSD.getId())
+                        .ifPresent(account -> assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0));
+            });
         }
 
         @Test
         void processTransfer_success() throws Exception {
-            UUID srcId = UUID.randomUUID();
-            UUID tgtId = UUID.randomUUID();
-            OutboxEvent event = new OutboxEvent();
-            event.setOperationType(OperationType.TRANSFER);
-            event.setPayload("{}");
+            BigDecimal rubBalance = accountFirstRUB.getBalance();
 
-            TransferOperationDTO dto = new TransferOperationDTO();
-            dto.setSourceAccountId(srcId);
-            dto.setTargetAccountId(tgtId);
-            dto.setAmount(BigDecimal.TEN);
+            BigDecimal transferVal = BigDecimal.valueOf(100);
+            OutboxEvent event = OutboxEvent.builder()
+                    .aggregateId(accountFirstRUB.getId())
+                    .aggregateType("ACCOUNT")
+                    .operationType(OperationType.TRANSFER)
+                    .payload(objectMapper.writeValueAsString(ExchangeOperationDTO.builder()
+                            .operationType(OperationType.TRANSFER)
+                            .amount(transferVal)
+                            .createdAt(LocalDateTime.now())
+                            .sourceAccountId(accountFirstRUB.getId())
+                            .targetAccountId(accountSecondRUB.getId())
+                            .userId(savedUser.getId())
+                            .status(OperationStatus.PENDING)
+                            .build())
+                    )
+                    .build();
+            OutboxEvent outboxEvent = eventRepository.save(event);
 
-            Account src = new Account();
-            src.setBalance(BigDecimal.valueOf(100));
-
-            Account tgt = new Account();
-            tgt.setBalance(BigDecimal.valueOf(50));
-
-            when(objectMapper.readValue(anyString(), eq(TransferOperationDTO.class))).thenReturn(dto);
-            when(accountRepository.findById(srcId)).thenReturn(Optional.of(src));
-            when(accountRepository.findById(tgtId)).thenReturn(Optional.of(tgt));
-            Method method = EventProcessor.class.getDeclaredMethod("processTransfer", OutboxEvent.class);
-            method.setAccessible(true);
-            method.invoke(processor, event);
-
-
-            assertEquals(OperationStatus.SENT, event.getStatus());
+            processor.processSingleEvent(outboxEvent.getId());
+            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
+            optionalOutboxEvent.ifPresent(savedEvent -> {
+                assertEquals(outboxEvent.getId(), savedEvent.getId());
+                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
+                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
+                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
+                assertNull(savedEvent.getLastAttemptAt());
+                assertNull(savedEvent.getNextAttemptAt());
+                accountRepository.findById(accountFirstRUB.getId())
+                        .ifPresent(account -> assertEquals(0, account.getBalance().compareTo(rubBalance.subtract(transferVal))));
+                accountRepository.findById(accountSecondRUB.getId())
+                        .ifPresent(account -> assertEquals( 0, account.getBalance().compareTo(transferVal.add(accountSecondRUB.getBalance()))));
+            });
         }
     }
 }

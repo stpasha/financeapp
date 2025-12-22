@@ -61,7 +61,7 @@ public class DefaultTransferOperationService implements TransferOperationService
                 throw new RuntimeException(exceptionsProperties.getInsufficientFundsFailure());
             }
 
-            if (!transferOperationDTO.getUserId().equals(sourceAccount.getUser().getId())) {
+            if (!transferOperationDTO.getUserId().equals(sourceAccount.getUserId())) {
                 throw new RuntimeException(exceptionsProperties.getIncorectSourceAccountFailure());
             }
             Optional<CurrencyDTO> sourceCurrencyOpt = currencies.stream()

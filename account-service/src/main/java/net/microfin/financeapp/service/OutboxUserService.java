@@ -57,7 +57,6 @@ public class OutboxUserService {
         userRepository.findById(passwordDTO.getId()).map(user -> {
             passwordDTO.setKeycloakId(user.getKeycloakId());
             keycloakUserService.updateUserPassword(passwordDTO);
-            userRepository.save(user);
             log.info("Processed successfully for password Outbox event result - {}", outboxEvent);
             return user;
         }).orElseThrow(() -> new EntityNotFoundException("User not found for password update"));

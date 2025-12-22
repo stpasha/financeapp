@@ -5,6 +5,7 @@ spring:
     active: dev
   jpa:
 #    database-platform: org.hibernate.dialect.PostgresSQLDialect
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true

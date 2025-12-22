@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: account-service
+  cloud:
+  liquibase:
+    enabled: false
+keycloak:
+  server-url: http://keycloak:7080/
+  realm: zbank
+  username: gatekeeper
+  password: swordfish
+scheduler:
+  enabled: false

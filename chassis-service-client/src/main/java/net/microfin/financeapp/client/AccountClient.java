@@ -5,25 +5,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AccountClient {
     @GetMapping("/api/account/user/{userId}")
-    ResponseEntity<List<AccountDTO>> getAccountsByUser(@PathVariable("userId") Integer userId);
+    ResponseEntity<List<AccountDTO>> getAccountsByUser(@PathVariable("userId") UUID userId);
 
     @PutMapping("/api/account/{id}/disable")
-    ResponseEntity<Void> disable(@PathVariable("id") Integer id);
+    ResponseEntity<Void> disable(@PathVariable("id") UUID id);
 
     @PostMapping("/api/accounts")
     AccountDTO createAccount(@RequestBody AccountDTO accountDTO);
 
     @PutMapping("/api/accounts/{id}/disable")
-    ResponseEntity<Void> disableAccount(@PathVariable(name = "id") Integer accountId);
+    ResponseEntity<Void> disableAccount(@PathVariable(name = "id") UUID accountId);
 
     @PostMapping("/api/account/operation")
     ResponseEntity<ExchangeOperationResultDTO> exchangeOperation(@RequestBody ExchangeOperationDTO exchangeOperationDTO);
 
     @GetMapping("/api/account/{id}")
-    ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Integer id);
+    ResponseEntity<AccountDTO> getAccount(@PathVariable("id") UUID id);
 
     @PostMapping("/api/account/operation")
     ResponseEntity<TransferOperationResultDTO> transferOperation(@RequestBody TransferOperationDTO transferOperationDTO);
