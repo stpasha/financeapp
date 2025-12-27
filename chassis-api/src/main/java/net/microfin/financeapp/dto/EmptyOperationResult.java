@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.microfin.financeapp.util.OperationStatus;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -17,7 +19,7 @@ import net.microfin.financeapp.util.OperationStatus;
 @NoArgsConstructor
 public class EmptyOperationResult implements OperationResult {
     @EqualsAndHashCode.Include
-    private Integer operationId;
+    private UUID operationId;
     @NotNull
     private OperationStatus status;
     private String message;

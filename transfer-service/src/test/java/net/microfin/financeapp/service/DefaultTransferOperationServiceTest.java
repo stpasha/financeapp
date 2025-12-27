@@ -11,7 +11,7 @@ import net.microfin.financeapp.repository.TransferOperationRepository;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
-import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.UUIDDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,12 +50,6 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
     @MockitoBean
     private DictionaryClientImpl dictionaryClient;
 
-    @Autowired
-    private TransferOperationMapper mapper;
-
-    @Autowired
-    private TransferOperationRepository repository;
-
     @MockitoBean
     private JwtDecoder jwtDecoder;
 
@@ -78,11 +72,12 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
                 .id(accId)
                 .balance(BigDecimal.valueOf(500))
                 .currencyCode(Currency.USD.name())
-                .userId(UUID.randomUUID())
+                .userId(user1)
                 .build();
 
         AccountDTO targetAccount = AccountDTO.builder()
                 .id(accId2)
+                .userId(UUID.randomUUID())
                 .balance(BigDecimal.valueOf(300))
                 .currencyCode(Currency.EUR.name())
                 .build();
@@ -114,7 +109,7 @@ public class DefaultTransferOperationServiceTest extends AbstractTest {
         consumerProps.put(JsonDeserializer.TRUSTED_PACKAGES, "net.microfin.financeapp.dto");
         try (var consumerForTest = new DefaultKafkaConsumerFactory<>(
                 consumerProps,
-                new IntegerDeserializer(),
+                new UUIDDeserializer(),
                 new JsonDeserializer<>()
         ).createConsumer()) {
             consumerForTest.subscribe(List.of("input-notification"));

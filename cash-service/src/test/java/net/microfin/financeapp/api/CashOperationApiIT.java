@@ -22,6 +22,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -53,8 +54,8 @@ public class CashOperationApiIT extends AbstractTest {
         void shouldReturnSuccessResponseForValidOperation() throws Exception {
 
             CashOperationDTO dto = CashOperationDTO.builder()
-                    .userId(1)
-                    .accountId(2)
+                    .userId(UUID.randomUUID())
+                    .accountId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(100))
                     .currencyCode(Currency.USD)
                     .operationType(OperationType.CASH_DEPOSIT)
@@ -85,8 +86,8 @@ public class CashOperationApiIT extends AbstractTest {
         void shouldReturnBadRequestForInvalidInput() throws Exception {
             // amount не указан
             CashOperationDTO dto = CashOperationDTO.builder()
-                    .userId(1)
-                    .accountId(2)
+                    .userId(UUID.randomUUID())
+                    .accountId(UUID.randomUUID())
                     .currencyCode(Currency.EUR)
                     .operationType(OperationType.CASH_WITHDRAWAL)
                     .status(OperationStatus.PENDING)

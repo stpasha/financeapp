@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -56,8 +57,9 @@ public class FrontIT {
 
         @Test
         void shouldRedirectWithInfoForValidCashOperation() throws Exception {
+            UUID userId = UUID.randomUUID();
             CashOperationDTO dto = CashOperationDTO.builder()
-                    .userId(1)
+                    .userId(userId)
                     .amount(BigDecimal.valueOf(100))
                     .currencyCode(Currency.USD)
                     .operationType(OperationType.CASH_WITHDRAWAL)
@@ -65,7 +67,7 @@ public class FrontIT {
                     .build();
 
             CashOperationResultDTO result = CashOperationResultDTO.builder()
-                    .operationId(123)
+                    .operationId(UUID.randomUUID())
                     .newBalance(BigDecimal.valueOf(1100))
                     .status(OperationStatus.SENT)
                     .message("Cash ok")
@@ -73,8 +75,7 @@ public class FrontIT {
 
             when(accountService.createCashOperation(dto)).thenReturn(result);
 
-            mockMvc.perform(post("/account/1/cash")
-                            .param("userId", "1")
+            mockMvc.perform(post("/account/" + userId + "/cash")
                             .flashAttr("cashDTO", dto)
                     .with(csrf())
                     .with(oauth2Login()))
@@ -84,25 +85,25 @@ public class FrontIT {
 
         @Test
         void shouldRedirectWithErrorForFailedExchangeOperation() throws Exception {
+            UUID userId = UUID.randomUUID();
             ExchangeOperationDTO dto = ExchangeOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(10)
-                    .targetAccountId(11)
+                    .userId(userId)
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(100))
                     .operationType(OperationType.EXCHANGE)
                     .status(OperationStatus.FAILED)
                     .build();
 
             ExchangeOperationResultDTO result = ExchangeOperationResultDTO.builder()
-                    .operationId(456)
+                    .operationId(UUID.randomUUID())
                     .status(OperationStatus.FAILED)
                     .message("Exchange failed")
                     .build();
 
             when(accountService.createExchangeOperation(dto)).thenReturn(result);
 
-            mockMvc.perform(post("/account/1/exchange")
-                            .param("userId", "1")
+            mockMvc.perform(post("/account/" + userId + "/exchange")
                             .flashAttr("exchangeDTO", dto)
                     .with(csrf())
                     .with(oauth2Login()))
@@ -112,25 +113,25 @@ public class FrontIT {
 
         @Test
         void shouldRedirectWithInfoForSuccessfulTransfer() throws Exception {
+            UUID userId = UUID.randomUUID();
             TransferOperationDTO dto = TransferOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(100)
-                    .targetAccountId(101)
+                    .userId(userId)
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(500))
                     .operationType(OperationType.TRANSFER)
                     .status(OperationStatus.PENDING)
                     .build();
 
             TransferOperationResultDTO result = TransferOperationResultDTO.builder()
-                    .operationId(789)
+                    .operationId(UUID.randomUUID())
                     .status(OperationStatus.SENT)
                     .message("Transferred")
                     .build();
 
             when(accountService.createTransferOperation(dto)).thenReturn(result);
 
-            mockMvc.perform(post("/account/1/transfer")
-                            .param("userId", "1")
+            mockMvc.perform(post("/account/" + userId + "/transfer")
                             .flashAttr("transferDTO", dto)
                             .with(csrf())
                             .with(oauth2Login()))
@@ -141,14 +142,15 @@ public class FrontIT {
 
     @Test
     void shouldReturnAccountsForUserId() throws Exception {
+        UUID id = UUID.randomUUID();
         List<AccountDTO> accounts = List.of(AccountDTO.builder()
-                .id(1)
+                .id(id)
                 .balance(BigDecimal.TEN)
                 .build());
 
-        when(accountService.getAccountsByUser(1)).thenReturn(accounts);
+        when(accountService.getAccountsByUser(id)).thenReturn(accounts);
 
-        var response = mockMvc.perform(get("/account/1")
+        var response = mockMvc.perform(get("/account/" + id)
                         .with(csrf())
                         .with(oauth2Login()))
                 .andExpect(status().isOk())
@@ -157,6 +159,6 @@ public class FrontIT {
         List<AccountDTO> actual = objectMapper.readValue(response,
                 objectMapper.getTypeFactory().constructCollectionType(List.class, AccountDTO.class));
         assertThat(actual).hasSize(1);
-        assertThat(actual.get(0).getBalance()).isEqualByComparingTo(BigDecimal.TEN);
+        assertThat(actual.getFirst().getBalance()).isEqualByComparingTo(BigDecimal.TEN);
     }
 }

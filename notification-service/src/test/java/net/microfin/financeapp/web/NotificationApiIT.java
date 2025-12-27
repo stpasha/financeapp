@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -50,9 +51,10 @@ public class NotificationApiIT extends AbstractTest {
 
     @Test
     void shouldSaveNotification() throws Exception {
+        UUID userIdFirst = UUID.randomUUID();
         NotificationDTO dto = NotificationDTO.builder()
                 .id(null)
-                .userId(1001)
+                .userId(userIdFirst)
                 .operationType(OperationType.CASH_DEPOSIT.name())
                 .notificationDescription("Test notification")
                 .createdAt(LocalDateTime.now())
@@ -78,9 +80,10 @@ public class NotificationApiIT extends AbstractTest {
 
     @Test
     void shouldReturnNotificationListByUserId() throws Exception {
+        UUID userIdSecond = UUID.randomUUID();
         NotificationDTO n1 = NotificationDTO.builder()
-                .id(1)
-                .userId(2002)
+                .id(UUID.randomUUID())
+                .userId(userIdSecond)
                 .notificationDescription("Message 1")
                 .operationType(OperationType.TRANSFER.name())
                 .createdAt(LocalDateTime.now())
@@ -88,17 +91,17 @@ public class NotificationApiIT extends AbstractTest {
                 .build();
 
         NotificationDTO n2 = NotificationDTO.builder()
-                .id(2)
-                .userId(2002)
+                .id(UUID.randomUUID())
+                .userId(userIdSecond)
                 .notificationDescription("Message 2")
                 .operationType(OperationType.EXCHANGE.name())
                 .createdAt(LocalDateTime.now())
                 .delivered(true)
                 .build();
 
-        when(notificationService.receiveNotification(2002)).thenReturn(List.of(n1, n2));
+        when(notificationService.receiveNotification(userIdSecond)).thenReturn(List.of(n1, n2));
 
-        String response = mockMvc.perform(get("/api/notification/user/2002")
+        String response = mockMvc.perform(get("/api/notification/user/" + userIdSecond)
                         .with(jwt().jwt(jwt -> jwt.claim("sub", "user").claim("preferred_username", "user"))))
                 .andExpect(status().isOk())
                 .andReturn()

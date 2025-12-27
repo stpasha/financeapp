@@ -49,7 +49,7 @@
             <column name="notification_id" type="INTEGER">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="operation_type" type="INTEGER">
+            <column name="operation_type" type="VARCHAR(32)">
                 <constraints nullable="false"/>
             </column>
             <column name="notification_description" type="VARCHAR(255)"/>

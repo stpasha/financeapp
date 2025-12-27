@@ -72,15 +72,15 @@ public class ServiceTest {
     private UserService userService;
 
     @Autowired
-    KafkaTemplate<Integer, NotificationDTO> kafkaTemplate;
+    KafkaTemplate<UUID, NotificationDTO> kafkaTemplate;
 
     @Nested
     class AccountServiceTest {
         @Test
         void shouldCreateCashOperationSuccessfully() {
             CashOperationDTO dto = CashOperationDTO.builder()
-                    .userId(1)
-                    .accountId(100)
+                    .userId(UUID.randomUUID())
+                    .accountId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(150))
                     .build();
 
@@ -94,15 +94,15 @@ public class ServiceTest {
             OperationResult response = accountService.createCashOperation(dto);
 
             assertThat(response).isInstanceOf(CashOperationResultDTO.class);
-            assertThat(((CashOperationResultDTO) response).getStatus()).isEqualTo(OperationStatus.SENT);
+            assertThat(response.getStatus()).isEqualTo(OperationStatus.SENT);
         }
 
         @Test
         void shouldCreateTransferOperationSuccessfully() {
             TransferOperationDTO dto = TransferOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(100)
-                    .targetAccountId(200)
+                    .userId(UUID.randomUUID())
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(300))
                     .build();
 
@@ -116,15 +116,15 @@ public class ServiceTest {
             OperationResult response = accountService.createTransferOperation(dto);
 
             assertThat(response).isInstanceOf(TransferOperationResultDTO.class);
-            assertThat(((TransferOperationResultDTO) response).getStatus()).isEqualTo(OperationStatus.SENT);
+            assertThat(response.getStatus()).isEqualTo(OperationStatus.SENT);
         }
 
         @Test
         void shouldCreateExchangeOperationSuccessfully() {
             ExchangeOperationDTO dto = ExchangeOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(100)
-                    .targetAccountId(101)
+                    .userId(UUID.randomUUID())
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
                     .status(OperationStatus.PENDING)
                     .amount(BigDecimal.valueOf(100))
                     .build();
@@ -139,21 +139,22 @@ public class ServiceTest {
             OperationResult response = accountService.createExchangeOperation(dto);
 
             assertThat(response).isInstanceOf(ExchangeOperationResultDTO.class);
-            assertThat(((ExchangeOperationResultDTO) response).getStatus()).isEqualTo(OperationStatus.SENT);
+            assertThat(response.getStatus()).isEqualTo(OperationStatus.SENT);
         }
 
         @Test
         void shouldReturnAccountsByUser() {
+            UUID userId = UUID.randomUUID();
             AccountDTO account = AccountDTO.builder()
-                    .id(101)
-                    .userId(UUID.randomUUID())
+                    .id(UUID.randomUUID())
+                    .userId(userId)
                     .balance(BigDecimal.valueOf(1000))
                     .currencyCode("RUB")
                     .build();
 
-            when(accountClient.getAccountsByUser(1)).thenReturn(ResponseEntity.ok(singletonList(account)));
+            when(accountClient.getAccountsByUser(userId)).thenReturn(ResponseEntity.ok(singletonList(account)));
 
-            List<AccountDTO> result = accountService.getAccountsByUser(1);
+            List<AccountDTO> result = accountService.getAccountsByUser(userId);
 
             assertThat(result).hasSize(1);
             assertThat(result.get(0).getCurrencyCode()).isEqualTo("RUB");
@@ -197,21 +198,22 @@ public class ServiceTest {
         @Test
         void shouldReturnNotificationsWhenClientReturnsSuccess() {
             NotificationDTO dto1 = new NotificationDTO();
-            dto1.setId(1);
-            dto1.setUserId(42);
+            UUID userId = UUID.randomUUID();
+            dto1.setId(UUID.randomUUID());
+            dto1.setUserId(userId);
             dto1.setOperationType("CASH_WITHDRAWAL");
             dto1.setNotificationDescription("Снятие 100 RUB");
             dto1.setCreatedAt(LocalDateTime.now());
 
             NotificationDTO dto2 = new NotificationDTO();
-            dto2.setId(2);
-            dto2.setUserId(42);
+            dto2.setId(UUID.randomUUID());
+            dto2.setUserId(userId);
             dto2.setOperationType("CASH_DEPOSIT");
             dto2.setNotificationDescription("Пополнение 200 USD");
             dto2.setCreatedAt(LocalDateTime.now());
             kafkaTemplate.send("input-notification", dto1.getUserId(), dto1).thenAccept(result1 -> {
                 kafkaTemplate.send("input-notification", dto2.getUserId(), dto2).thenAccept(result2 -> {
-                    List<NotificationDTO> result = notificationService.listNotifications(42);
+                    List<NotificationDTO> result = notificationService.listNotifications(userId);
                     assertThat(result).hasSize(2);
                     assertThat(result).extracting(NotificationDTO::getOperationType).containsExactly("CASH_WITHDRAWAL", "CASH_DEPOSIT");
                 });
@@ -226,11 +228,12 @@ public class ServiceTest {
         @Test
         void shouldUpdateUserSuccessfully() {
             UpdateUserDTO updateUserDTO = new UpdateUserDTO();
-            updateUserDTO.setId(1);
+            UUID userId = UUID.randomUUID();
+            updateUserDTO.setId(userId);
             updateUserDTO.setFullName("updated");
 
             UserDTO responseDTO = new UserDTO();
-            responseDTO.setId(1);
+            responseDTO.setId(userId);
             responseDTO.setUsername("updated");
 
             when(userClient.update(updateUserDTO)).thenReturn(ResponseEntity.ok(responseDTO));
@@ -244,7 +247,7 @@ public class ServiceTest {
         @Test
         void shouldThrowWhenUpdateFails() {
             UpdateUserDTO updateUserDTO = new UpdateUserDTO();
-            updateUserDTO.setId(1);
+            updateUserDTO.setId(UUID.randomUUID());
 
             when(userClient.update(updateUserDTO)).thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
 
@@ -278,11 +281,11 @@ public class ServiceTest {
         @Test
         void shouldReturnUserListWhenSuccess() {
             UserDTO user1 = new UserDTO();
-            user1.setId(1);
+            user1.setId(UUID.randomUUID());
             user1.setUsername("user1");
 
             UserDTO user2 = new UserDTO();
-            user2.setId(2);
+            user2.setId(UUID.randomUUID());
             user2.setUsername("user2");
 
             when(userClient.getUsers()).thenReturn(ResponseEntity.ok(List.of(user1, user2)));

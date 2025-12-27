@@ -21,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -50,10 +51,13 @@ public class ExchangeOperationApiIT extends AbstractTest {
 
         @Test
         void shouldReturnSuccessResponseForValidExchangeOperation() throws Exception {
+            UUID userId = UUID.randomUUID();
+            UUID targetAccount = UUID.randomUUID();
+            UUID sourceAccount = UUID.randomUUID();
             ExchangeOperationDTO dto = ExchangeOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(10)
-                    .targetAccountId(11)
+                    .userId(userId)
+                    .sourceAccountId(sourceAccount)
+                    .targetAccountId(targetAccount)
                     .amount(BigDecimal.valueOf(150))
                     .operationType(OperationType.EXCHANGE)
                     .status(OperationStatus.PENDING)
@@ -83,10 +87,13 @@ public class ExchangeOperationApiIT extends AbstractTest {
         @Test
         void shouldReturnBadRequestForInvalidExchangeOperation() throws Exception {
             // Не указана сумма операции
+            UUID userId = UUID.randomUUID();
+            UUID targetAccount = UUID.randomUUID();
+            UUID sourceAccount = UUID.randomUUID();
             ExchangeOperationDTO dto = ExchangeOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(10)
-                    .targetAccountId(11)
+                    .userId(userId)
+                    .sourceAccountId(sourceAccount)
+                    .targetAccountId(targetAccount)
                     .operationType(OperationType.EXCHANGE)
                     .status(OperationStatus.PENDING)
                     .build();

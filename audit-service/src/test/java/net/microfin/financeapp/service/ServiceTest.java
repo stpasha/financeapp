@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,18 +30,12 @@ import static org.mockito.Mockito.when;
 @FinanceAppTest
 public class ServiceTest extends AbstractTest {
 
-
-    @Autowired
-    private RuleRepository ruleRepository;
     @MockitoBean
     private AccountClientImpl accountClient;
     @Autowired
     private DefaultRuleService ruleService;
     @MockitoBean
     private JwtDecoder jwtDecoder;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Nested
     class DefaultRuleServiceTest extends AbstractTest {
@@ -60,7 +55,7 @@ public class ServiceTest extends AbstractTest {
             TransferOperationDTO dto = new TransferOperationDTO();
             dto.setAmount(new BigDecimal("150"));
             dto.setOperationType(OperationType.TRANSFER);
-            Integer accountId = 1;
+            UUID accountId = UUID.randomUUID();
             dto.setSourceAccountId(accountId);
 
             AccountDTO accountDTO = new AccountDTO();
@@ -79,7 +74,7 @@ public class ServiceTest extends AbstractTest {
             ExchangeOperationDTO dto = new ExchangeOperationDTO();
             dto.setAmount(new BigDecimal("200"));
             dto.setOperationType(OperationType.EXCHANGE);
-            Integer accountId = 1;
+            UUID accountId = UUID.randomUUID();
             dto.setSourceAccountId(accountId);
 
             when(accountClient.getAccount(accountId)).thenReturn(ResponseEntity.ok(null));
@@ -102,7 +97,7 @@ public class ServiceTest extends AbstractTest {
             TransferOperationDTO dto = new TransferOperationDTO();
             dto.setAmount(new BigDecimal("150"));
             dto.setOperationType(OperationType.TRANSFER);
-            Integer accountId = 1;
+            UUID accountId = UUID.randomUUID();
             dto.setSourceAccountId(accountId);
 
             when(accountClient.getAccount(accountId)).thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());

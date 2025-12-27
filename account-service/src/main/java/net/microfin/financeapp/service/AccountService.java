@@ -63,7 +63,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void disable(Integer id) {
+    public void disable(UUID id) {
         accountRepository.disableAccount(id);
     }
 
@@ -97,7 +97,7 @@ public class AccountService {
             throw new InvalidPayloadException(violations.toString());
         }
         if (cashWithdraw.getAccountId() == null) {
-            throw new AccountNotFoundException("Account not found" + cashWithdraw.getAccountId());
+            throw new AccountNotFoundException("Account not found" + cashWithdraw);
         } else {
             accountRepository.findByIdForUpdate(cashWithdraw.getAccountId()).map(account -> {
                 if (account.getBalance().compareTo(cashWithdraw.getAmount()) < 0) {

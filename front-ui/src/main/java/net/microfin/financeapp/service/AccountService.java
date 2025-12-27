@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -75,7 +76,7 @@ public class AccountService {
         return response.getBody();
     }
 
-    public List<AccountDTO> getAccountsByUser(Integer userId) {
+    public List<AccountDTO> getAccountsByUser(UUID userId) {
         ResponseEntity<List<AccountDTO>> response = accountClient.getAccountsByUser(userId);
         if (response.getStatusCode().is2xxSuccessful()) {
             return Optional.ofNullable(response.getBody()).orElse(Collections.emptyList());

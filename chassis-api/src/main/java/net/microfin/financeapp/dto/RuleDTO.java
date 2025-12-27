@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -19,7 +21,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class RuleDTO {
     @EqualsAndHashCode.Include
-    private Integer id;
+    private UUID id;
     @NotNull
     private String operationType;
     @Size(max = 255, message = "Rule condition length 255 symbols max")

@@ -5,24 +5,6 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
 
-    <!-- Create sequence for operation_id -->
-    <changeSet id="transfer-002" author="nomatter">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <sequenceExists sequenceName="transfer_operations_id_seq" schemaName="transfer_info" />
-            </not>
-        </preConditions>
-        <createSequence
-                sequenceName="transfer_operations_id_seq"
-                schemaName="transfer_info"
-                startValue="1"
-                incrementBy="1"/>
-        <rollback>
-            <dropSequence sequenceName="transfer_operations_id_seq" schemaName="transfer_info"/>
-        </rollback>
-    </changeSet>
-
-    <!-- Create transfer_operations table -->
     <changeSet id="transfer-003" author="nomatter">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -30,35 +12,31 @@
             </not>
         </preConditions>
         <createTable schemaName="transfer_info" tableName="transfer_operations">
-            <column name="operation_id" type="INTEGER">
+            <column name="operation_id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="INTEGER">
+            <column name="user_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="target_account_id" type="INTEGER">
+            <column name="target_account_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="source_account_id" type="INTEGER">
+            <column name="source_account_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="amount" type="DECIMAL(12,2)">
+            <column name="amount" type="DECIMAL(19,2)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="TIMESTAMP"/>
-            <column name="operation_type" type="VARCHAR(255)">
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()">
                 <constraints nullable="false"/>
             </column>
-            <column name="status" type="VARCHAR(10)">
+            <column name="operation_type" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(16)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
-        <addAutoIncrement
-                tableName="transfer_operations"
-                columnName="operation_id"
-                schemaName="transfer_info"
-                sequenceName="transfer_operations_id_seq"/>
 
         <rollback>
             <dropTable tableName="transfer_operations" schemaName="transfer_info" cascadeConstraints="true"/>

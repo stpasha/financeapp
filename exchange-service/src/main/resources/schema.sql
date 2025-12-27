@@ -1,4 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS account_info;
+/*CREATE SCHEMA IF NOT EXISTS account_info;
 
 CREATE SEQUENCE user_id_seq START 1 OWNED BY account_info.users.user_id;
 
@@ -96,3 +96,4 @@ CREATE TABLE IF NOT EXISTS notification_info.notifications (
 );
 
 CREATE INDEX notifications_idx_operation_type ON notification_info.notifications(operation_type);
+*/

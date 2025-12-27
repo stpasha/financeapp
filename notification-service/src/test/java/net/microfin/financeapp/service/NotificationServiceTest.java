@@ -6,7 +6,7 @@ import net.microfin.financeapp.domain.Notification;
 import net.microfin.financeapp.dto.NotificationDTO;
 import net.microfin.financeapp.repository.NotificationRepository;
 import net.microfin.financeapp.util.OperationType;
-import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.UUIDDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -21,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,15 +41,17 @@ public class NotificationServiceTest extends AbstractTest {
     private JwtDecoder jwtDecoder;
 
     @Autowired
-    KafkaTemplate<Integer, NotificationDTO> kafkaTemplate;
+    KafkaTemplate<UUID, NotificationDTO> kafkaTemplate;
 
     @Autowired
     private EmbeddedKafkaBroker embeddedKafkaBroker;
+    private final UUID USER_ID = UUID.randomUUID();
+    private final UUID SECOND_USER_ID = UUID.randomUUID();
 
     @Test
     void shouldSaveNotificationSuccessfully() {
         NotificationDTO dto = NotificationDTO.builder()
-                .userId(1001)
+                .userId(USER_ID)
                 .operationType(OperationType.EXCHANGE.name())
                 .notificationDescription("Description")
                 .createdAt(LocalDateTime.now())
@@ -71,7 +74,7 @@ public class NotificationServiceTest extends AbstractTest {
     @Test
     void shouldSaveNotificationSuccessKafka() {
         NotificationDTO dto = NotificationDTO.builder()
-                .userId(1001)
+                .userId(USER_ID)
                 .operationType(OperationType.EXCHANGE.name())
                 .notificationDescription("Description")
                 .createdAt(LocalDateTime.now())
@@ -81,7 +84,7 @@ public class NotificationServiceTest extends AbstractTest {
         kafkaTemplate.send("input-notification", dto.getUserId(), dto).thenAccept(result -> {
             try (var consumerForTest = new DefaultKafkaConsumerFactory<>(
                     KafkaTestUtils.consumerProps("notification-group", "false", embeddedKafkaBroker),
-                    new IntegerDeserializer(),
+                    new UUIDDeserializer(),
                     new JsonDeserializer<>()
             ).createConsumer()) {
                 consumerForTest.subscribe(List.of("user-notification"));
@@ -98,7 +101,7 @@ public class NotificationServiceTest extends AbstractTest {
         var now = LocalDateTime.now();
 
         var n1 = Notification.builder()
-                .userId(1002)
+                .userId(SECOND_USER_ID)
                 .operationType(OperationType.CASH_DEPOSIT)
                 .notificationDescription("Message 1")
                 .createdAt(now.minusMinutes(5))
@@ -106,7 +109,7 @@ public class NotificationServiceTest extends AbstractTest {
                 .build();
 
         var n2 = Notification.builder()
-                .userId(1002)
+                .userId(SECOND_USER_ID)
                 .operationType(OperationType.TRANSFER)
                 .notificationDescription("Message 2")
                 .createdAt(now.minusMinutes(3))
@@ -114,7 +117,7 @@ public class NotificationServiceTest extends AbstractTest {
                 .build();
 
         var alreadyDelivered = Notification.builder()
-                .userId(1002)
+                .userId(SECOND_USER_ID)
                 .operationType(OperationType.EXCHANGE)
                 .notificationDescription("Old message")
                 .createdAt(now.minusHours(1))
@@ -123,14 +126,14 @@ public class NotificationServiceTest extends AbstractTest {
 
         notificationRepository.saveAll(List.of(n1, n2, alreadyDelivered));
 
-        List<NotificationDTO> received = notificationService.receiveNotification(1002);
+        List<NotificationDTO> received = notificationService.receiveNotification(SECOND_USER_ID);
 
         assertThat(received).hasSize(2);
         assertThat(received).allMatch(NotificationDTO::isDelivered);
         assertThat(received).extracting(NotificationDTO::getNotificationDescription)
                 .containsExactlyInAnyOrder("Message 1", "Message 2");
 
-        var stillUndelivered = notificationRepository.findNotificationByUserIdAndDelivered(1002, false);
+        var stillUndelivered = notificationRepository.findNotificationByUserIdAndDelivered(SECOND_USER_ID, false);
         assertThat(stillUndelivered).isEmpty();
     }
 }

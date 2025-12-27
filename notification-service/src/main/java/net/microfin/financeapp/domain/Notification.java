@@ -1,24 +1,12 @@
 package net.microfin.financeapp.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import net.microfin.financeapp.util.OperationType;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(schema = "notification_info", name = "notifications")
@@ -27,21 +15,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Notification {
     @Id
     @Column(name = "notification_id", nullable = false)
     @EqualsAndHashCode.Include
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq_gen")
-    @SequenceGenerator(
-            name="notification_id_seq_gen",
-            sequenceName = "notification_id_seq",
-            schema = "notification_info",
-            allocationSize = 1
-    )
-    private Integer id;
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private UUID id;
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private UUID userId;
     @Enumerated(EnumType.STRING)
     @Column(name = "operation_type", nullable = false)
     private OperationType operationType;

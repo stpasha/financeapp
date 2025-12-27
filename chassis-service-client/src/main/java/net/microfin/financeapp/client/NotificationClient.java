@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface NotificationClient {
     @GetMapping("/api/notification/user/{userId}")
-    ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(@PathVariable("userId") Integer userId);
+    ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(@PathVariable("userId") UUID userId);
 
     @Deprecated
     @PostMapping("/api/notification")

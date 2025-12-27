@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/notification")
@@ -24,7 +25,7 @@ public class NotificationApi {
 
     @Deprecated
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(@PathVariable("userId") Integer userId) {
+    public ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(@PathVariable("userId") UUID userId) {
         return ResponseEntity.ok(notificationService.receiveNotification(userId));
     }
 

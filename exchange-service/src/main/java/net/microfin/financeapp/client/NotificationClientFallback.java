@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 
 @Slf4j
@@ -14,7 +15,7 @@ import java.util.List;
 public class NotificationClientFallback implements NotificationClientImpl {
 
     @Override
-    public ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(Integer userId) {
+    public ResponseEntity<List<NotificationDTO>> listNotificationsByUserId(UUID userId) {
         log.warn("Fallback triggered for listNotificationsByUserId with userId={} due to service unavailability", userId);
         return ResponseEntity.ok(Collections.emptyList());
     }

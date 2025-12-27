@@ -102,7 +102,7 @@
             <column name="user_id" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
-            <column name="balance" type="DECIMAL(12,2)">
+            <column name="balance" type="DECIMAL(19,2)">
                 <constraints nullable="false"/>
             </column>
             <column name="currency_code" type="VARCHAR(3)">

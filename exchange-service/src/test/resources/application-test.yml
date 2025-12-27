@@ -19,7 +19,7 @@ spring:
       acks: all
       retries: 5
       delivery-timeout-ms: 120000
-      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 client:
   service:

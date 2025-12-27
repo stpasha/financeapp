@@ -15,7 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public abstract class BaseEntity {
     @Id
-    @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @EqualsAndHashCode.Include
     private UUID id;

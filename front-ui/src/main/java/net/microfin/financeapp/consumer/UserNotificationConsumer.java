@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -17,12 +18,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 @Slf4j
 @RequiredArgsConstructor
 public class UserNotificationConsumer {
-    private final ConcurrentHashMap<Integer, Deque<NotificationDTO>> userNotifications = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Deque<NotificationDTO>> userNotifications = new ConcurrentHashMap<>();
 
     private static final int MAX_NOTIFICATIONS_PER_USER = 100;
 
     @KafkaListener(topics = "user-notification", groupId = "user-app-group")
-    private void listen(ConsumerRecord<Integer, NotificationDTO> notification) {
+    private void listen(ConsumerRecord<UUID, NotificationDTO> notification) {
         userNotifications.compute(notification.key(), (userId, notifications) -> {
             if (notifications == null) {
                 notifications = new ConcurrentLinkedDeque<>();
@@ -36,7 +37,7 @@ public class UserNotificationConsumer {
         log.debug("Notification stored for user {}: {}", notification.key(), notification.value().getNotificationDescription());
     }
 
-    public List<NotificationDTO> consumeNotifications(Integer userId) {
+    public List<NotificationDTO> consumeNotifications(UUID userId) {
         Deque<NotificationDTO> deque = userNotifications.remove(userId);
         if (deque == null) {
             return List.of();

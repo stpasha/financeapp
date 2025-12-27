@@ -12,6 +12,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -61,7 +62,7 @@ public class DefaultNotificationService implements NotificationService {
 
     @Override
     @Transactional
-    public List<NotificationDTO> receiveNotification(Integer userId) {
+    public List<NotificationDTO> receiveNotification(UUID userId) {
         return notificationRepository.findNotificationByUserIdAndDelivered(userId, false).stream().map(notification -> {
             notification.setDelivered(true);
             return notificationMapper.toDto(notification);

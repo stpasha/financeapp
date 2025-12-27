@@ -53,10 +53,10 @@
             <column name="currency_code" type="VARCHAR(3)">
                 <constraints nullable="false"/>
             </column>
-            <column name="operation_type" type="INTEGER">
+            <column name="operation_type" type="VARCHAR(32)">
                 <constraints nullable="false"/>
             </column>
-            <column name="amount" type="DECIMAL(12,2)">
+            <column name="amount" type="DECIMAL(19,2)">
                 <constraints nullable="false"/>
             </column>
             <column name="created_at" type="TIMESTAMP"/>

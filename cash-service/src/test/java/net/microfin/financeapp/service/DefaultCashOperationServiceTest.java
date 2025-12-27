@@ -13,7 +13,7 @@ import net.microfin.financeapp.repository.CashOperationRepository;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
-import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.UUIDDeserializer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -72,10 +73,10 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             dto.setAmount(BigDecimal.valueOf(100));
             dto.setCurrencyCode(Currency.RUB);
             dto.setOperationType(OperationType.CASH_WITHDRAWAL);
-            dto.setUserId(123);
+            dto.setUserId(UUID.randomUUID());
 
             CashOperation entity = new CashOperation();
-            entity.setId(42);
+            entity.setId(UUID.randomUUID());
 
             CashOperationResultDTO resultDTO = CashOperationResultDTO.builder()
                     .status(OperationStatus.SENT)
@@ -99,7 +100,7 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             consumerProps.put(JsonDeserializer.TRUSTED_PACKAGES, "net.microfin.financeapp.dto");
             try (var consumerForTest = new DefaultKafkaConsumerFactory<>(
                     consumerProps,
-                    new IntegerDeserializer(),
+                    new UUIDDeserializer(),
                     new JsonDeserializer<>()
             ).createConsumer()) {
                 consumerForTest.subscribe(List.of("input-notification"));

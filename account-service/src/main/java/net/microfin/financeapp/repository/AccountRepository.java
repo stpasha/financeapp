@@ -24,6 +24,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     @Modifying
     @Query("UPDATE Account a SET a.active = false WHERE a.id = :id")
-    void disableAccount(@Param("id") Integer accountId);
+    void disableAccount(@Param("id") UUID accountId);
     Optional<Account> findByCurrencyCodeAndUserId(Currency currencyCode, UUID userId);
 }

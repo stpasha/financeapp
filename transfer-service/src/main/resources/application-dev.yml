@@ -35,7 +35,7 @@ spring:
       retries: 5
       delivery-timeout-ms: 120000
       bootstrap-servers: ${KAFKA_URL:financeapp-kafka:9092}
-      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   cloud:
     kubernetes:

@@ -20,6 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -50,9 +51,9 @@ public class TransferOperationApiIT extends AbstractTest {
         @Test
         void shouldReturnSuccessResponseForValidTransferOperation() throws Exception {
             TransferOperationDTO dto = TransferOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(100)
-                    .targetAccountId(101)
+                    .userId(UUID.randomUUID())
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
                     .amount(BigDecimal.valueOf(200))
                     .operationType(OperationType.TRANSFER)
                     .status(OperationStatus.PENDING)
@@ -82,9 +83,9 @@ public class TransferOperationApiIT extends AbstractTest {
         @Test
         void shouldReturnBadRequestForInvalidTransferOperation() throws Exception {
             TransferOperationDTO dto = TransferOperationDTO.builder()
-                    .userId(1)
-                    .sourceAccountId(100)
-                    .targetAccountId(101)
+                    .userId(UUID.randomUUID())
+                    .sourceAccountId(UUID.randomUUID())
+                    .targetAccountId(UUID.randomUUID())
                     .operationType(OperationType.TRANSFER)
                     .status(OperationStatus.PENDING)
                     .build();

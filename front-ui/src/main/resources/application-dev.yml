@@ -19,7 +19,7 @@ spring:
     consumer:
       bootstrap-servers: ${KAFKA_URL:financeapp-kafka:9092}
       group-id: user-app-group
-      key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.UUIDDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring:

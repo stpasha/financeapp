@@ -11,7 +11,7 @@ import net.microfin.financeapp.repository.ExchangeOperationRepository;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
-import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.UUIDDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +30,9 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -54,12 +53,6 @@ public class DefaultExchangeOperationServiceTest extends AbstractTest {
     @MockitoBean
     private AccountClientImpl accountClient;
 
-    @Autowired
-    private ExchangeOperationMapper mapper;
-
-    @Autowired
-    private ExchangeOperationRepository repository;
-
     @MockitoBean
     private JwtDecoder jwtDecoder;
 
@@ -70,25 +63,28 @@ public class DefaultExchangeOperationServiceTest extends AbstractTest {
     private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Test
-    void shouldPerformExchangeSuccessfully() throws ExecutionException, InterruptedException, TimeoutException {
+    void shouldPerformExchangeSuccessfully() {
         // given
+        UUID sourceAccountId = UUID.randomUUID();
+        UUID targetAccountId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
         ExchangeOperationDTO dto = ExchangeOperationDTO.builder()
-                .userId(1)
-                .sourceAccountId(101)
-                .targetAccountId(202)
+                .userId(userId)
+                .sourceAccountId(sourceAccountId)
+                .targetAccountId(targetAccountId)
                 .amount(BigDecimal.valueOf(100))
                 .operationType(OperationType.EXCHANGE)
                 .status(OperationStatus.PENDING)
                 .build();
 
         AccountDTO sourceAccount = AccountDTO.builder()
-                .id(101)
+                .id(sourceAccountId)
                 .balance(BigDecimal.valueOf(500))
                 .currencyCode(Currency.USD.name())
                 .build();
 
         AccountDTO targetAccount = AccountDTO.builder()
-                .id(202)
+                .id(targetAccountId)
                 .balance(BigDecimal.valueOf(300))
                 .currencyCode(Currency.EUR.name())
                 .build();
@@ -106,8 +102,8 @@ public class DefaultExchangeOperationServiceTest extends AbstractTest {
                                         .setScale(2, RoundingMode.HALF_DOWN))).toArray(CurrencyDTO[]::new));
         // when
         when(auditClient.check(dto)).thenReturn(ResponseEntity.ok(true));
-        when(accountClient.getAccount(101)).thenReturn(ResponseEntity.ok(sourceAccount));
-        when(accountClient.getAccount(202)).thenReturn(ResponseEntity.ok(targetAccount));
+        when(accountClient.getAccount(sourceAccountId)).thenReturn(ResponseEntity.ok(sourceAccount));
+        when(accountClient.getAccount(targetAccountId)).thenReturn(ResponseEntity.ok(targetAccount));
         when(accountClient.exchangeOperation(dto)).thenReturn(ResponseEntity.ok(resultDTO));
 
         // then
@@ -120,7 +116,7 @@ public class DefaultExchangeOperationServiceTest extends AbstractTest {
             assertThat(dto.getTargetAmount()).isEqualByComparingTo(BigDecimal.valueOf(90.00));
             try (var consumerForTest = new DefaultKafkaConsumerFactory<>(
                     KafkaTestUtils.consumerProps("notification-group", "false", embeddedKafkaBroker),
-                    new IntegerDeserializer(),
+                    new UUIDDeserializer(),
                     new JsonDeserializer<>()
             ).createConsumer()) {
                 consumerForTest.subscribe(List.of("input-notification"));

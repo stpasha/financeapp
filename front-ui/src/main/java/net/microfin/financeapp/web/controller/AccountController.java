@@ -22,6 +22,7 @@ import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class AccountController {
 
     @PostMapping("/{userId}/cash")
     public String performCashOperation(@ModelAttribute("cashDTO") @Valid CashOperationDTO cashDTO,
-                                 @PathVariable("userId") Integer userId,
+                                 @PathVariable("userId") UUID userId,
                                  BindingResult bindingResult) {
         return handleErrors(bindingResult, "cashErrors").map(String::toString).orElseGet(() ->{
             OperationResult operationResult = accountService.createCashOperation(cashDTO);
@@ -45,7 +46,7 @@ public class AccountController {
 
     @PostMapping("/{userId}/exchange")
     public String performExchangeOperation(@ModelAttribute("exchangeDTO") @Valid ExchangeOperationDTO exchangeOperationDTO,
-                                       @PathVariable("userId") Integer userId,
+                                       @PathVariable("userId") UUID userId,
                                        BindingResult bindingResult) {
         return handleErrors(bindingResult, "transferErrors").map(String::toString).orElseGet(() ->{
             OperationResult operationResult = accountService.createExchangeOperation(exchangeOperationDTO);
@@ -58,7 +59,7 @@ public class AccountController {
 
     @PostMapping("/{userId}/transfer")
     public String performTransferOperation(@ModelAttribute("transferDTO") @Valid TransferOperationDTO transferOperationDTO,
-                                           @PathVariable("userId") Integer userId,
+                                           @PathVariable("userId") UUID userId,
                                            BindingResult bindingResult) {
         return handleErrors(bindingResult, "transferOtherErrors").map(String::toString).orElseGet(() ->{
             OperationResult operationResult = accountService.createTransferOperation(transferOperationDTO);
@@ -71,7 +72,7 @@ public class AccountController {
 
     @GetMapping("/{userId}")
     @ResponseBody
-    public List<AccountDTO> getAccountsByUserId(@PathVariable("userId") Integer userId) {
+    public List<AccountDTO> getAccountsByUserId(@PathVariable("userId") UUID userId) {
         return accountService.getAccountsByUser(userId);
     }
 

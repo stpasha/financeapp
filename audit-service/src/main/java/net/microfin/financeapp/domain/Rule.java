@@ -4,29 +4,25 @@ import jakarta.persistence.*;
 import lombok.*;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationType;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name = "rules", schema = "rule_info")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Rule {
     @Id
     @Column(nullable = false, name = "rule_id")
     @EqualsAndHashCode.Include
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rule_id_seq_gen")
-    @SequenceGenerator(schema = "account_info",
-            name = "rule_id_seq_gen",
-            sequenceName = "rule_id_seq",
-            allocationSize = 1
-    )
-    private Integer id;
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private UUID id;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "operation_type")
     private OperationType operationType;

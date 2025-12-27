@@ -4,65 +4,39 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create rule_id sequence -->
-    <changeSet id="102" author="nomatter">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <sequenceExists sequenceName="rule_id_seq" schemaName="rule_info"/>
-            </not>
-        </preConditions>
-        <createSequence
-                sequenceName="rule_id_seq"
-                schemaName="rule_info"
-                startValue="1"
-                incrementBy="1"/>
-        <rollback>
-            <dropSequence sequenceName="rule_id_seq" schemaName="rule_info"/>
-        </rollback>
-    </changeSet>
-
-    <!-- Create rules table -->
-    <changeSet id="103" author="nomatter">
+    <!-- Rules table -->
+    <changeSet id="103-create-rules-table" author="nomatter">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="rules" schemaName="rule_info"/>
             </not>
         </preConditions>
+
         <createTable schemaName="rule_info" tableName="rules">
-            <column name="rule_id" type="INTEGER">
+            <column name="rule_id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="currency_code" type="VARCHAR(3)">
                 <constraints nullable="false"/>
             </column>
-            <column name="operation_type" type="VARCHAR(25)">
+            <column name="operation_type" type="VARCHAR(32)">
                 <constraints nullable="false"/>
             </column>
-            <column name="min_amount" type="DECIMAL(12,2)">
+            <column name="min_amount" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
             </column>
-            <column name="max_amount" type="DECIMAL(12,2)">
+            <column name="max_amount" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
             </column>
         </createTable>
 
-        <addAutoIncrement tableName="rules"
-                          columnName="rule_id"
-                          schemaName="rule_info"
-                          sequenceName="rule_id_seq"/>
         <rollback>
             <dropTable tableName="rules" schemaName="rule_info"/>
         </rollback>
     </changeSet>
 
-    <!-- Create index on operation_type -->
-    <changeSet id="104" author="nomatter">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <indexExists indexName="rules_idx_operation_type"
-                             schemaName="rule_info"
-                             tableName="rules"
-                             columnNames="operation_type"/>
-            </not>
-        </preConditions>
+    <!-- Indexes -->
+    <changeSet id="104-rules-idx-operation-type" author="nomatter">
         <createIndex indexName="rules_idx_operation_type"
                      tableName="rules"
                      schemaName="rule_info">
@@ -75,15 +49,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="105" author="nomatter">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <indexExists indexName="rules_idx_currency_code"
-                             schemaName="rule_info"
-                             tableName="rules"
-                             columnNames="currency_code"/>
-            </not>
-        </preConditions>
+    <changeSet id="105-rules-idx-currency-code" author="nomatter">
         <createIndex indexName="rules_idx_currency_code"
                      tableName="rules"
                      schemaName="rule_info">
@@ -91,6 +57,22 @@
         </createIndex>
         <rollback>
             <dropIndex indexName="rules_idx_currency_code"
+                       tableName="rules"
+                       schemaName="rule_info"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="106-rules-uq-operation-currency" author="nomatter">
+        <createIndex unique="true"
+                     indexName="rules_uq_operation_currency"
+                     tableName="rules"
+                     schemaName="rule_info">
+            <column name="operation_type"/>
+            <column name="currency_code"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex indexName="rules_uq_operation_currency"
                        tableName="rules"
                        schemaName="rule_info"/>
         </rollback>

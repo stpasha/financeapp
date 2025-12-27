@@ -6,10 +6,14 @@ import net.microfin.financeapp.AbstractIT;
 import net.microfin.financeapp.ServiceApplication;
 import net.microfin.financeapp.config.TestConfig;
 import net.microfin.financeapp.config.WireMockTestConfig;
+import net.microfin.financeapp.domain.Account;
+import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationResultDTO;
+import net.microfin.financeapp.repository.AccountRepository;
+import net.microfin.financeapp.repository.UserRepository;
 import net.microfin.financeapp.service.KeycloakUserService;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
@@ -24,9 +28,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,13 +67,37 @@ public class ControllerIT extends AbstractIT {
     @MockitoBean
     private JwtDecoder jwtDecoder;
 
-    // ============================
-    // Account API tests
-    // ============================
+    private User savedUser;
+
+    private Account accountFirstRUB;
+
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeMethod
+    void setup() {
+        accountRepository.deleteAll();
+        userRepository.deleteAll();
+
+        User testUser = new User();
+        testUser.setUsername("user1");
+        testUser.setFullName("Test User");
+        testUser.setEnabled(true);
+        testUser.setKeycloakId(UUID.randomUUID());
+        testUser.setDob(LocalDate.now().minusYears(20L));
+        savedUser = userRepository.save(testUser);
+        accountFirstRUB = accountRepository.save(Account.builder()
+                .active(true).currencyCode(Currency.RUB)
+                .balance(BigDecimal.valueOf(200))
+                .user(savedUser)
+                .build());
+    }
 
     @Test
     public void shouldGetAccountsByUser() throws Exception {
-        mockMvc.perform(get("/api/account/user/{userId}", 1)
+        mockMvc.perform(get("/api/account/user/{userId}", savedUser.getId())
                         .with(jwt().jwt(jwt -> jwt.claim("sub", "user"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
@@ -75,10 +105,10 @@ public class ControllerIT extends AbstractIT {
 
     @Test
     public void shouldGetAccountById() throws Exception {
-        mockMvc.perform(get("/api/account/{id}", 1)
+        mockMvc.perform(get("/api/account/{id}", accountFirstRUB.getId())
                         .with(jwt().jwt(jwt -> jwt.claim("sub", "user"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.id").value(accountFirstRUB.getId().toString()));
     }
 
     @Test
@@ -105,7 +135,7 @@ public class ControllerIT extends AbstractIT {
         CashOperationResultDTO result =
                 objectMapper.readValue(response, CashOperationResultDTO.class);
 
-        assertThat(result.getStatus()).isEqualTo(OperationStatus.SENT);
+        assertThat(result.getStatus()).isEqualTo(OperationStatus.PENDING);
     }
 
     @Test
@@ -131,6 +161,6 @@ public class ControllerIT extends AbstractIT {
         ExchangeOperationResultDTO result =
                 objectMapper.readValue(response, ExchangeOperationResultDTO.class);
 
-        assertThat(result.getStatus()).isEqualTo(OperationStatus.SENT);
+        assertThat(result.getStatus()).isEqualTo(OperationStatus.PENDING);
     }
 }
