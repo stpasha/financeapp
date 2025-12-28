@@ -15,8 +15,8 @@ import java.util.UUID;
 public interface OutboxEventRepository extends JpaRepository <OutboxEvent, UUID> {
     @Query(
             value = """
-        SELECT id
-        FROM account_info.outbox_events 
+        SELECT outbox_id
+        FROM account_info.outbox_events
         WHERE status = 'PENDING' OR status IS NULL
         ORDER BY created_at
         LIMIT :limit
@@ -26,8 +26,8 @@ public interface OutboxEventRepository extends JpaRepository <OutboxEvent, UUID>
     List<UUID> findOutboxEventIdByPendingStatus(@Param("limit") int limit);
     @Query(
             value = """
-        SELECT id 
-        FROM account_info.outbox_events 
+        SELECT outbox_id
+        FROM account_info.outbox_events
         WHERE status = 'RETRYABLE'
           AND retry_count < 5
           AND next_attempt_at < :now

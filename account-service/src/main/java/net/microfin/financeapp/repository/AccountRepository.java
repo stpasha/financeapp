@@ -19,11 +19,22 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     List<Account> findAccountsByUserId(UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT a FROM Account a
+        WHERE a.user.id = :userId
+          AND a.currencyCode = :currency
+          AND a.active = true
+    """)
+    Optional<Account> findActiveByUserAndCurrencyForUpdate(
+            UUID userId,
+            Currency currency
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Account a WHERE a.id = :id")
     Optional<Account> findByIdForUpdate(@Param("id") UUID id);
 
     @Modifying
     @Query("UPDATE Account a SET a.active = false WHERE a.id = :id")
     void disableAccount(@Param("id") UUID accountId);
-    Optional<Account> findByCurrencyCodeAndUserId(Currency currencyCode, UUID userId);
 }

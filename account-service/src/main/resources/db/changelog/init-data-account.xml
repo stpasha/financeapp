@@ -203,5 +203,9 @@
         </rollback>
     </changeSet>
 
+<!--    CREATE UNIQUE INDEX ux_active_account-->
+<!--    ON accounts (user_id, currency_code)-->
+<!--    WHERE is_active = true;-->
+
 
 </databaseChangeLog>

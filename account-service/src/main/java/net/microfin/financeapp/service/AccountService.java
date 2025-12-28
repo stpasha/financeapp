@@ -2,6 +2,7 @@ package net.microfin.financeapp.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.AccType;
 import net.microfin.financeapp.domain.Account;
@@ -14,13 +15,13 @@ import net.microfin.financeapp.dto.TransferOperationDTO;
 import net.microfin.financeapp.exception.AccountNotFoundException;
 import net.microfin.financeapp.exception.InsufficientFundsException;
 import net.microfin.financeapp.exception.InvalidPayloadException;
+import net.microfin.financeapp.exception.UserNotFoundException;
 import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.UserRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.validation.Validator;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -70,42 +71,33 @@ public class AccountService {
     @Transactional
     public void processCashDeposit(OutboxEvent outboxEvent) {
         CashOperationDTO cashDeposit = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
+        processValidation(cashDeposit);
+        if (outboxEvent.getAccountId() == null) {
+            depositNewAcc(cashDeposit);
+        } else {
+            depositExistingAcc(cashDeposit);
+        }
+    }
+
+    private void processValidation(CashOperationDTO cashDeposit) {
         var violations = validator.validate(cashDeposit);
         if (!violations.isEmpty()) {
             throw new InvalidPayloadException(violations.toString());
-        }
-        if (outboxEvent.getAccountId() == null) {
-            userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
-                    .active(true)
-                    .balance(cashDeposit.getAmount())
-                    .currencyCode(cashDeposit.getCurrencyCode())
-                    .user(user).build())).orElseThrow(() -> new RuntimeException("User not found"));
-
-        } else {
-            accountRepository.findByIdForUpdate(cashDeposit.getAccountId()).map(account -> {
-                account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
-                return account;
-            }).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashDeposit.getAccountId()));
         }
     }
 
     @Transactional
     public void processCashWithdraw(OutboxEvent outboxEvent) {
         CashOperationDTO cashWithdraw = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
-        var violations = validator.validate(cashWithdraw);
-        if (!violations.isEmpty()) {
-            throw new InvalidPayloadException(violations.toString());
-        }
+        processValidation(cashWithdraw);
         if (cashWithdraw.getAccountId() == null) {
             throw new AccountNotFoundException("Account not found" + cashWithdraw);
         } else {
-            accountRepository.findByIdForUpdate(cashWithdraw.getAccountId()).map(account -> {
-                if (account.getBalance().compareTo(cashWithdraw.getAmount()) < 0) {
-                    throw new InsufficientFundsException("Insufficient funds in the account" + account.getId());
-                }
-                account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
-                return accountRepository.save(account);
-            }).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashWithdraw.getAccountId()));
+            Account account = accountRepository.findByIdForUpdate(cashWithdraw.getAccountId()).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashWithdraw.getAccountId()));
+            if (account.getBalance().compareTo(cashWithdraw.getAmount()) < 0) {
+                throw new InsufficientFundsException("Insufficient funds in the account" + account.getId());
+            }
+            account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
         }
     }
 
@@ -202,10 +194,9 @@ public class AccountService {
     }
 
     private Account deposit(UUID transfer, BigDecimal amount) {
-        return accountRepository.findByIdForUpdate(transfer).map(account -> {
-            account.setBalance(account.getBalance().add(amount));
-            return account;
-        }).orElseThrow(() -> new AccountNotFoundException("Account not found" + transfer));
+        Account account = accountRepository.findByIdForUpdate(transfer).orElseThrow(() -> new AccountNotFoundException("Account not found" + transfer));
+        account.setBalance(account.getBalance().add(amount));
+        return account;
     }
 
     private Account withdraw(UUID transfer, BigDecimal amount) {
@@ -226,6 +217,28 @@ public class AccountService {
         }
     }
 
+    private void depositExistingAcc(CashOperationDTO cashDeposit) {
+        accountRepository.findByIdForUpdate(cashDeposit.getAccountId()).map(account -> {
+            account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
+            return account;
+        }).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashDeposit.getAccountId()));
+    }
+
+    private void depositNewAcc(CashOperationDTO cashDeposit) {
+        Account account = accountRepository.findActiveByUserAndCurrencyForUpdate(
+                cashDeposit.getUserId(),
+                cashDeposit.getCurrencyCode()
+        ).orElseGet(() -> createAccount(cashDeposit));
+        account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
+    }
+
+    private Account createAccount(CashOperationDTO cashDeposit) {
+        return userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
+                .active(true)
+                .balance(BigDecimal.ZERO)
+                .currencyCode(cashDeposit.getCurrencyCode())
+                .user(user).build())).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
 
 
 }

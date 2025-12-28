@@ -40,4 +40,9 @@ public class ExchangeOperation {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private OperationStatus status;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
