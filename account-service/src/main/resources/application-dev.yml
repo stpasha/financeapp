@@ -30,10 +30,14 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     url: ${SPRING_DATASOURCE_URL}
-    enabled: true
+    enabled: false
     default-schema: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA}
+    schemas: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA}
+    baseline-on-migrate: false
 keycloak:
   server-url: ${KEYCLOAK_SERVER_URL:http://keycloak.local/}
   realm: ${KEYCLOAK_SERVER_REALM:zbank}

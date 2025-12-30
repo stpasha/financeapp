@@ -4,9 +4,11 @@ spring:
   cloud:
   liquibase:
     enabled: false
-    duplicateFileMode: WARN
-liquibase:
-  duplicateFileMode: WARN
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA:"account_info"}
+    schemas: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA:"account_info"}
+    baseline-on-migrate: true
+    baseline-version: 1
 keycloak:
   server-url: http://keycloak:7080/
   realm: zbank

@@ -48,6 +48,10 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+            {{- if .Values.debug.enabled }}
+            - name: debug
+              containerPort: {{ .Values.debug.port }}
+            {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -62,7 +66,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "cash-service.fullname" . }}
+                name: {{ include "transfer-service.fullname" . }}
           env:
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:

@@ -19,7 +19,7 @@ import net.microfin.financeapp.exception.UserNotFoundException;
 import net.microfin.financeapp.mapper.AccountMapper;
 import net.microfin.financeapp.repository.AccountRepository;
 import net.microfin.financeapp.repository.UserRepository;
-import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,18 +127,18 @@ public class AccountService {
                     min,
                     min == exchange.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
-            if(AccType.SOURCE.equals(firstAccount.getRight())) {
-                withdrawAccount = withdraw(firstAccount.getLeft(), exchange.getAmount());
+            if(AccType.SOURCE.equals(firstAccount.getSecond())) {
+                withdrawAccount = withdraw(firstAccount.getFirst(), exchange.getAmount());
             } else {
-                depositAccount = deposit(firstAccount.getLeft(), exchange.getAmount());
+                depositAccount = deposit(firstAccount.getFirst(), exchange.getAmount());
             }
-            if(AccType.SOURCE.equals(secondAccount.getRight())) {
-                withdrawAccount = withdraw(secondAccount.getLeft(), exchange.getAmount());
+            if(AccType.SOURCE.equals(secondAccount.getSecond())) {
+                withdrawAccount = withdraw(secondAccount.getFirst(), exchange.getAmount());
             } else {
-                depositAccount = deposit(secondAccount.getLeft(), exchange.getAmount());
+                depositAccount = deposit(secondAccount.getFirst(), exchange.getAmount());
             }
 
-            if (firstAccount.getRight() == secondAccount.getRight()) {
+            if (firstAccount.getSecond() == secondAccount.getSecond()) {
                 throw new IllegalStateException("Both accounts have same role (SOURCE/SOURCE or TARGET/TARGET)");
             }
 
@@ -174,18 +174,18 @@ public class AccountService {
                     min,
                     min == transfer.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
             );
-            if(AccType.SOURCE.equals(firstAccount.getRight())) {
-                withdrawAccount = withdraw(firstAccount.getLeft(), transfer.getAmount());
+            if(AccType.SOURCE.equals(firstAccount.getSecond())) {
+                withdrawAccount = withdraw(firstAccount.getFirst(), transfer.getAmount());
             } else {
-                depositAccount = deposit(firstAccount.getLeft(), transfer.getAmount());
+                depositAccount = deposit(firstAccount.getFirst(), transfer.getAmount());
             }
-            if(AccType.SOURCE.equals(secondAccount.getRight())) {
-                withdrawAccount = withdraw(secondAccount.getLeft(), transfer.getAmount());
+            if(AccType.SOURCE.equals(secondAccount.getSecond())) {
+                withdrawAccount = withdraw(secondAccount.getFirst(), transfer.getAmount());
             } else {
-                depositAccount = deposit(secondAccount.getLeft(), transfer.getAmount());
+                depositAccount = deposit(secondAccount.getFirst(), transfer.getAmount());
             }
 
-            if (firstAccount.getRight() == secondAccount.getRight()) {
+            if (firstAccount.getSecond() == secondAccount.getSecond()) {
                 throw new IllegalStateException("Both accounts have same role (SOURCE/SOURCE or TARGET/TARGET)");
             }
 
