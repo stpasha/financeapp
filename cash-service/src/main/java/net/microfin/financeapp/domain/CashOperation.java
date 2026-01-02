@@ -3,6 +3,7 @@ package net.microfin.financeapp.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
+import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
 import org.hibernate.annotations.UuidGenerator;
@@ -32,8 +33,9 @@ public class CashOperation {
     private UUID accountId;
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency_code", nullable = false, length = 3)
-    private String currencyCode;
+    private Currency currencyCode;
     @Positive
     @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;

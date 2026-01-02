@@ -48,14 +48,18 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    schema: ${SPRING_DATASOURCE_CASH_SCHEMA}
+    schema: ${SPRING_DATASOURCE_CASH_SCHEMA:"cash_info"}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     url: ${SPRING_DATASOURCE_URL}
-    enabled: true
-    default-schema: ${SPRING_DATASOURCE_CASH_SCHEMA}
+    enabled: false
+    default-schema: ${SPRING_DATASOURCE_CASH_SCHEMA:"cash_info"}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_CASH_SCHEMA:"cash_info"}
+    schemas: ${SPRING_DATASOURCE_CASH_SCHEMA:"cash_info"}
+    baseline-on-migrate: false
 keycloak:
   server-url: ${KEYCLOAK_SERVER_URL:http://keycloak.local/}
   realm: ${KEYCLOAK_SERVER_REALM:zbank}

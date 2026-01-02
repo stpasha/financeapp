@@ -10,6 +10,10 @@ spring:
         enabled: false
   liquibase:
     enabled: false
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_AUDIT_SCHEMA:"rule_info"}
+    schemas: ${SPRING_DATASOURCE_AUDIT_SCHEMA:"rule_info"}
+    baseline-on-migrate: false
 client:
   service:
     account: ${spring.release.name:financeapp}-account-service

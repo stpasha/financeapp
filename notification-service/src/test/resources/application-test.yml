@@ -20,3 +20,7 @@ spring:
     name: audit-service
   liquibase:
     enabled: false
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_NOTIFICATION_SCHEMA:"notification_info"}
+    schemas: ${SPRING_DATASOURCE_NOTIFICATION_SCHEMA:"notification_info"}
+    baseline-on-migrate: false

@@ -7,8 +7,7 @@ spring:
   flyway:
     default-schema: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA:"account_info"}
     schemas: ${SPRING_DATASOURCE_ACCOUNT_SCHEMA:"account_info"}
-    baseline-on-migrate: true
-    baseline-version: 1
+    baseline-on-migrate: false
 keycloak:
   server-url: http://keycloak:7080/
   realm: zbank

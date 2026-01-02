@@ -29,7 +29,7 @@ public class Notification {
     private OperationType operationType;
     @Column(name = "notification_description")
     private String notificationDescription;
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "delivered")
     private boolean delivered;

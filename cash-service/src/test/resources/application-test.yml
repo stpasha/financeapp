@@ -11,6 +11,10 @@ spring:
   cloud:
   liquibase:
     enabled: false
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_CASH_SCHEMA:"cash_info"}
+    schemas: ${SPRING_DATASOURCE_CASH_SCHEMA:"cash_info"}
+    baseline-on-migrate: false
 client:
   service:
     account: ${spring.release.name:financeapp}-account-service

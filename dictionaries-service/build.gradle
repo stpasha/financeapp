@@ -51,8 +51,6 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.38'
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-    implementation 'org.liquibase:liquibase-core:4.31.0'
-
     testImplementation 'org.mapstruct:mapstruct:1.6.3'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.4.5'  // Мост между Micrometer и Brave

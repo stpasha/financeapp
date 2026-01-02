@@ -1,8 +1,5 @@
 package net.microfin.financeapp;
 
-
-import liquibase.command.CommandScope;
-import liquibase.exception.CommandExecutionException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -23,22 +20,8 @@ public abstract class AbstractTest {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        applyMigrations(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
     }
 
-    static void applyMigrations(String jdbcUrl, String username, String password) {
-        try {
-            new CommandScope("update")
-                    .addArgumentValue("changelogFile", "db/changelog/db.changelog-master.xml")
-                    .addArgumentValue("url", jdbcUrl + "&currentSchema=account_info")
-                    .addArgumentValue("username", username)
-                    .addArgumentValue("password", password)
-                    .addArgumentValue("contexts", "!exclude-db-create")
-                    .execute();
-        } catch (CommandExecutionException e) {
-            throw new RuntimeException("Failed to execute Liquibase migrations", e);
-        }
-    }
 }
 
 

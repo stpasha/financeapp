@@ -63,14 +63,18 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    schema: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA}
+    schema: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA:"exchange_info"}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     url: ${SPRING_DATASOURCE_URL}
-    enabled: true
-    default-schema: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA}
+    enabled: false
+    default-schema: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA:"exchange_info"}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA:"exchange_info"}
+    schemas: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA:"exchange_info"}
+    baseline-on-migrate: false
 exceptions:
   insufficientFundsFailure: ${INSUFFICENT_FUNDS_FAILURE:"Insufficient funds"}
   currencyNotFoundFailure: ${CURRENCY_NOT_FOUND_FAILURE:"Currency info not found"}

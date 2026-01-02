@@ -3,6 +3,10 @@ spring:
     name: audit-service
   liquibase:
     enabled: false
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA:"exchange_info"}
+    schemas: ${SPRING_DATASOURCE_EXCHANGE_SCHEMA:"exchange_info"}
+    baseline-on-migrate: false
   kafka:
     consumer:
       group-id: exchange-group

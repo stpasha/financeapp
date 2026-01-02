@@ -20,6 +20,10 @@ spring:
     name: audit-service
   liquibase:
     enabled: false
+  flyway:
+    default-schema: ${SPRING_DATASOURCE_TRANSFER_SCHEMA:"transfer_info"}
+    schemas: ${SPRING_DATASOURCE_TRANSFER_SCHEMA:"transfer_info"}
+    baseline-on-migrate: false
 client:
   service:
     account: ${spring.release.name:financeapp}-account-service
