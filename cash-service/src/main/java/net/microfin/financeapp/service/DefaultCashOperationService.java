@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -43,7 +45,7 @@ public class DefaultCashOperationService implements CashOperationService {
                                 @Override
                                 public void afterCommit() {
                                     try {
-                                        processOperation(cashOperation);
+                                        processOperation(cashOperation.getId(), operationDTO);
                                     } catch (Exception e) {
                                         log.error(
                                                 "Post-commit processing failed. operationId={}, userId={}, type={}",
@@ -69,9 +71,9 @@ public class DefaultCashOperationService implements CashOperationService {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(CashOperationResultDTO.builder().message("Server unavailable.").status(OperationStatus.FAILED).build());
     }
 
-    private void processOperation(CashOperation cashOperation) {
+    private void processOperation(UUID cashOperationId, CashOperationDTO cashOperation) {
         CashOperationDTO cashOperationDTO = CashOperationDTO.builder()
-                .id(cashOperation.getId())
+                .id(cashOperationId)
                 .userId(cashOperation.getUserId())
                 .operationType(cashOperation.getOperationType())
                 .accountId(cashOperation.getAccountId())

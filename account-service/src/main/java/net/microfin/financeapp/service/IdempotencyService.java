@@ -1,9 +1,8 @@
 package net.microfin.financeapp.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.microfin.financeapp.domain.IdempotencyRecord;
-import net.microfin.financeapp.repository.IdempotencyRecordRepository;
+import net.microfin.financeapp.jooq.tables.records.IdempotencyRecordsRecord;
+import net.microfin.financeapp.repository.IdempotencyRecordWriteRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -14,17 +13,17 @@ import java.time.LocalDateTime;
 @Service
 @Slf4j
 public class IdempotencyService {
-    private final IdempotencyRecordRepository idempotencyRecordRepository;
+    private final IdempotencyRecordWriteRepository idempotencyRecordRepository;
     private final Long ttlDays;
 
-    public IdempotencyService(IdempotencyRecordRepository idempotencyRecordRepository, @Value("${spring.scheduler.ttl.idempotency:30}") Long ttlDays) {
+    public IdempotencyService(IdempotencyRecordWriteRepository idempotencyRecordRepository, @Value("${spring.scheduler.ttl.idempotency:30}") Long ttlDays) {
         this.idempotencyRecordRepository = idempotencyRecordRepository;
         this.ttlDays = ttlDays;
     }
 
-    public boolean tryStart(IdempotencyRecord idempotencyRecord) {
+    public boolean tryStart(IdempotencyRecordsRecord idempotencyRecord) {
         try {
-            idempotencyRecordRepository.save(idempotencyRecord);
+            idempotencyRecordRepository.insert(idempotencyRecord.getOutboxId(), idempotencyRecord.getCreatedAt(), idempotencyRecord.getExpireAt());
         } catch (DataIntegrityViolationException e) {
             log.warn("Idempotency record already exists for event {}", idempotencyRecord.getOutboxId());
             return false;
@@ -34,6 +33,7 @@ public class IdempotencyService {
 
     @Transactional
     public void deleteAllOutdated() {
-        idempotencyRecordRepository.deleteAllByTtl(LocalDateTime.now().minusDays(ttlDays));
+        int deleted = idempotencyRecordRepository.deleteAllByTtl(LocalDateTime.now().minusDays(ttlDays));
+        log.debug("Deleted {} old idempotency rows", deleted);
     }
 }

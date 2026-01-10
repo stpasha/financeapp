@@ -1,24 +1,77 @@
 package net.microfin.financeapp.mapper;
 
-import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
-import org.mapstruct.*;
+import net.microfin.financeapp.jooq.tables.records.UsersRecord;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
-    @Mapping(target = "accounts", ignore = true)
-    User toEntity(UserDTO dto);
+@Component
+public class UserMapper {
 
-    @Mapping(target = "confirmPassword", ignore = true)
-    UserDTO toDto(User user);
+    /* =========================
+       DTO -> Record (create)
+       ========================= */
+    public UsersRecord toRecord(UserDTO dto) {
+        if (dto == null) {
+            return null;
+        }
 
-    UserDTO toDto(UpdateUserDTO updateUserDTO);
+        UsersRecord record = new UsersRecord();
+        record.setUserId(dto.getId());
+        record.setKeycloakId(dto.getKeycloakId());
+        record.setUserName(dto.getUsername());
+        record.setFullName(dto.getFullName());
+        record.setDob(dto.getDob());
+        record.setIsEnabled(dto.getEnabled());
+        return record;
+    }
 
-    List<UserDTO> toDtoList(List<User> users);
+    /* =========================
+       Record -> DTO (read)
+       ========================= */
+    public UserDTO toDto(UsersRecord record) {
+        if (record == null) {
+            return null;
+        }
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    User toPatchedEntity(UserDTO userDTO, @MappingTarget User user);
+        UserDTO dto = new UserDTO();
+        dto.setId(record.getUserId());
+        dto.setKeycloakId(record.getKeycloakId());
+        dto.setUsername(record.getUserName());
+        dto.setFullName(record.getFullName());
+        dto.setDob(record.getDob());
+        dto.setEnabled(record.getIsEnabled());
+
+        // security: не маппим пароли
+        dto.setPassword(null);
+        dto.setConfirmPassword(null);
+
+        return dto;
+    }
+
+    public List<UserDTO> toDtoList(List<UsersRecord> records) {
+        return records.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    /* =========================
+       PATCH (UpdateUserDTO)
+       ========================= */
+    public UsersRecord toPatchedRecord(UpdateUserDTO dto) {
+        UsersRecord record = new UsersRecord();
+
+        if (dto.getFullName() != null) {
+            record.setFullName(dto.getFullName());
+        }
+        if (dto.getDob() != null) {
+            record.setDob(dto.getDob());
+        }
+        record.setUserId(dto.getId());
+
+        return record;
+    }
 }
+

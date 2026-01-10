@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Repository
-public interface IdempotencyRecordRepository extends JpaRepository<IdempotencyRecord, UUID> {
+public interface IdempotencyRecordLegacyRepository extends JpaRepository<IdempotencyRecord, UUID> {
     @Query(value = "DELETE FROM IdempotencyRecord ir WHERE ir.expireAt < :ttl")
     @Modifying
     int deleteAllByTtl(@Param("ttl") LocalDateTime ttl);

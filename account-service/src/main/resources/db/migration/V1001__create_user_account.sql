@@ -26,6 +26,7 @@ CREATE TABLE account_info.accounts (
 CREATE INDEX accounts_idx_user_id ON account_info.accounts(user_id);
 CREATE UNIQUE INDEX ux_users_keycloak_id ON account_info.users(keycloak_id);
 CREATE UNIQUE INDEX ux_users_user_name ON account_info.users(user_name);
+CREATE UNIQUE INDEX ux_active_account ON account_info.accounts(user_id, currency_code) WHERE is_active = true;
 
 
 

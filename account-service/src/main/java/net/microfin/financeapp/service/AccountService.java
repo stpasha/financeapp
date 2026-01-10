@@ -5,9 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.AccType;
-import net.microfin.financeapp.domain.Account;
-import net.microfin.financeapp.domain.OutboxEvent;
-import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
@@ -15,15 +12,17 @@ import net.microfin.financeapp.dto.TransferOperationDTO;
 import net.microfin.financeapp.exception.AccountNotFoundException;
 import net.microfin.financeapp.exception.InsufficientFundsException;
 import net.microfin.financeapp.exception.InvalidPayloadException;
-import net.microfin.financeapp.exception.UserNotFoundException;
+import net.microfin.financeapp.jooq.tables.records.AccountsRecord;
+import net.microfin.financeapp.jooq.tables.records.OutboxEventsRecord;
 import net.microfin.financeapp.mapper.AccountMapper;
-import net.microfin.financeapp.repository.AccountRepository;
-import net.microfin.financeapp.repository.UserRepository;
+import net.microfin.financeapp.repository.AccountReadRepository;
+import net.microfin.financeapp.repository.AccountWriteRepository;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,20 +32,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AccountService {
 
-    private final AccountRepository accountRepository;
+    private final AccountWriteRepository accountWriteRepository;
     private final AccountMapper accountMapper;
-    private final UserRepository userRepository;
+    private final AccountReadRepository accountReadRepository;
     private final Validator validator;
     private final ObjectMapper objectMapper;
 
-    @Transactional(readOnly = true)
     public List<AccountDTO> getAccountsByUserId(UUID userId) {
-        return accountMapper.toDtoList(accountRepository.findAccountsByUserId(userId));
+        return accountMapper.toDTOList(accountReadRepository.findAccountsByUserId(userId));
     }
 
-    @Transactional(readOnly = true)
     public Optional<AccountDTO> getAccount(UUID id) {
-        return accountRepository.findById(id).map(accountMapper::toDto);
+        return accountReadRepository.findById(id).map(accountMapper::toDTO);
     }
 
     @Transactional
@@ -55,21 +52,18 @@ public class AccountService {
         if (!violations.isEmpty()) {
             throw new InvalidPayloadException(violations.toString());
         }
-        Optional<User> userOptional = userRepository.findById(accountDTO.getUserId());
-        User user = userOptional.orElseThrow(() -> new IllegalArgumentException("User not provided for account"));
-        Account account = accountMapper.toEntity(accountDTO);
-        account.setUser(user);
-        Account saved = accountRepository.save(account);
-        return Optional.of(accountMapper.toDto(saved));
+        AccountsRecord account = accountMapper.toRecord(accountDTO);
+        AccountsRecord saved = accountWriteRepository.insert(account);
+        return Optional.of(accountMapper.toDTO(saved));
     }
 
     @Transactional
     public void disable(UUID id) {
-        accountRepository.disableAccount(id);
+        accountWriteRepository.disableAccount(id);
     }
 
     @Transactional
-    public void processCashDeposit(OutboxEvent outboxEvent) {
+    public void processCashDeposit(OutboxEventsRecord outboxEvent) {
         CashOperationDTO cashDeposit = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
         processValidation(cashDeposit);
         if (outboxEvent.getAccountId() == null) {
@@ -87,22 +81,23 @@ public class AccountService {
     }
 
     @Transactional
-    public void processCashWithdraw(OutboxEvent outboxEvent) {
+    public void processCashWithdraw(OutboxEventsRecord outboxEvent) {
         CashOperationDTO cashWithdraw = fromJson(outboxEvent.getPayload(), CashOperationDTO.class);
         processValidation(cashWithdraw);
         if (cashWithdraw.getAccountId() == null) {
             throw new AccountNotFoundException("Account not found" + cashWithdraw);
         } else {
-            Account account = accountRepository.findByIdForUpdate(cashWithdraw.getAccountId()).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashWithdraw.getAccountId()));
+            AccountsRecord account = accountWriteRepository.findByIdForUpdate(cashWithdraw.getAccountId()).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashWithdraw.getAccountId()));
             if (account.getBalance().compareTo(cashWithdraw.getAmount()) < 0) {
-                throw new InsufficientFundsException("Insufficient funds in the account" + account.getId());
+                throw new InsufficientFundsException("Insufficient funds in the account" + account.getAccountId());
             }
             account.setBalance(account.getBalance().subtract(cashWithdraw.getAmount()));
+            accountWriteRepository.updateBalance(account);
         }
     }
 
     @Transactional
-    public void processExchange(OutboxEvent outboxEvent) {
+    public void processExchange(OutboxEventsRecord outboxEvent) {
         ExchangeOperationDTO exchange = fromJson(outboxEvent.getPayload(), ExchangeOperationDTO.class);
         if (exchange.getSourceAccountId() == null || exchange.getTargetAccountId() == null) {
             throw new AccountNotFoundException("Account not found" + exchange.getSourceAccountId() + " " + exchange.getTargetAccountId());
@@ -111,22 +106,27 @@ public class AccountService {
             if (!violations.isEmpty()) {
                 throw new InvalidPayloadException(violations.toString());
             }
-            Account depositAccount = null;
-            Account withdrawAccount = null;
+            AccountsRecord depositAccount = null;
+            AccountsRecord withdrawAccount = null;
             if (exchange.getSourceAccountId().equals(exchange.getTargetAccountId())) {
                 throw new IllegalArgumentException("Source and target account cannot be the same");
             }
 
-            UUID max = exchange.getSourceAccountId().timestamp() > exchange.getTargetAccountId().timestamp() ? exchange.getSourceAccountId() : exchange.getTargetAccountId();
+            UUID sourceId = exchange.getSourceAccountId();
+            UUID targetId = exchange.getTargetAccountId();
+
+            boolean sourceFirst = sourceId.compareTo(targetId) > 0;
+
             Pair<UUID, AccType> firstAccount = Pair.of(
-                    max,
-                    max == exchange.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
+                    sourceFirst ? sourceId : targetId,
+                    sourceFirst ? AccType.SOURCE : AccType.TARGET
             );
-            UUID min = exchange.getSourceAccountId().timestamp() > exchange.getTargetAccountId().timestamp() ? exchange.getTargetAccountId() : exchange.getSourceAccountId();
+
             Pair<UUID, AccType> secondAccount = Pair.of(
-                    min,
-                    min == exchange.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
+                    sourceFirst ? targetId : sourceId,
+                    sourceFirst ? AccType.TARGET : AccType.SOURCE
             );
+
             if(AccType.SOURCE.equals(firstAccount.getSecond())) {
                 withdrawAccount = withdraw(firstAccount.getFirst(), exchange.getAmount());
             } else {
@@ -143,12 +143,12 @@ public class AccountService {
             }
 
 
-            accountRepository.saveAll(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
+            accountWriteRepository.updateAllBalances(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
         }
     }
 
     @Transactional
-    public void processTransfer(OutboxEvent outboxEvent) {
+    public void processTransfer(OutboxEventsRecord outboxEvent) {
         TransferOperationDTO transfer = fromJson(outboxEvent.getPayload(), TransferOperationDTO.class);
         if (transfer.getSourceAccountId() == null || transfer.getTargetAccountId() == null) {
             throw new AccountNotFoundException("Account not found" + transfer.getSourceAccountId() + " " + transfer.getTargetAccountId());
@@ -157,23 +157,28 @@ public class AccountService {
             if (!violations.isEmpty()) {
                 throw new InvalidPayloadException(violations.toString());
             }
-            Account depositAccount = null;
-            Account withdrawAccount = null;
+            AccountsRecord depositAccount = null;
+            AccountsRecord withdrawAccount = null;
 
             if (transfer.getSourceAccountId().equals(transfer.getTargetAccountId())) {
                 throw new IllegalArgumentException("Source and target account cannot be the same");
             }
 
-            UUID max = transfer.getSourceAccountId().timestamp() > transfer.getTargetAccountId().timestamp() ? transfer.getSourceAccountId() : transfer.getTargetAccountId();
+            UUID sourceId = transfer.getSourceAccountId();
+            UUID targetId = transfer.getTargetAccountId();
+
+            boolean sourceFirst = sourceId.compareTo(targetId) > 0;
+
             Pair<UUID, AccType> firstAccount = Pair.of(
-                    max,
-                    max == transfer.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
+                    sourceFirst ? sourceId : targetId,
+                    sourceFirst ? AccType.SOURCE : AccType.TARGET
             );
-            UUID min = transfer.getSourceAccountId().timestamp() > transfer.getTargetAccountId().timestamp() ? transfer.getTargetAccountId() : transfer.getSourceAccountId();
+
             Pair<UUID, AccType> secondAccount = Pair.of(
-                    min,
-                    min == transfer.getSourceAccountId() ? AccType.SOURCE : AccType.TARGET
+                    sourceFirst ? targetId : sourceId,
+                    sourceFirst ? AccType.TARGET : AccType.SOURCE
             );
+
             if(AccType.SOURCE.equals(firstAccount.getSecond())) {
                 withdrawAccount = withdraw(firstAccount.getFirst(), transfer.getAmount());
             } else {
@@ -189,18 +194,18 @@ public class AccountService {
                 throw new IllegalStateException("Both accounts have same role (SOURCE/SOURCE or TARGET/TARGET)");
             }
 
-            accountRepository.saveAll(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
+            accountWriteRepository.updateAllBalances(List.of(Objects.requireNonNull(depositAccount), Objects.requireNonNull(withdrawAccount)));
         }
     }
 
-    private Account deposit(UUID transfer, BigDecimal amount) {
-        Account account = accountRepository.findByIdForUpdate(transfer).orElseThrow(() -> new AccountNotFoundException("Account not found" + transfer));
+    private AccountsRecord deposit(UUID transfer, BigDecimal amount) {
+        AccountsRecord account = accountWriteRepository.findByIdForUpdate(transfer).orElseThrow(() -> new AccountNotFoundException("Account not found" + transfer));
         account.setBalance(account.getBalance().add(amount));
         return account;
     }
 
-    private Account withdraw(UUID transfer, BigDecimal amount) {
-        return accountRepository.findByIdForUpdate(transfer).map(account -> {
+    private AccountsRecord withdraw(UUID transfer, BigDecimal amount) {
+        return accountWriteRepository.findByIdForUpdate(transfer).map(account -> {
             if (account.getBalance().compareTo(amount) < 0) {
                 throw new InsufficientFundsException("Insufficient funds in the account" + transfer);
             }
@@ -218,26 +223,26 @@ public class AccountService {
     }
 
     private void depositExistingAcc(CashOperationDTO cashDeposit) {
-        accountRepository.findByIdForUpdate(cashDeposit.getAccountId()).map(account -> {
+        accountWriteRepository.findByIdForUpdate(cashDeposit.getAccountId()).map(account -> {
             account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
+            accountWriteRepository.updateBalance(account);
             return account;
         }).orElseThrow(() -> new AccountNotFoundException("Account not found" + cashDeposit.getAccountId()));
     }
 
     private void depositNewAcc(CashOperationDTO cashDeposit) {
-        Account account = accountRepository.findActiveByUserAndCurrencyForUpdate(
+        AccountsRecord account = accountWriteRepository.findActiveByUserAndCurrencyForUpdate(
                 cashDeposit.getUserId(),
                 cashDeposit.getCurrencyCode()
         ).orElseGet(() -> createAccount(cashDeposit));
         account.setBalance(account.getBalance().add(cashDeposit.getAmount()));
+        accountWriteRepository.updateBalance(account);
     }
 
-    private Account createAccount(CashOperationDTO cashDeposit) {
-        return userRepository.findById(cashDeposit.getUserId()).map(user -> accountRepository.save(Account.builder()
-                .active(true)
-                .balance(BigDecimal.ZERO)
-                .currencyCode(cashDeposit.getCurrencyCode())
-                .user(user).build())).orElseThrow(() -> new UserNotFoundException("User not found"));
+    private AccountsRecord createAccount(CashOperationDTO cashDeposit) {
+        LocalDateTime operationDate = LocalDateTime.now();
+        AccountsRecord accountsRecord = new AccountsRecord(null, cashDeposit.getUserId(), BigDecimal.ZERO, cashDeposit.getCurrencyCode().getName(), true, operationDate, operationDate);
+        return accountWriteRepository.insert(accountsRecord);
     }
 
 

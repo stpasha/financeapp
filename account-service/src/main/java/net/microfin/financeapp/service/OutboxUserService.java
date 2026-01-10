@@ -2,18 +2,20 @@ package net.microfin.financeapp.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Validator;
-import net.microfin.financeapp.exception.InvalidPayloadException;
-import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.microfin.financeapp.config.ExceptionsProperties;
-import net.microfin.financeapp.domain.OutboxEvent;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UserDTO;
-import net.microfin.financeapp.repository.UserRepository;
+import net.microfin.financeapp.exception.InvalidPayloadException;
+import net.microfin.financeapp.jooq.tables.records.OutboxEventsRecord;
+import net.microfin.financeapp.jooq.tables.records.UsersRecord;
+import net.microfin.financeapp.repository.UserReadRepository;
+import net.microfin.financeapp.repository.UserWriteRepository;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -23,14 +25,15 @@ import java.util.UUID;
 @Slf4j
 public class OutboxUserService {
 
-    private final UserRepository userRepository;
+    private final UserWriteRepository userWriteRepository;
+    private final UserReadRepository userReadRepository;
     private final KeycloakUserService keycloakUserService;
     private final ObjectMapper objectMapper;
     private final ExceptionsProperties exceptionsProperties;
     private final Validator validator;
 
     @Transactional
-    public void processUserCreateEvent(OutboxEvent outboxEvent) {
+    public void processUserCreateEvent(OutboxEventsRecord outboxEvent) {
         UserDTO userDTO = fromJson(outboxEvent.getPayload(), UserDTO.class);
         var violations = validator.validate(userDTO);
         if (!violations.isEmpty()) {
@@ -38,28 +41,21 @@ public class OutboxUserService {
         }
         UserRepresentation keycloakUser = keycloakUserService.createUser(userDTO);
         log.info("Keycloak response: {}", keycloakUser);
-        userRepository.findById(userDTO.getId()).map(user -> {
-            user.setEnabled(true);
-            user.setKeycloakId(UUID.fromString(keycloakUser.getId()));
-            userRepository.save(user);
-            log.info("Processed successfully Outbox event result - {} \n userDTO - {}", outboxEvent, userDTO);
-            return user;
-        }).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        userWriteRepository.updateKeycloakData(userDTO.getId(), UUID.fromString(keycloakUser.getId()));
+        log.info("Processed successfully Outbox event result - {} \n userDTO - {}", outboxEvent, userDTO);
     }
 
     @Transactional
-    public void processChangePasswordEvent(OutboxEvent outboxEvent) {
+    public void processChangePasswordEvent(OutboxEventsRecord outboxEvent) {
         PasswordDTO passwordDTO = fromJson(outboxEvent.getPayload(), PasswordDTO.class);
         var violations = validator.validate(passwordDTO);
         if (!violations.isEmpty()) {
             throw new InvalidPayloadException(violations.toString());
         }
-        userRepository.findById(passwordDTO.getId()).map(user -> {
-            passwordDTO.setKeycloakId(user.getKeycloakId());
-            keycloakUserService.updateUserPassword(passwordDTO);
-            log.info("Processed successfully for password Outbox event result - {}", outboxEvent);
-            return user;
-        }).orElseThrow(() -> new EntityNotFoundException("User not found for password update"));
+        UsersRecord user = userReadRepository.findById(passwordDTO.getId());
+        passwordDTO.setKeycloakId(user.getKeycloakId());
+        keycloakUserService.updateUserPassword(passwordDTO);
+        log.info("Processed successfully for password Outbox event result - {}", outboxEvent);
     }
 
     private <T> T fromJson(String json, Class<T> valueType) {

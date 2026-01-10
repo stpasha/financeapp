@@ -3,14 +3,9 @@ package net.microfin.financeapp.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @EqualsAndHashCode
@@ -37,7 +32,7 @@ public class UserDTO {
     @NotNull
     private String fullName;
     @PastOrPresent
-    private LocalDate dob;
+    private LocalDateTime dob;
     @NotNull
     private Boolean enabled;
 }

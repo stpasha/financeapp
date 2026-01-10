@@ -1,15 +1,13 @@
 package net.microfin.financeapp.service;
 
 
+import net.microfin.financeapp.jooq.tables.records.OutboxEventsRecord;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.microfin.financeapp.domain.OutboxEvent;
-import net.microfin.financeapp.repository.OutboxEventRepository;
-import net.microfin.financeapp.util.OperationStatus;
+import net.microfin.financeapp.repository.OutboxEventWriteRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -17,22 +15,19 @@ import java.util.UUID;
 @Slf4j
 public class RetryService {
 
-    private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEventWriteRepository outboxEventWriteRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleRetry(UUID outboxEventId) {
-        OutboxEvent outboxEvent = outboxEventRepository.findByIdForUpdateSkipLocked(outboxEventId)
+        OutboxEventsRecord outboxEvent = outboxEventWriteRepository.findByIdForUpdateSkipLocked(outboxEventId)
                 .orElseThrow(() -> new RuntimeException("OutBox not Found " + outboxEventId));
-        outboxEvent.setRetryCount(outboxEvent.getRetryCount() + 1);
-        outboxEvent.setLastAttemptAt(LocalDateTime.now());
+        int retryCount = outboxEvent.getRetryCount() + 1;
         if (outboxEvent.getRetryCount() >= 5) {
-            outboxEvent.setStatus(OperationStatus.FAILED);
-            outboxEvent.setNextAttemptAt(null);
+            outboxEventWriteRepository.markFailed(outboxEvent.getOutboxId(), retryCount);
         } else {
-            outboxEvent.setNextAttemptAt(LocalDateTime.now().plusMinutes(5L * outboxEvent.getRetryCount()));
-            outboxEvent.setStatus(OperationStatus.RETRYABLE);
+            outboxEventWriteRepository.markRetryable(outboxEvent.getOutboxId(), retryCount);
         }
-        outboxEventRepository.save(outboxEvent);
+
         log.error("Error occurred for event {}, exception", outboxEvent);
     }
 }

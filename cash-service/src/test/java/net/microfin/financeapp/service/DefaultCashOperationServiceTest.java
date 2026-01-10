@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -49,10 +50,10 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
     private AccountClientImpl accountClient;
 
 
-    @MockitoBean
+    @Autowired
     private CashOperationMapper cashOperationMapper;
 
-    @MockitoBean
+    @Autowired
     private CashOperationRepository cashOperationRepository;
 
     @Autowired
@@ -73,6 +74,7 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             dto.setAmount(BigDecimal.valueOf(100));
             dto.setCurrencyCode(Currency.RUB);
             dto.setOperationType(OperationType.CASH_WITHDRAWAL);
+            dto.setStatus(OperationStatus.PENDING);
             dto.setUserId(UUID.randomUUID());
 
             CashOperation entity = new CashOperation();
@@ -84,16 +86,14 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
                     .build();
 
             when(auditClient.check(dto)).thenReturn(ResponseEntity.ok(true));
-            when(cashOperationMapper.toEntity(dto)).thenReturn(entity);
-            when(cashOperationRepository.save(entity)).thenReturn(entity);
-            when(accountClient.cashOperation(dto)).thenReturn(ResponseEntity.ok(resultDTO));
+            when(accountClient.cashOperation(any())).thenReturn(ResponseEntity.ok(resultDTO));
 
 
             ResponseEntity<CashOperationResultDTO> result = cashOperationService.performOperation(dto);
 
             assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(result.getBody()).isNotNull();
-            assertThat(result.getBody().getStatus()).isEqualTo(OperationStatus.SENT);
+            assertThat(result.getBody().getStatus()).isEqualTo(OperationStatus.PENDING);
 
 
             Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("notification-group", "false", embeddedKafkaBroker);
@@ -126,8 +126,6 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             assertThat(result.getBody()).isNotNull();
             assertThat(result.getBody().getStatus()).isEqualTo(OperationStatus.FAILED);
             assertThat(result.getBody().getMessage()).contains("prohibitted");
-
-            verifyNoInteractions(cashOperationMapper, cashOperationRepository);
         }
 
         @Test
@@ -145,8 +143,6 @@ public class DefaultCashOperationServiceTest extends AbstractTest {
             assertThat(result.getBody()).isNotNull();
             assertThat(result.getBody().getStatus()).isEqualTo(OperationStatus.FAILED);
             assertThat(result.getBody().getMessage()).isEqualTo("Server unavailable.");
-
-            verifyNoInteractions(cashOperationMapper, cashOperationRepository);
         }
     }
 

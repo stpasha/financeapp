@@ -1,36 +1,39 @@
 package net.microfin.financeapp.mapper;
 
-import net.microfin.financeapp.domain.Account;
-import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.AccountDTO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import net.microfin.financeapp.jooq.tables.records.AccountsRecord;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 
-@Mapper(componentModel = "spring")
-public interface AccountMapper {
-
-    @Mapping(target = "user", source = "userId")
-    @Mapping(target = "currencyCode", source = "currencyCode")
-    Account toEntity(AccountDTO dto);
-    @Mapping(target = "userId", source = "user")
-    @Mapping(target = "currencyCode", source = "currencyCode")
-    AccountDTO toDto(Account account);
-
-    List<AccountDTO> toDtoList(List<Account> accounts);
-
-    default UUID map(User user) {
-        return user != null ? user.getId() : null;
+@Component
+public class AccountMapper {
+    public AccountsRecord toRecord(AccountDTO accountDTO) {
+        AccountsRecord accountsRecord = new AccountsRecord();
+        accountsRecord
+                .setAccountId(accountDTO.getId())
+                .setBalance(accountDTO.getBalance())
+                .setCreatedAt(accountDTO.getCreatedAt())
+                .setUpdatedAt(accountDTO.getUpdatedAt())
+                .setUserId(accountDTO.getUserId())
+                .setCurrencyCode(accountDTO.getCurrencyCode())
+                .setIsActive(accountDTO.getActive());
+        return accountsRecord;
     }
 
-    default User map(UUID userId) {
-        if (userId == null) {
-            return null;
-        }
-        User user = new User();
-        user.setId(userId);
-        return user;
+    public AccountDTO toDTO(AccountsRecord accountsRecord) {
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setActive(accountsRecord.getIsActive());
+        accountDTO.setBalance(accountsRecord.getBalance());
+        accountDTO.setCreatedAt(accountsRecord.getCreatedAt());
+        accountDTO.setUpdatedAt(accountsRecord.getUpdatedAt());
+        accountDTO.setId(accountsRecord.getAccountId());
+        accountDTO.setId(accountsRecord.getAccountId());
+        return accountDTO;
     }
+
+    public List<AccountDTO> toDTOList(List<AccountsRecord> accountsRecords) {
+        return accountsRecords.stream().map(this::toDTO).toList();
+    }
+
 }

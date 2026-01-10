@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -26,4 +27,6 @@ public class AccountDTO {
     private String currencyCode;
     @NotNull
     private Boolean active;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

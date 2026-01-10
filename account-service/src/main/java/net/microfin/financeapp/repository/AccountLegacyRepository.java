@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, UUID> {
+public interface AccountLegacyRepository extends JpaRepository<Account, UUID> {
     List<Account> findAccountsByUserId(UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

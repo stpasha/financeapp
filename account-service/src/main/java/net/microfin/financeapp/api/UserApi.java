@@ -7,7 +7,7 @@ import net.microfin.financeapp.config.ExceptionsProperties;
 import net.microfin.financeapp.dto.PasswordDTO;
 import net.microfin.financeapp.dto.UpdateUserDTO;
 import net.microfin.financeapp.dto.UserDTO;
-import net.microfin.financeapp.mapper.UserMapper;
+import net.microfin.financeapp.mapper.UserLegacyMapper;
 import net.microfin.financeapp.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import java.util.List;
 public class UserApi {
 
     private final UserService userService;
-    private final UserMapper userMapper;
+    private final UserLegacyMapper userLegacyMapper;
     private final ExceptionsProperties exceptionsProperties;
 
     @PostMapping
@@ -33,10 +33,9 @@ public class UserApi {
 
     @PutMapping
     public ResponseEntity<UserDTO> update(@Valid @RequestBody UpdateUserDTO updateDTO) {
-        UserDTO userDTO = userMapper.toDto(updateDTO);
-        return userService.updateUser(userDTO)
+        return userService.updateUser(updateDTO)
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
-                .orElseThrow(() -> new IllegalStateException("Пользователь не отредактирован " + userDTO.getUsername()));
+                .orElseThrow(() -> new IllegalStateException("Пользователь не отредактирован " + updateDTO.getFullName()));
     }
 
     @PutMapping("/password")

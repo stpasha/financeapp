@@ -5,15 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.microfin.financeapp.AbstractTest;
 import net.microfin.financeapp.FinanceAppTest;
 import net.microfin.financeapp.config.KeyCloakConfig;
-import net.microfin.financeapp.domain.Account;
-import net.microfin.financeapp.domain.OutboxEvent;
-import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.*;
-import net.microfin.financeapp.mapper.UserMapper;
+import net.microfin.financeapp.jooq.tables.records.AccountsRecord;
+import net.microfin.financeapp.jooq.tables.records.OutboxEventsRecord;
+import net.microfin.financeapp.jooq.tables.records.UsersRecord;
+import net.microfin.financeapp.mapper.UserLegacyMapper;
 import net.microfin.financeapp.processor.EventProcessor;
-import net.microfin.financeapp.repository.AccountRepository;
-import net.microfin.financeapp.repository.OutboxEventRepository;
-import net.microfin.financeapp.repository.UserRepository;
+import net.microfin.financeapp.repository.*;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
 import net.microfin.financeapp.util.OperationType;
@@ -26,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +33,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,13 +52,17 @@ public class ServiceTest extends AbstractTest {
     @Autowired
     private AccountService accountService;
     @Autowired
-    private UserRepository userRepository;
+    private UserWriteRepository userWriteRepository;
     @Autowired
-    private AccountRepository accountRepository;
+    private UserReadRepository userReadRepository;
     @Autowired
-    private OutboxEventRepository eventRepository;
+    private AccountWriteRepository accountWriteRepository;
     @Autowired
-    private UserMapper userMapper;
+    private AccountReadRepository accountReadRepository;
+    @Autowired
+    private OutboxEventWriteRepository eventRepository;
+    @Autowired
+    private UserLegacyMapper userLegacyMapper;
 
     @Autowired
     private UserService userService;
@@ -82,28 +81,29 @@ public class ServiceTest extends AbstractTest {
     class DefaultAccountServiceTest {
 
 
-        private User testUser;
+        private UsersRecord testUser;
 
         @BeforeEach
         void setup() {
             eventRepository.deleteAll();
-            accountRepository.deleteAll();
-            userRepository.deleteAll();
+            accountWriteRepository.deleteAll();
+            userWriteRepository.deleteAll();
             assertThat(eventRepository.findAll()).isEmpty();
 
-            testUser = new User();
-            testUser.setUsername("user1");
+            testUser = new UsersRecord();
+            testUser.setUserName("user1");
             testUser.setFullName("Test User");
-            testUser.setEnabled(true);
+            testUser.setIsEnabled(true);
             testUser.setKeycloakId(UUID.randomUUID());
-            testUser.setDob(LocalDate.now().minusYears(20L));
-            userRepository.save(testUser);
+            testUser.setDob(LocalDateTime.now().minusYears(20L));
+            testUser.setUpdatedAt(LocalDateTime.now());
+            userWriteRepository.insert(testUser);
         }
 
         @Test
         void shouldCreateAccountSuccessfully() {
             AccountDTO dto = AccountDTO.builder()
-                    .userId(testUser.getId())
+                    .userId(testUser.getUserId())
                     .balance(BigDecimal.valueOf(1000).setScale(2))
                     .currencyCode("USD")
                     .active(true)
@@ -115,41 +115,52 @@ public class ServiceTest extends AbstractTest {
             assertThat(result.get().getId()).isNotNull();
             assertThat(result.get().getCurrencyCode()).isEqualTo("USD");
 
-            Optional<Account> account = accountRepository.findById(result.get().getId());
+            Optional<AccountsRecord> account =
+                    accountReadRepository.findById(result.get().getId());
+
             assertThat(account).isPresent();
-            assertThat(account.get().getUser().getId()).isEqualTo(testUser.getId());
+            assertThat(account.get().getUserId()).isEqualTo(testUser.getUserId());
+            assertThat(account.get().getCurrencyCode()).isEqualTo("USD");
         }
+
 
         @Test
         void shouldGetAccountSuccessfully() {
-            Account account = Account.builder()
-                    .user(testUser)
-                    .balance(BigDecimal.valueOf(100))
-                    .currencyCode(Currency.USD)
-                    .active(true)
-                    .build();
-            account = accountRepository.save(account);
+            AccountsRecord record = new AccountsRecord();
+            record.setUserId(testUser.getUserId());
+            record.setBalance(BigDecimal.valueOf(100).setScale(2));
+            record.setCurrencyCode(Currency.USD.name());
+            record.setIsActive(true);
+            record.setCreatedAt(LocalDateTime.now());
+            record.setUpdatedAt(LocalDateTime.now());
 
-            Optional<AccountDTO> dto = accountService.getAccount(account.getId());
+            AccountsRecord saved = accountWriteRepository.insert(record);
+
+            Optional<AccountDTO> dto = accountService.getAccount(saved.getAccountId());
 
             assertThat(dto).isPresent();
-            assertThat(dto.get().getBalance()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP));
+            assertThat(dto.get().getBalance())
+                    .isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2));
         }
 
         @Test
         void shouldReturnAccountsByUserId() {
-            Account account = Account.builder()
-                    .user(testUser)
-                    .balance(BigDecimal.valueOf(100))
-                    .currencyCode(Currency.EUR)
-                    .active(true)
-                    .build();
-            accountRepository.save(account);
+            AccountsRecord record = new AccountsRecord();
+            record.setUserId(testUser.getUserId());
+            record.setBalance(BigDecimal.valueOf(100).setScale(2));
+            record.setCurrencyCode(Currency.EUR.name());
+            record.setIsActive(true);
+            record.setCreatedAt(LocalDateTime.now());
+            record.setUpdatedAt(LocalDateTime.now());
 
+            accountWriteRepository.insert(record);
 
-            List<AccountDTO> accounts = accountService.getAccountsByUserId(testUser.getId());
+            List<AccountDTO> accounts =
+                    accountService.getAccountsByUserId(testUser.getUserId());
+
             assertThat(accounts).hasSize(1);
-            assertThat(accounts.get(0).getCurrencyCode()).isEqualTo("EUR");
+            assertThat(accounts.get(0).getBalance())
+                    .isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2));
         }
 
         @Test
@@ -160,17 +171,19 @@ public class ServiceTest extends AbstractTest {
 
 //        @Test
 //        void shouldProcessCashDepositAndGenerateOutboxEvent() {
-//            Account account = Account.builder()
-//                    .user(testUser)
-//                    .balance(BigDecimal.valueOf(100))
-//                    .currencyCode(Currency.USD)
-//                    .active(true)
-//                    .build();
-//            account = accountRepository.save(account);
+//            AccountsRecord record = new AccountsRecord();
+//            record.setUserId(testUser.getUserId());
+//            record.setBalance(BigDecimal.valueOf(100).setScale(2));
+//            record.setCurrencyCode(Currency.USD.name());
+//            record.setIsActive(true);
+//            record.setCreatedAt(LocalDateTime.now());
+//            record.setUpdatedAt(LocalDateTime.now());
+//
+//            AccountsRecord saved = accountWriteRepository.insert(record);
 //
 //            CashOperationDTO dto = new CashOperationDTO();
-//            dto.setId(101);
-//            dto.setUserId(testUser.getId());
+//            dto.setId(UuidCreator.getTimeOrderedEpoch());
+//            dto.setUserId(testUser.getUserId());
 //            dto.setCurrencyCode(Currency.USD);
 //            dto.setAmount(BigDecimal.valueOf(200));
 //            dto.setOperationType(OperationType.CASH_DEPOSIT);
@@ -183,307 +196,356 @@ public class ServiceTest extends AbstractTest {
 //            var events = eventRepository.findAll();
 //            assertThat(events).isNotEmpty();
 //            assertThat(events).anySatisfy(e -> {
-//                assertThat(e.getAggregateId()).isEqualTo(dto.getId());
-//                assertThat(e.getPayload()).contains("CASH_DEPOSIT", "200");
+//                assertThat(e.getPayload()).contains("CASH_DEPOSIT");
+//                assertThat(e.getStatus()).isEqualTo(OperationStatus.PENDING.name());
 //            });
 //        }
 //
-    }
+//    }
 
 
-    @Nested
-    class DefaultUserServiceTest {
+        @Nested
+        class DefaultUserServiceTest {
 
 
-        private User testUser;
+            private UUID testUserId = null;
 
-        @BeforeEach
-        void setup() {
-            eventRepository.deleteAll();
-            accountRepository.deleteAll();
-            userRepository.deleteAll();
+            @BeforeEach
+            void setup() {
+                eventRepository.deleteAll();
+                accountWriteRepository.deleteAll();
+                userWriteRepository.deleteAll();
 
-            testUser = new User();
-            testUser.setUsername("johndoe");
-            testUser.setFullName("John Doe");
-            testUser.setDob(LocalDate.now().minusYears(30));
-            testUser.setEnabled(true);
-            testUser.setKeycloakId(UUID.randomUUID());
-            testUser = userRepository.save(testUser);
+                UsersRecord record = new UsersRecord();
+                record.setUserName("johndoe");
+                record.setFullName("John Doe");
+                record.setDob(LocalDateTime.now().minusYears(30));
+                record.setIsEnabled(true);
+                record.setKeycloakId(UUID.randomUUID());
+
+                testUserId = userWriteRepository.insert(record).getUserId();
+            }
+
+            @Test
+            void testGetUserByUsername() {
+                Optional<UserDTO> result = userService.getUserByUsername("johndoe");
+
+                assertThat(result).isPresent();
+                assertThat(result.get().getUsername()).isEqualTo("johndoe");
+                assertThat(result.get().getId()).isEqualTo(testUserId);
+            }
+
+            @Test
+            void testGetUsers() {
+                List<UserDTO> users = userService.getUsers();
+
+                assertThat(users).isNotEmpty();
+                assertThat(users)
+                        .anySatisfy(user -> {
+                            assertThat(user.getUsername()).isEqualTo("johndoe");
+                            assertThat(user.getId()).isEqualTo(testUserId);
+                        });
+            }
+
+            @Test
+            void testCreateUserGeneratesOutbox() throws JsonProcessingException {
+                UserDTO newUser = UserDTO.builder()
+                        .username("janedoe")
+                        .fullName("Jane Doe")
+                        .dob(LocalDateTime.now().minusYears(25))
+                        .password("password")
+                        .confirmPassword("password")
+                        .enabled(true)
+                        .keycloakId(UUID.randomUUID())
+                        .build();
+
+                Optional<UserDTO> result = userService.createUser(newUser);
+
+                assertThat(result).isPresent();
+                assertThat(result.get().getId()).isNotNull();
+
+                assertNotNull(userReadRepository.findById(result.get().getId()));
+
+                assertThat(eventRepository.findAll())
+                        .anySatisfy(event -> {
+                            assertThat(event.getOperationType())
+                                    .isEqualTo(OperationType.USER_CREATED.name());
+                            assertThat(event.getStatus())
+                                    .isEqualTo(OperationStatus.PENDING.name());
+                        });
+            }
+
+
+            @Test
+            void testUpdatePasswordGeneratesOutbox() throws JsonProcessingException {
+                PasswordDTO dto = new PasswordDTO();
+                dto.setId(testUserId);
+                dto.setPassword("securePass123");
+                dto.setConfirmPassword("securePass123");
+
+                Optional<PasswordDTO> result = userService.updatePassword(dto);
+
+                assertThat(result).isPresent();
+                assertThat(result.get().getPassword()).isEqualTo("securePass123");
+
+                assertThat(eventRepository.findAll())
+                        .anySatisfy(event ->
+                                assertThat(event.getOperationType())
+                                        .isEqualTo(OperationType.PASSWORD_CHANGED.name())
+                        );
+            }
+
+
+            @Test
+            void testUpdateUser() {
+                UpdateUserDTO patch = UpdateUserDTO.builder()
+                        .id(testUserId)
+                        .fullName("Johnathan Doe")
+                        .build();
+
+                Optional<UserDTO> updated = userService.updateUser(patch);
+
+                assertThat(updated).isPresent();
+                assertThat(updated.get().getFullName()).isEqualTo("Johnathan Doe");
+            }
+
+            @Test
+            void testCreateUserThrowsWhenUnderage() {
+                UserDTO underageUser = UserDTO.builder()
+                        .username("teen")
+                        .fullName("Teen User")
+                        .dob(LocalDateTime.now().minusYears(17))
+                        .enabled(true)
+                        .password("123")
+                        .confirmPassword("123")
+                        .keycloakId(UUID.randomUUID())
+                        .build();
+
+                assertThatThrownBy(() -> userService.createUser(underageUser))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessage("Incorrect age");
+            }
+
+            @Test
+            void testUpdatePasswordThrowsWhenMismatch() {
+                PasswordDTO dto = new PasswordDTO();
+                dto.setId(testUserId);
+                dto.setPassword("abc123");
+                dto.setConfirmPassword("xyz789");
+
+                assertThatThrownBy(() -> userService.updatePassword(dto))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessage("Passwords should match");
+            }
+
         }
 
-        @Test
-        void testGetUserByUsername() {
-            Optional<UserDTO> result = userService.getUserByUsername("johndoe");
+        @Nested
+        public class EventProcessorUnitTest {
 
-            assertThat(result).isPresent();
-            assertThat(result.get().getUsername()).isEqualTo("johndoe");
-        }
+            @Autowired
+            private EventProcessor processor;
 
-        @Test
-        void testGetUsers() {
-            List<UserDTO> users = userService.getUsers();
+            private UUID savedUserId;
+            private AccountsRecord accountFirstRUB;
+            private AccountsRecord accountSecondRUB;
+            private AccountsRecord accountThirdUSD;
 
-            assertThat(users).isNotEmpty();
-            assertThat(users).anyMatch(user -> user.getUsername().equals("johndoe"));
-        }
+            @BeforeEach
+            void setUp() {
+                accountWriteRepository.deleteAll();
+                userWriteRepository.deleteAll();
+                eventRepository.deleteAll();
 
-        @Test
-        void testCreateUserGeneratesOutbox() throws JsonProcessingException {
-            UserDTO newUser = UserDTO.builder()
-                    .username("janedoe")
-                    .fullName("Jane Doe")
-                    .dob(LocalDate.now().minusYears(25))
-                    .password("password")
-                    .confirmPassword("password")
-                    .enabled(true)
-                    .keycloakId(UUID.randomUUID())
-                    .build();
+                UsersRecord user = new UsersRecord();
+                user.setUserId(UUID.randomUUID());
+                user.setUserName("user1");
+                user.setFullName("Test User");
+                user.setIsEnabled(true);
+                user.setKeycloakId(UUID.randomUUID());
+                user.setDob(LocalDateTime.now().minusYears(20));
 
-            Optional<UserDTO> result = userService.createUser(newUser);
+                UsersRecord savedUser = userWriteRepository.insert(user);
+                savedUserId = savedUser.getUserId();
 
-            assertThat(result).isPresent();
-            assertThat(result.get().getId()).isNotNull();
-            assertThat(userRepository.findById(result.get().getId())).isPresent();
+                accountFirstRUB = new AccountsRecord();
+                accountFirstRUB.setAccountId(UUID.randomUUID());
+                accountFirstRUB.setUserId(savedUserId);
+                accountFirstRUB.setCurrencyCode("RUB");
+                accountFirstRUB.setBalance(BigDecimal.valueOf(200));
+                accountFirstRUB.setIsActive(true);
 
-            assertThat(eventRepository.findAll())
-                    .isNotEmpty()
-                    .anyMatch(event -> event.getOperationType() == OperationType.USER_CREATED);
-        }
+                accountSecondRUB = new AccountsRecord();
+                accountSecondRUB.setAccountId(UUID.randomUUID());
+                accountSecondRUB.setUserId(savedUserId);
+                accountSecondRUB.setCurrencyCode("RUB");
+                accountSecondRUB.setBalance(BigDecimal.ZERO);
+                accountSecondRUB.setIsActive(true);
 
-        @Test
-        void testUpdatePasswordGeneratesOutbox() throws JsonProcessingException {
-            PasswordDTO dto = new PasswordDTO();
-            dto.setId(testUser.getId());
-            dto.setPassword("securePass123");
-            dto.setConfirmPassword("securePass123");
+                accountThirdUSD = new AccountsRecord();
+                accountThirdUSD.setAccountId(UUID.randomUUID());
+                accountThirdUSD.setUserId(savedUserId);
+                accountThirdUSD.setCurrencyCode("USD");
+                accountThirdUSD.setBalance(BigDecimal.ZERO);
+                accountThirdUSD.setIsActive(true);
 
-            Optional<PasswordDTO> result = userService.updatePassword(dto);
+                accountWriteRepository.insertAll(
+                        List.of(accountFirstRUB, accountSecondRUB, accountThirdUSD)
+                );
+            }
 
-            assertThat(result).isPresent();
-            assertThat(result.get().getPassword()).isEqualTo("securePass123");
+            @Test
+            void processUserCreatedEvent_success() throws Exception {
+                String payload = objectMapper.writeValueAsString(
+                        UserDTO.builder()
+                                .id(savedUserId)
+                                .username("user1")
+                                .fullName("Test User")
+                                .password("pswd")
+                                .confirmPassword("pswd")
+                                .dob(LocalDateTime.now().minusYears(20))
+                                .enabled(true)
+                                .build()
+                );
 
-            assertThat(eventRepository.findAll())
-                    .anyMatch(event -> event.getOperationType() == OperationType.PASSWORD_CHANGED);
-        }
+                OutboxEventsRecord record = new OutboxEventsRecord();
+                record.setAggregateType("USER");
+                record.setAggregateId(savedUserId);
+                record.setOperationType(OperationType.USER_CREATED.name());
+                record.setPayload(payload);
+                record.setStatus(OperationStatus.PENDING.name());
+                record.setCreatedAt(LocalDateTime.now());
+                record.setUpdatedAt(LocalDateTime.now());
 
-        @Test
-        void testUpdateUser() {
-            UserDTO patch = userMapper.toDto(testUser);
-            patch.setFullName("Johnathan Doe");
+                OutboxEventsRecord saved = eventRepository.insert(record);
 
-            Optional<UserDTO> updated = userService.updateUser(patch);
+                UserRepresentation kcUser = new UserRepresentation();
+                kcUser.setId(UUID.randomUUID().toString());
+                when(keycloakUserService.createUser(any())).thenReturn(kcUser);
 
-            assertThat(updated).isPresent();
-            assertThat(updated.get().getFullName()).isEqualTo("Johnathan Doe");
-        }
+                processor.processSingleEvent(saved.getOutboxId());
 
-        @Test
-        void testCreateUserThrowsWhenUnderage() {
-            UserDTO underageUser = UserDTO.builder()
-                    .username("teen")
-                    .fullName("Teen User")
-                    .dob(LocalDate.now().minusYears(17)) // моложе 18 лет
-                    .enabled(true)
-                    .keycloakId(UUID.randomUUID())
-                    .build();
+                OutboxEventsRecord persisted =
+                        eventRepository.findByIdForUpdateSkipLocked(saved.getOutboxId())
+                                .orElseThrow();
 
-            assertThatThrownBy(() -> userService.createUser(underageUser))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("Incorrect age");
-        }
+                assertEquals(OperationStatus.SENT.name(), persisted.getStatus());
+                assertNotNull(persisted.getLastAttemptAt());
+                assertNull(persisted.getNextAttemptAt());
 
-        @Test
-        void testUpdatePasswordThrowsWhenMismatch() {
-            PasswordDTO dto = new PasswordDTO();
-            dto.setId(testUser.getId());
-            dto.setPassword("abc123");
-            dto.setConfirmPassword("xyz789");
-
-            assertThatThrownBy(() -> userService.updatePassword(dto))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Passwords should match");
-        }
-
-    }
-
-    @Nested
-    public class EventProcessorUnitTest {
-
-        @Autowired
-        private EventProcessor processor;
-
-        private User savedUser;
-        private Account accountFirstRUB;
-        private Account accountSecondRUB;
-        private Account accountThirdUSD;
-
-        @BeforeEach
-        void setUp() {
-            accountRepository.deleteAll();
-            userRepository.deleteAll();
-            User testUser = new User();
-            testUser.setUsername("user1");
-            testUser.setFullName("Test User");
-            testUser.setEnabled(true);
-            testUser.setKeycloakId(UUID.randomUUID());
-            testUser.setDob(LocalDate.now().minusYears(20L));
-            savedUser = userRepository.save(testUser);
-            accountFirstRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.valueOf(200)).user(savedUser).build();
-            accountSecondRUB = Account.builder().active(true).currencyCode(Currency.RUB).balance(BigDecimal.ZERO).user(savedUser).build();
-            accountThirdUSD = Account.builder().active(true).currencyCode(Currency.USD).balance(BigDecimal.ZERO).user(savedUser).build();
-            accountRepository.saveAll(List.of(accountFirstRUB, accountSecondRUB, accountThirdUSD));
-        }
-
-        @Test
-        void processUserCreatedEvent_success() throws Exception {
-            UUID userId = savedUser.getId();
+                verify(keycloakUserService).createUser(any());
+            }
 
 
-            OutboxEvent event = OutboxEvent.builder()
-                    .aggregateId(userId)
-                    .aggregateType("USER")
-                    .operationType(OperationType.USER_CREATED)
-                    .payload(objectMapper.writeValueAsString(UserDTO.builder()
-                            .id(userId)
-                            .fullName(savedUser.getFullName())
-                            .username(savedUser.getUsername())
-                            .password("pswd")
-                            .confirmPassword("pswd")
-                            .dob(savedUser.getDob())
-                            .enabled(true)
-                            .build())
-                    )
-                    .build();
-            OutboxEvent outboxEvent = eventRepository.save(event);
+            @Test
+            void processPasswordChangedEvent_success() throws Exception {
+                String payload = objectMapper.writeValueAsString(
+                        PasswordDTO.builder()
+                                .id(savedUserId)
+                                .keycloakId(UUID.randomUUID())
+                                .password("pswd")
+                                .confirmPassword("pswd")
+                                .build()
+                );
 
-            UserRepresentation representation = new UserRepresentation();
-            representation.setId(UUID.randomUUID().toString());
-            when(keycloakUserService.createUser(any())).thenReturn(representation);
-            processor.processSingleEvent(outboxEvent.getId());
-            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
-            optionalOutboxEvent.stream().peek(savedEvent -> {
-                assertEquals(outboxEvent.getId(), savedEvent.getId());
-                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
-                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
-                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
-                assertNull(savedEvent.getLastAttemptAt());
-                assertNull(savedEvent.getNextAttemptAt());
-                verify(userRepository).save(any(User.class));
-            });
-        }
+                OutboxEventsRecord record = new OutboxEventsRecord();
+                record.setAggregateType("USER");
+                record.setAggregateId(savedUserId);
+                record.setOperationType(OperationType.PASSWORD_CHANGED.name());
+                record.setPayload(payload);
+                record.setStatus(OperationStatus.PENDING.name());
+                record.setCreatedAt(LocalDateTime.now());
+                record.setUpdatedAt(LocalDateTime.now());
 
-        @Test
-        void processPasswordChangedEvent_success() throws Exception {
-            UUID userId = savedUser.getId();
+                OutboxEventsRecord saved = eventRepository.insert(record);
+
+                processor.processSingleEvent(saved.getOutboxId());
+
+                OutboxEventsRecord persisted =
+                        eventRepository.findByIdForUpdateSkipLocked(saved.getOutboxId())
+                                .orElseThrow();
+
+                assertEquals(OperationStatus.SENT.name(), persisted.getStatus());
+                verify(keycloakUserService).updateUserPassword(any());
+            }
 
 
-            UUID keycloakId = UUID.randomUUID();
-            OutboxEvent event = OutboxEvent.builder()
-                    .aggregateId(userId)
-                    .aggregateType("USER")
-                    .operationType(OperationType.PASSWORD_CHANGED)
-                    .payload(objectMapper.writeValueAsString(PasswordDTO.builder()
-                            .id(userId)
-                            .keycloakId(keycloakId)
-                            .password("pswd")
-                            .confirmPassword("pswd")
-                            .build())
-                    )
-                    .build();
-            OutboxEvent outboxEvent = eventRepository.save(event);
+            @Test
+            void processExchange_success() throws Exception {
+                BigDecimal rubBalance = accountFirstRUB.getBalance();
+                BigDecimal amount = BigDecimal.valueOf(100);
 
+                String payload = objectMapper.writeValueAsString(
+                        ExchangeOperationDTO.builder()
+                                .operationType(OperationType.EXCHANGE)
+                                .amount(amount)
+                                .sourceAccountId(accountFirstRUB.getAccountId())
+                                .targetAccountId(accountThirdUSD.getAccountId())
+                                .createdAt(LocalDateTime.now())
+                                .status(OperationStatus.PENDING)
+                                .build()
+                );
 
-            processor.processSingleEvent(outboxEvent.getId());
-            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
-            assertEquals(1, optionalOutboxEvent.stream().count());
-            optionalOutboxEvent.ifPresent(savedEvent -> {
-                assertEquals(outboxEvent.getId(), savedEvent.getId());
-                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
-                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
-                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
-                assertNull(savedEvent.getLastAttemptAt());
-                assertNull(savedEvent.getNextAttemptAt());
-                verify(keycloakUserService).updateUserPassword(any(PasswordDTO.class));
-            });
-        }
+                OutboxEventsRecord record = new OutboxEventsRecord();
+                record.setAggregateType("ACCOUNT");
+                record.setAggregateId(accountFirstRUB.getAccountId());
+                record.setOperationType(OperationType.EXCHANGE.name());
+                record.setPayload(payload);
+                record.setStatus(OperationStatus.PENDING.name());
+                record.setCreatedAt(LocalDateTime.now());
+                record.setUpdatedAt(LocalDateTime.now());
 
+                OutboxEventsRecord saved = eventRepository.insert(record);
 
+                processor.processSingleEvent(saved.getOutboxId());
 
+                AccountsRecord source =
+                        accountReadRepository.findById(accountFirstRUB.getAccountId()).orElseThrow();
+                AccountsRecord target =
+                        accountReadRepository.findById(accountThirdUSD.getAccountId()).orElseThrow();
 
-        @Test
-        void processExchange_success() throws Exception {
-            BigDecimal rubBalance = accountFirstRUB.getBalance();
+                assertEquals(0, source.getBalance().compareTo(rubBalance.subtract(amount)));
+                assertTrue(target.getBalance().compareTo(BigDecimal.ZERO) > 0);
+            }
 
-            BigDecimal transferVal = BigDecimal.valueOf(100);
-            OutboxEvent event = OutboxEvent.builder()
-                    .aggregateId(accountFirstRUB.getId())
-                    .aggregateType("ACCOUNT")
-                    .operationType(OperationType.EXCHANGE)
-                    .payload(objectMapper.writeValueAsString(ExchangeOperationDTO.builder()
-                            .operationType(OperationType.EXCHANGE)
-                            .amount(transferVal)
-                            .createdAt(LocalDateTime.now())
-                            .sourceAccountId(accountFirstRUB.getId())
-                            .targetAccountId(accountThirdUSD.getId())
-                            .status(OperationStatus.PENDING)
-                            .build())
-                    )
-                    .build();
-            OutboxEvent outboxEvent = eventRepository.save(event);
+            @Test
+            void processTransfer_success() throws Exception {
+                BigDecimal rubBalance = accountFirstRUB.getBalance();
+                BigDecimal amount = BigDecimal.valueOf(100);
 
-            processor.processSingleEvent(outboxEvent.getId());
-            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
-            optionalOutboxEvent.ifPresent(savedEvent -> {
-                assertEquals(outboxEvent.getId(), savedEvent.getId());
-                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
-                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
-                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
-                assertNull(savedEvent.getLastAttemptAt());
-                assertNull(savedEvent.getNextAttemptAt());
-                accountRepository.findById(accountFirstRUB.getId())
-                        .ifPresent(account -> assertEquals(0, account.getBalance().compareTo(rubBalance.subtract(transferVal))));
-                accountRepository.findById(accountThirdUSD.getId())
-                        .ifPresent(account -> assertTrue(account.getBalance().compareTo(BigDecimal.ZERO) > 0));
-            });
-        }
+                String payload = objectMapper.writeValueAsString(
+                        ExchangeOperationDTO.builder()
+                                .operationType(OperationType.TRANSFER)
+                                .amount(amount)
+                                .sourceAccountId(accountFirstRUB.getAccountId())
+                                .targetAccountId(accountSecondRUB.getAccountId())
+                                .userId(savedUserId)
+                                .createdAt(LocalDateTime.now())
+                                .status(OperationStatus.PENDING)
+                                .build()
+                );
 
-        @Test
-        void processTransfer_success() throws Exception {
-            BigDecimal rubBalance = accountFirstRUB.getBalance();
+                OutboxEventsRecord record = new OutboxEventsRecord();
+                record.setAggregateType("ACCOUNT");
+                record.setAggregateId(accountFirstRUB.getAccountId());
+                record.setOperationType(OperationType.TRANSFER.name());
+                record.setPayload(payload);
+                record.setStatus(OperationStatus.PENDING.name());
+                record.setCreatedAt(LocalDateTime.now());
+                record.setUpdatedAt(LocalDateTime.now());
 
-            BigDecimal transferVal = BigDecimal.valueOf(100);
-            OutboxEvent event = OutboxEvent.builder()
-                    .aggregateId(accountFirstRUB.getId())
-                    .aggregateType("ACCOUNT")
-                    .operationType(OperationType.TRANSFER)
-                    .payload(objectMapper.writeValueAsString(ExchangeOperationDTO.builder()
-                            .operationType(OperationType.TRANSFER)
-                            .amount(transferVal)
-                            .createdAt(LocalDateTime.now())
-                            .sourceAccountId(accountFirstRUB.getId())
-                            .targetAccountId(accountSecondRUB.getId())
-                            .userId(savedUser.getId())
-                            .status(OperationStatus.PENDING)
-                            .build())
-                    )
-                    .build();
-            OutboxEvent outboxEvent = eventRepository.save(event);
+                OutboxEventsRecord saved = eventRepository.insert(record);
 
-            processor.processSingleEvent(outboxEvent.getId());
-            Optional<OutboxEvent> optionalOutboxEvent = eventRepository.findById(outboxEvent.getId());
-            optionalOutboxEvent.ifPresent(savedEvent -> {
-                assertEquals(outboxEvent.getId(), savedEvent.getId());
-                assertEquals(outboxEvent.getPayload(), savedEvent.getPayload());
-                assertEquals(outboxEvent.getOperationType(), savedEvent.getOperationType());
-                assertEquals(OperationStatus.SENT, savedEvent.getStatus());
-                assertNull(savedEvent.getLastAttemptAt());
-                assertNull(savedEvent.getNextAttemptAt());
-                accountRepository.findById(accountFirstRUB.getId())
-                        .ifPresent(account -> assertEquals(0, account.getBalance().compareTo(rubBalance.subtract(transferVal))));
-                accountRepository.findById(accountSecondRUB.getId())
-                        .ifPresent(account -> assertEquals( 0, account.getBalance().compareTo(transferVal.add(accountSecondRUB.getBalance()))));
-            });
+                processor.processSingleEvent(saved.getOutboxId());
+
+                AccountsRecord source =
+                        accountReadRepository.findById(accountFirstRUB.getAccountId()).orElseThrow();
+                AccountsRecord target =
+                        accountReadRepository.findById(accountSecondRUB.getAccountId()).orElseThrow();
+
+                assertEquals(0, source.getBalance().compareTo(rubBalance.subtract(amount)));
+                assertEquals(0, target.getBalance().compareTo(amount));
+            }
         }
     }
 }

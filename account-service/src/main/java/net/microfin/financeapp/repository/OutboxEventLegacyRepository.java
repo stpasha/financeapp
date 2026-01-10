@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OutboxEventRepository extends JpaRepository <OutboxEvent, UUID> {
+public interface OutboxEventLegacyRepository extends JpaRepository <OutboxEvent, UUID> {
     @Query(
             value = """
         SELECT outbox_id

@@ -12,8 +12,9 @@ import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationResultDTO;
-import net.microfin.financeapp.repository.AccountRepository;
-import net.microfin.financeapp.repository.UserRepository;
+import net.microfin.financeapp.jooq.tables.records.AccountsRecord;
+import net.microfin.financeapp.repository.AccountWriteRepository;
+import net.microfin.financeapp.repository.UserWriteRepository;
 import net.microfin.financeapp.service.KeycloakUserService;
 import net.microfin.financeapp.util.Currency;
 import net.microfin.financeapp.util.OperationStatus;
@@ -33,6 +34,7 @@ import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,17 +71,17 @@ public class ControllerIT extends AbstractIT {
 
     private User savedUser;
 
-    private Account accountFirstRUB;
+    private AccountsRecord accountFirstRUB;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountWriteRepository accountWriteRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserWriteRepository userWriteRepository;
 
     @BeforeMethod
     void setup() {
-        accountRepository.deleteAll();
-        userRepository.deleteAll();
+        accountWriteRepository.deleteAll();
+        userWriteRepository.deleteAll();
 
         User testUser = new User();
         testUser.setUsername("user1");
@@ -87,12 +89,16 @@ public class ControllerIT extends AbstractIT {
         testUser.setEnabled(true);
         testUser.setKeycloakId(UUID.randomUUID());
         testUser.setDob(LocalDate.now().minusYears(20L));
-        savedUser = userRepository.save(testUser);
-        accountFirstRUB = accountRepository.save(Account.builder()
+        savedUser = userWriteRepository.save(testUser);
+        Account.builder()
                 .active(true).currencyCode(Currency.RUB)
                 .balance(BigDecimal.valueOf(200))
                 .user(savedUser)
-                .build());
+                .build();
+
+
+        LocalDateTime now = LocalDateTime.now();
+        accountFirstRUB = accountWriteRepository.insert(new AccountsRecord(null, savedUser.getId(), BigDecimal.valueOf(200), Currency.RUB.getName(), true, now, now));
     }
 
     @Test
@@ -105,10 +111,10 @@ public class ControllerIT extends AbstractIT {
 
     @Test
     public void shouldGetAccountById() throws Exception {
-        mockMvc.perform(get("/api/account/{id}", accountFirstRUB.getId())
+        mockMvc.perform(get("/api/account/{id}", accountFirstRUB.getAccountId())
                         .with(jwt().jwt(jwt -> jwt.claim("sub", "user"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(accountFirstRUB.getId().toString()));
+                .andExpect(jsonPath("$.id").value(accountFirstRUB.getAccountId().toString()));
     }
 
     @Test
