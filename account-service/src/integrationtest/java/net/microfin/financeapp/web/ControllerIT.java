@@ -6,13 +6,12 @@ import net.microfin.financeapp.AbstractIT;
 import net.microfin.financeapp.ServiceApplication;
 import net.microfin.financeapp.config.TestConfig;
 import net.microfin.financeapp.config.WireMockTestConfig;
-import net.microfin.financeapp.domain.Account;
-import net.microfin.financeapp.domain.User;
 import net.microfin.financeapp.dto.CashOperationDTO;
 import net.microfin.financeapp.dto.CashOperationResultDTO;
 import net.microfin.financeapp.dto.ExchangeOperationDTO;
 import net.microfin.financeapp.dto.ExchangeOperationResultDTO;
 import net.microfin.financeapp.jooq.tables.records.AccountsRecord;
+import net.microfin.financeapp.jooq.tables.records.UsersRecord;
 import net.microfin.financeapp.repository.AccountWriteRepository;
 import net.microfin.financeapp.repository.UserWriteRepository;
 import net.microfin.financeapp.service.KeycloakUserService;
@@ -33,7 +32,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -69,7 +67,7 @@ public class ControllerIT extends AbstractIT {
     @MockitoBean
     private JwtDecoder jwtDecoder;
 
-    private User savedUser;
+    private UsersRecord savedUser;
 
     private AccountsRecord accountFirstRUB;
 
@@ -83,27 +81,22 @@ public class ControllerIT extends AbstractIT {
         accountWriteRepository.deleteAll();
         userWriteRepository.deleteAll();
 
-        User testUser = new User();
-        testUser.setUsername("user1");
+        UsersRecord testUser = new UsersRecord();
+        testUser.setUserName("user1");
         testUser.setFullName("Test User");
-        testUser.setEnabled(true);
+        testUser.setIsEnabled(true);
         testUser.setKeycloakId(UUID.randomUUID());
-        testUser.setDob(LocalDate.now().minusYears(20L));
-        savedUser = userWriteRepository.save(testUser);
-        Account.builder()
-                .active(true).currencyCode(Currency.RUB)
-                .balance(BigDecimal.valueOf(200))
-                .user(savedUser)
-                .build();
+        testUser.setDob(LocalDateTime.now().minusYears(20L));
+        savedUser = userWriteRepository.insert(testUser);
 
 
         LocalDateTime now = LocalDateTime.now();
-        accountFirstRUB = accountWriteRepository.insert(new AccountsRecord(null, savedUser.getId(), BigDecimal.valueOf(200), Currency.RUB.getName(), true, now, now));
+        accountFirstRUB = accountWriteRepository.insert(new AccountsRecord(null, savedUser.getUserId(), BigDecimal.valueOf(200), Currency.RUB.name(), true, now, now));
     }
 
     @Test
     public void shouldGetAccountsByUser() throws Exception {
-        mockMvc.perform(get("/api/account/user/{userId}", savedUser.getId())
+        mockMvc.perform(get("/api/account/user/{userId}", savedUser.getUserId())
                         .with(jwt().jwt(jwt -> jwt.claim("sub", "user"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());

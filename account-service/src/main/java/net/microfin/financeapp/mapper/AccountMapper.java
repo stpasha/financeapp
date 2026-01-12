@@ -1,13 +1,19 @@
 package net.microfin.financeapp.mapper;
 
+import lombok.RequiredArgsConstructor;
 import net.microfin.financeapp.dto.AccountDTO;
 import net.microfin.financeapp.jooq.tables.records.AccountsRecord;
+import net.microfin.financeapp.repository.AccountLegacyRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class AccountMapper {
+
+    private final AccountLegacyRepository accountLegacyRepository;
+
     public AccountsRecord toRecord(AccountDTO accountDTO) {
         AccountsRecord accountsRecord = new AccountsRecord();
         accountsRecord
@@ -29,6 +35,7 @@ public class AccountMapper {
         accountDTO.setUpdatedAt(accountsRecord.getUpdatedAt());
         accountDTO.setId(accountsRecord.getAccountId());
         accountDTO.setId(accountsRecord.getAccountId());
+        accountDTO.setCurrencyCode(accountsRecord.getCurrencyCode());
         return accountDTO;
     }
 

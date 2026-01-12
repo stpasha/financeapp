@@ -301,6 +301,7 @@ public class ServiceTest extends AbstractTest {
                 UpdateUserDTO patch = UpdateUserDTO.builder()
                         .id(testUserId)
                         .fullName("Johnathan Doe")
+                        .dob(LocalDateTime.now().minusYears(23))
                         .build();
 
                 Optional<UserDTO> updated = userService.updateUser(patch);
@@ -365,7 +366,16 @@ public class ServiceTest extends AbstractTest {
                 user.setKeycloakId(UUID.randomUUID());
                 user.setDob(LocalDateTime.now().minusYears(20));
 
+                UsersRecord testUser2 = new UsersRecord();
+                testUser2.setUserName("user2");
+                testUser2.setFullName("Test User2");
+                testUser2.setIsEnabled(true);
+                testUser2.setKeycloakId(UUID.randomUUID());
+                testUser2.setDob(LocalDateTime.now().minusYears(20L));
+                testUser2.setUpdatedAt(LocalDateTime.now());
+
                 UsersRecord savedUser = userWriteRepository.insert(user);
+                UsersRecord savedUser2 = userWriteRepository.insert(testUser2);
                 savedUserId = savedUser.getUserId();
 
                 accountFirstRUB = new AccountsRecord();
@@ -377,7 +387,7 @@ public class ServiceTest extends AbstractTest {
 
                 accountSecondRUB = new AccountsRecord();
                 accountSecondRUB.setAccountId(UUID.randomUUID());
-                accountSecondRUB.setUserId(savedUserId);
+                accountSecondRUB.setUserId(savedUser2.getUserId());
                 accountSecondRUB.setCurrencyCode("RUB");
                 accountSecondRUB.setBalance(BigDecimal.ZERO);
                 accountSecondRUB.setIsActive(true);
